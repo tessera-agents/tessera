@@ -5,8 +5,20 @@ description = "No-code multi-agent AI orchestration for full project generation.
 readme = "README.md"
 requires-python = ">=3.13"
 license = {text = "MIT"}
-authors = [{name = "Will Gordon"}]
-keywords = ["ai", "multi-agent", "orchestration", "llm", "automation", "cli"]
+authors = [{name = "Will Gordon", email = "w@wgordon.net"}]
+maintainers = [{name = "Will Gordon", email = "w@wgordon.net"}]
+keywords = [
+    "ai",
+    "multi-agent",
+    "orchestration",
+    "llm",
+    "automation",
+    "cli",
+    "langchain",
+    "langgraph",
+    "pydantic",
+    "project-generation",
+]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -39,9 +51,11 @@ dependencies = [
 
 [project.urls]
 Homepage = "https://github.com/tessera-agents/tessera"
-Documentation = "https://tessera-agents.github.io/tessera"
-Repository = "https://github.com/wgordon17/tessera"
+Documentation = "https://tessera.readthedocs.io"
+Repository = "https://github.com/tessera-agents/tessera"
+"Source Code" = "https://github.com/wgordon17/tessera"
 Issues = "https://github.com/tessera-agents/tessera/issues"
+Changelog = "https://github.com/tessera-agents/tessera/releases"
 
 [project.optional-dependencies]
 dev = [
