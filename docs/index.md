@@ -8,16 +8,21 @@ Like mosaic tiles coming together to form a complete picture, Tessera coordinate
 
 ## What is Tessera?
 
-Tessera is a CLI tool that orchestrates multiple AI agents to:
+Tessera is a multi-agent AI orchestration framework for automated project generation.
 
-- **Generate complete projects** from a simple description
-- **Conduct thorough research** and requirement gathering through interactive interviews
-- **Plan comprehensively** by breaking complex tasks into parallelizable subtasks
-- **Execute in parallel** using a fleet of specialized agents
-- **Ensure quality** through automated review, testing, and security phases
-- **Document everything** automatically
+**Current (v0.1.0):**
+- Task decomposition via supervisor agent
+- Multi-provider LLM support (OpenAI, Vertex AI, 100+ via LiteLLM)
+- Real token tracking and cost calculation
+- Complete local observability (OpenTelemetry + SQLite)
 
-**No coding required** - just describe what you want to build.
+**Planned (v0.2.0+):**
+- Multi-agent parallel execution
+- Interactive requirement interviews
+- Comprehensive research and architecture phases
+- Automated testing, review, and documentation
+
+**No coding required** - define agents with markdown prompts.
 
 ---
 
