@@ -6,6 +6,7 @@ Like mosaic tiles forming a complete picture, Tessera coordinates specialized AI
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.13+](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
+[![Documentation](https://img.shields.io/badge/docs-readthedocs-blue.svg)](https://tessera.readthedocs.io)
 
 ---
 
@@ -179,7 +180,7 @@ MIT License - See LICENSE file for details.
 
 ## Links
 
-- **Documentation:** [User Guide](docs/)
+- **Documentation:** [https://tessera.readthedocs.io](https://tessera.readthedocs.io)
 - **Contributing:** [CONTRIBUTING.md](CONTRIBUTING.md)
 - **Issues:** [GitHub Issues](https://github.com/tessera-agents/tessera/issues)
 - **Organization:** [tessera-agents](https://github.com/tessera-agents)
