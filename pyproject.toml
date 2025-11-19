@@ -15,12 +15,6 @@ classifiers = [
     "Topic :: Software Development :: Code Generators",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
-
-[project.urls]
-Homepage = "https://github.com/tessera-agents/tessera"
-Documentation = "https://tessera-agents.github.io/tessera"
-Repository = "https://github.com/wgordon17/tessera"
-Issues = "https://github.com/tessera-agents/tessera/issues"
 dependencies = [
     "langgraph>=0.2.0",
     "langchain>=0.3.0",
@@ -42,6 +36,12 @@ dependencies = [
     "opentelemetry-exporter-otlp-proto-http>=1.38.0",
     "google-cloud-aiplatform>=1.38",
 ]
+
+[project.urls]
+Homepage = "https://github.com/tessera-agents/tessera"
+Documentation = "https://tessera-agents.github.io/tessera"
+Repository = "https://github.com/wgordon17/tessera"
+Issues = "https://github.com/tessera-agents/tessera/issues"
 
 [project.optional-dependencies]
 dev = [
