@@ -24,19 +24,16 @@ Thumbs.db
 .env
 .envrc
 
-# Cache directories
+# Cache
 .cache/
 
-# Build artifacts
+# Build
 dist/
 build/
 *.egg-info/
+
+# Docs build output
 site/
 
-# Development files
+# Development
 /hack/
-/research/
-
-# Test coverage
-.coverage
-htmlcov/

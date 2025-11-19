@@ -3,8 +3,8 @@ site_description: No-code multi-agent AI orchestration for full project generati
 site_author: Will Gordon
 site_url: https://tessera.readthedocs.io
 
-repo_name: tessera
-repo_url: https://github.com/yourusername/tessera
+repo_name: tessera-agents/tessera
+repo_url: https://github.com/tessera-agents/tessera
 edit_uri: edit/main/docs/
 
 theme:
