@@ -4,12 +4,28 @@ This tutorial walks you through using Tessera to generate your first project in 
 
 ---
 
+## Installation
+
+Choose your preferred method:
+
+```bash
+# Option 1: Run directly with uvx
+uvx tessera-agents init
+
+# Option 2: Install globally, then use shorter commands
+uv tool install tessera-agents
+```
+
+**For the rest of this guide**, we'll use `tessera` commands (assumes you've installed globally). If using `uvx`, replace `tessera` with `uvx tessera-agents`.
+
+---
+
 ## Step 1: Initialize Configuration
 
 Run the interactive setup wizard:
 
 ```bash
-uvx tessera init
+tessera init
 ```
 
 The wizard will ask:
@@ -26,7 +42,7 @@ This creates `~/.config/tessera/config.yaml`.
 Start Tessera in interactive mode:
 
 ```bash
-uvx tessera
+tessera
 ```
 
 ### Interactive Prompts
