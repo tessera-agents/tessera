@@ -72,17 +72,24 @@ Run multiple agents concurrently with intelligent coordination and conflict reso
 ### Installation
 
 ```bash
-uvx tessera init
+# Option 1: Run directly with uvx
+uvx tessera-agents init
+
+# Option 2: Install globally, then use 'tessera' command
+uv tool install tessera-agents
+tessera init
 ```
 
 This creates:
 - `~/.config/tessera/config.yaml` - Your configuration
 - `~/.config/tessera/prompts/` - Agent system prompts
 
+**Note:** Examples below use `tessera` commands (assumes global install). With `uvx`, use `uvx tessera-agents <command>`.
+
 ### First Project
 
 ```bash
-uvx tessera
+tessera
 ```
 
 The interactive wizard will:
@@ -97,7 +104,7 @@ The interactive wizard will:
 ## Example
 
 ```bash
-$ uvx tessera
+$ tessera
 
 ? What would you like to build?
 > A FastAPI backend with user authentication, PostgreSQL database,

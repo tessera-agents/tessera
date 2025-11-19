@@ -69,6 +69,33 @@ Updated files - Changed 50 files, 200 lines added, files:
 src/foo.py, src/bar.py, ... (file listings)
 ```
 
+```
+chore(repo): rename PyPI package to tessera-agents
+
+Changes:
+- pyproject.toml: Update package name
+- Documentation: Explain installation methods
+- CLI help text updated
+
+Benefits:
+- Respects existing package community
+- Clear differentiation
+- Python imports unchanged
+
+(Too verbose - lists files, explains changes, documents benefits)
+```
+
+**Better:**
+```
+chore(repo): rename PyPI package to tessera-agents
+
+Package name 'tessera' conflicts with existing PyPI package.
+Use 'tessera-agents' for PyPI while keeping 'tessera' as import
+and CLI command name after installation.
+
+(Concise - explains why, brief technical detail, no file listing)
+```
+
 ### Guidelines
 
 **DO:**
@@ -83,6 +110,10 @@ src/foo.py, src/bar.py, ... (file listings)
 - List changed files (git does this)
 - Include detailed statistics (lines changed, etc.)
 - Add meta-commentary ("Generated with...", "Co-Authored-By...")
+- Document "benefits" or justifications (focus on the technical change)
+- Include irrelevant context (stars, contributors, popularity metrics)
+- Enumerate what changed (the diff shows this)
+- Explain file-by-file changes (git diff does this)
 
 ### Breaking Changes
 

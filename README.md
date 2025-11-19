@@ -28,11 +28,11 @@ Tessera orchestrates multiple AI agents working together to generate complete, t
 ### Installation
 
 ```bash
-# Run directly with uvx (recommended)
-uvx tessera init
+# Option 1: Run directly with uvx (recommended)
+uvx tessera-agents init
 
-# Or install globally
-uv tool install tessera
+# Option 2: Install globally, then use 'tessera' command
+uv tool install tessera-agents
 tessera init
 ```
 
