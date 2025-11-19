@@ -4,6 +4,23 @@ version = "0.1.0"
 description = "No-code multi-agent AI orchestration for full project generation. Like mosaic tiles, specialized agents coordinate to build complete software projects."
 readme = "README.md"
 requires-python = ">=3.13"
+license = {text = "MIT"}
+authors = [{name = "Will Gordon"}]
+keywords = ["ai", "multi-agent", "orchestration", "llm", "automation", "cli"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Code Generators",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+[project.urls]
+Homepage = "https://github.com/tessera-agents/tessera"
+Documentation = "https://tessera-agents.github.io/tessera"
+Repository = "https://github.com/wgordon17/tessera"
+Issues = "https://github.com/tessera-agents/tessera/issues"
 dependencies = [
     "langgraph>=0.2.0",
     "langchain>=0.3.0",

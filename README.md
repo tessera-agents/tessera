@@ -42,13 +42,14 @@ tessera init
 tessera main "Build a FastAPI REST API with user authentication"
 ```
 
-Tessera will:
-1. Interview you about requirements
+**Current (v0.1.0):** Supervisor decomposes task into subtasks
+**Planned (v0.2.0+):** Full multi-agent execution with:
+1. User interview for requirements
 2. Research best practices
-3. Design the architecture
-4. Generate the project
-5. Implement with multiple agents in parallel
-6. Test, review, and document everything
+3. Architecture design
+4. Project generation
+5. Parallel agent implementation
+6. Testing, review, and documentation
 
 ---
 

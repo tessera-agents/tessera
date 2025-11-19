@@ -29,15 +29,18 @@ This command:
 
 ## Global Installation
 
-If you prefer to install Tessera globally:
+**Note:** Tessera is not yet published to PyPI. For now, install from source:
 
 ```bash
-uv tool install tessera
+git clone https://github.com/wgordon17/tessera.git
+cd tessera
+uv sync
+uv run tessera init
 ```
 
-Then run:
-
+Once published to PyPI, you'll be able to:
 ```bash
+uv tool install tessera
 tessera init
 ```
 
