@@ -2,9 +2,14 @@
 Tessera CLI main entry point.
 
 Usage:
-    uvx tessera                    # Interactive mode
-    uvx tessera "Build a web scraper"  # Direct task
-    uvx tessera --help             # Show help
+    # With uvx (package name: tessera-agents)
+    uvx tessera-agents                    # Interactive mode
+    uvx tessera-agents "Build a web scraper"  # Direct task
+
+    # After installation (uv tool install tessera-agents)
+    tessera                    # Interactive mode
+    tessera "Build a web scraper"  # Direct task
+    tessera --help             # Show help
 """
 
 import os
@@ -523,7 +528,7 @@ def init():
     console.print("[yellow]Next steps:[/yellow]")
     console.print(f"  1. Review config: [dim]{config_file}[/dim]")
     console.print(f"  2. Set API key: [dim]export {api_key_env or 'YOUR_PROVIDER'}_API_KEY=...[/dim]")
-    console.print(f"  3. Run Tessera: [dim]uvx tessera[/dim]\n")
+    console.print(f"  3. Run Tessera: [dim]tessera[/dim]\n")
 
     # Test config load
     try:

@@ -12,36 +12,65 @@ Tessera is distributed as a Python package and can be run directly with `uvx` (r
 
 ---
 
-## Quick Install (Recommended)
+## Installation Methods
+
+Tessera is published to PyPI as `tessera-agents`. You can either run it directly with `uvx` or install it globally.
+
+### Option 1: Run Directly (Recommended)
 
 Use `uvx` to run Tessera without installation:
 
 ```bash
-uvx tessera init
+uvx tessera-agents init
+uvx tessera-agents main "Build a FastAPI app"
 ```
 
-This command:
-1. Downloads Tessera automatically
-2. Creates configuration directory (`~/.config/tessera/`)
-3. Launches interactive setup wizard
+**Benefits:**
+- No installation needed
+- Always uses latest version
+- Isolated execution environment
+
+**Note:** When using `uvx`, you must include `tessera-agents` in the command (e.g., `uvx tessera-agents <command>`).
 
 ---
 
-## Global Installation
+### Option 2: Global Installation
 
-**Note:** Tessera is not yet published to PyPI. For now, install from source:
+Install once, then use the shorter `tessera` command:
 
 ```bash
-git clone https://github.com/wgordon17/tessera.git
-cd tessera
-uv sync
-uv run tessera init
+# Install the package
+uv tool install tessera-agents
+
+# Now use the 'tessera' command directly
+tessera init
+tessera main "Build a FastAPI app"
 ```
 
-Once published to PyPI, you'll be able to:
-```bash
-uv tool install tessera
-tessera init
+**Benefits:**
+- Shorter commands after installation
+- Faster execution (no download each time)
+- Works offline after installation
+
+**Note:** The PyPI package name is `tessera-agents`, but after installation, you use the `tessera` command.
+
+---
+
+## What Gets Created
+
+Both installation methods create the same configuration:
+
+```
+~/.config/tessera/
+  ├── config.yaml           # Main configuration
+  └── prompts/              # Agent system prompts
+      ├── supervisor.md
+      └── ...
+
+~/.cache/tessera/
+  ├── metrics.db            # Task history and costs
+  └── otel/
+      └── traces.jsonl      # LLM call traces
 ```
 
 ---

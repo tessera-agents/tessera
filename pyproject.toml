@@ -1,5 +1,5 @@
 [project]
-name = "tessera"
+name = "tessera-agents"
 version = "0.1.0"
 description = "No-code multi-agent AI orchestration for full project generation. Like mosaic tiles, specialized agents coordinate to build complete software projects."
 readme = "README.md"
