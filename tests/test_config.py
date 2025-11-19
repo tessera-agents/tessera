@@ -322,10 +322,6 @@ class TestLLMProvider:
 
         # Just verify ChatLiteLLM was called (LiteLLM adds extra params)
         mock_chat_litellm.assert_called_once()
-            temperature=0.6,
-            max_tokens=None,
-            num_retries=3,
-        )
 
     def test_create_invalid_provider(self):
         """Test creating LLM with invalid provider."""
