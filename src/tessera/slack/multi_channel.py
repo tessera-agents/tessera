@@ -27,26 +27,28 @@ class MultiChannelSlackClient:
 
     def __init__(
         self,
-        bot_token: Optional[str] = None,
+        bot_token: str,
+        agent_channel: str,
+        user_channel: str,
         app_token: Optional[str] = None,
-        agent_channel: Optional[str] = None,
-        user_channel: Optional[str] = None,
         identity_manager: Optional[AgentIdentityManager] = None,
     ):
         """
         Initialize multi-channel Slack client.
 
+        All configuration should come from TesseraSettings, not environment variables.
+
         Args:
-            bot_token: Slack bot token (xoxb-...)
-            app_token: Slack app token for Socket Mode (xapp-...)
-            agent_channel: Channel ID for agent-to-agent communication
-            user_channel: Channel ID for agent-to-user communication
+            bot_token: Slack bot token (xoxb-...) - REQUIRED
+            agent_channel: Channel ID for agent-to-agent - REQUIRED
+            user_channel: Channel ID for agent-to-user - REQUIRED
+            app_token: Optional app token for Socket Mode (xapp-...)
             identity_manager: Optional custom identity manager
         """
-        self.bot_token = bot_token or os.getenv("SLACK_BOT_TOKEN")
-        self.app_token = app_token or os.getenv("SLACK_APP_TOKEN")
-        self.agent_channel = agent_channel or os.getenv("SLACK_AGENT_CHANNEL")
-        self.user_channel = user_channel or os.getenv("SLACK_USER_CHANNEL")
+        self.bot_token = bot_token
+        self.app_token = app_token
+        self.agent_channel = agent_channel
+        self.user_channel = user_channel
 
         if not self.bot_token:
             raise ValueError("SLACK_BOT_TOKEN required")
