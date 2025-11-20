@@ -213,3 +213,103 @@ class MultiChannelSlackClient:
             message += "\n" + "\n".join(f"• {k}: {v}" for k, v in details.items())
 
         self.post_agent_message(agent_name, message)
+
+    def post_user_question(
+        self,
+        agent_name: str,
+        question: str,
+        context: Optional[str] = None,
+        suggested_answers: Optional[List[str]] = None,
+    ) -> Dict[str, Any]:
+        """
+        Post question to user channel with optional suggested answers.
+
+        Args:
+            agent_name: Agent asking the question
+            question: Question text
+            context: Optional context about why asking
+            suggested_answers: Optional list of suggested answers
+
+        Returns:
+            Slack API response
+        """
+        identity = self.identity_manager.get_identity(agent_name)
+        channel = self.user_channel
+
+        blocks = [
+            {
+                "type": "header",
+                "text": {"type": "plain_text", "text": f"{identity.emoji} Agent Question"},
+            },
+            {"type": "section", "text": {"type": "mrkdwn", "text": f"*Question:* {question}"}},
+        ]
+
+        if context:
+            blocks.append(
+                {"type": "context", "elements": [{"type": "mrkdwn", "text": context}]}
+            )
+
+        # Add suggested answers as buttons if provided
+        if suggested_answers:
+            actions = []
+            for i, answer in enumerate(suggested_answers[:5]):  # Max 5 buttons
+                actions.append(
+                    {
+                        "type": "button",
+                        "text": {"type": "plain_text", "text": answer[:75]},  # Max length
+                        "value": answer,
+                        "action_id": f"answer_{i}",
+                    }
+                )
+            blocks.append({"type": "actions", "elements": actions})
+
+        # Add "Custom Answer" button to allow freeform response
+        blocks.append(
+            {
+                "type": "actions",
+                "elements": [
+                    {
+                        "type": "button",
+                        "text": {"type": "plain_text", "text": "💬 Reply in Thread"},
+                        "style": "primary",
+                        "action_id": "custom_answer",
+                    }
+                ],
+            }
+        )
+
+        return self.web_client.chat_postMessage(
+            channel=channel, text=question, blocks=blocks
+        )
+
+    def post_clarification_request(
+        self,
+        agent_name: str,
+        requirement: str,
+        ambiguity: str,
+        options: Optional[List[str]] = None,
+    ) -> Dict[str, Any]:
+        """
+        Request clarification on ambiguous requirement.
+
+        Args:
+            agent_name: Agent requesting clarification
+            requirement: The ambiguous requirement
+            ambiguity: What's unclear
+            options: Optional list of possible interpretations
+
+        Returns:
+            Slack API response
+        """
+        message = f"*Requirement:* {requirement}\n\n*Ambiguity:* {ambiguity}"
+
+        if options:
+            message += "\n\n*Possible interpretations:*\n"
+            message += "\n".join(f"{i+1}. {opt}" for i, opt in enumerate(options))
+
+        return self.post_user_question(
+            agent_name=agent_name,
+            question="Clarification needed",
+            context=message,
+            suggested_answers=options,
+        )
