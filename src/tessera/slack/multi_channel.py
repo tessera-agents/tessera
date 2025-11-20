@@ -9,6 +9,8 @@ Supports:
 """
 
 import os
+import ssl
+import certifi
 from typing import Optional, Dict, Any, List
 from slack_sdk import WebClient
 from slack_sdk.socket_mode import SocketModeClient
@@ -49,7 +51,10 @@ class MultiChannelSlackClient:
         if not self.bot_token:
             raise ValueError("SLACK_BOT_TOKEN required")
 
-        self.web_client = WebClient(token=self.bot_token)
+        # Create SSL context with certifi for certificate verification
+        ssl_context = ssl.create_default_context(cafile=certifi.where())
+
+        self.web_client = WebClient(token=self.bot_token, ssl=ssl_context)
         self.socket_client = None
         if self.app_token:
             self.socket_client = SocketModeClient(

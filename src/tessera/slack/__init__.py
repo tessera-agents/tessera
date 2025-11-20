@@ -1,15 +1,6 @@
-"""
-Enhanced Slack integration for Tessera.
+"""Enhanced Slack integration."""
 
-Multi-channel agent communication and collaboration.
-"""
-
-from .multi_channel import MultiChannelSlackClient
 from .agent_identity import AgentIdentityManager
-from .approval import SlackApprovalCoordinator
+from .multi_channel import MultiChannelSlackClient
 
-__all__ = [
-    "MultiChannelSlackClient",
-    "AgentIdentityManager",
-    "SlackApprovalCoordinator",
-]
+__all__ = ["AgentIdentityManager", "MultiChannelSlackClient"]
