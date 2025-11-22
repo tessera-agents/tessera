@@ -3,6 +3,7 @@ Tests for phase executor.
 """
 
 import pytest
+from unittest.mock import Mock
 
 from tessera.config.schema import WorkflowPhase
 from tessera.workflow import PhaseExecutor
@@ -102,3 +103,45 @@ class TestPhaseExecutor:
         assert summary["current_phase"] == "phase2"
         assert "phase1" in summary["completed_phases"]
         assert "phase3" in summary["remaining_phases"]
+
+    def test_execute_phase(self):
+        """Test executing a complete phase."""
+        phases = [
+            WorkflowPhase(
+                name="implementation",
+                sub_phases=[
+                    {
+                        "name": "write_code",
+                        "type": "deliverable",
+                        "outputs": ["src/**/*.py"],
+                    },
+                    {
+                        "name": "verify_quality",
+                        "type": "checklist",
+                        "questions": ["Code follows style guide?", "Tests added?"],
+                    },
+                ],
+            ),
+        ]
+
+        executor = PhaseExecutor(phases)
+
+        # Create mock tasks
+        task1 = Mock(task_id="t1")
+        task2 = Mock(task_id="t2")
+
+        result = executor.execute_phase([task1, task2])
+
+        assert result["phase"] == "implementation"
+        assert result["tasks_processed"] == 2
+        assert len(result["results"]) == 2
+        assert result["status"] == "completed"
+
+    def test_execute_phase_no_phase(self):
+        """Test execute_phase when no current phase."""
+        executor = PhaseExecutor([])
+
+        result = executor.execute_phase([Mock()])
+
+        assert result["status"] == "no_phase"
+        assert result["results"] == []
