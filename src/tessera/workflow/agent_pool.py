@@ -3,6 +3,7 @@ Agent pool management for multi-agent execution.
 """
 
 from dataclasses import dataclass
+from typing import Any
 
 from ..config.schema import AgentDefinition
 
@@ -12,7 +13,7 @@ class AgentInstance:
     """Runtime agent instance."""
 
     name: str
-    agent: any  # SupervisorAgent, InterviewerAgent, etc.
+    agent: Any  # SupervisorAgent, InterviewerAgent, etc.
     config: AgentDefinition
     current_task: str | None = None  # Currently assigned task ID
     tasks_completed: int = 0

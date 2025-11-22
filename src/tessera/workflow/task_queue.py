@@ -5,6 +5,7 @@ Task queue with dependency management for multi-agent execution.
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
+from typing import Any
 
 
 class TaskStatus(Enum):
@@ -30,7 +31,7 @@ class QueuedTask:
     created_at: datetime = field(default_factory=datetime.now)
     started_at: datetime | None = None
     completed_at: datetime | None = None
-    result: any | None = None
+    result: Any | None = None
     error: str | None = None
     retries: int = 0
     max_retries: int = 3
@@ -160,7 +161,7 @@ class TaskQueue:
             self.tasks[task_id].agent_name = agent_name
             self.tasks[task_id].started_at = datetime.now()
 
-    def mark_complete(self, task_id: str, result: any | None = None) -> None:
+    def mark_complete(self, task_id: str, result: Any | None = None) -> None:
         """
         Mark task as completed.
 
