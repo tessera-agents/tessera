@@ -1,6 +1,6 @@
 [project]
 name = "tessera-agents"
-version = "1.0.0"
+version = "0.3.0"
 description = "No-code multi-agent AI orchestration for full project generation. Like mosaic tiles, specialized agents coordinate to build complete software projects."
 readme = "README.md"
 requires-python = ">=3.13"
@@ -47,6 +47,7 @@ dependencies = [
     "opentelemetry-sdk>=1.38.0",
     "opentelemetry-exporter-otlp-proto-http>=1.38.0",
     "google-cloud-aiplatform>=1.38",
+    "psutil>=7.1.3",
 ]
 
 [project.urls]

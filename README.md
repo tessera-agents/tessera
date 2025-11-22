@@ -49,14 +49,14 @@ tessera init
 tessera main "Build a FastAPI REST API with user authentication"
 ```
 
-**v1.0.0 Features:**
+**v0.3.0 Features:**
 - ✅ True async parallel multi-agent execution
 - ✅ Quality monitoring with loop detection
 - ✅ Comprehensive metrics and cost tracking
 - ✅ Phase-aware workflow execution
 - ✅ Real-time progress tracking
 
-**Coming in v1.1.0+:**
+**Coming in v0.4.0+:**
 - Real-time progress display in CLI
 - Agent capability matching and delegation
 - Workflow template system
