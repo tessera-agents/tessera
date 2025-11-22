@@ -57,5 +57,10 @@ nav:
     - Quick Start: getting-started/quickstart.md
   - User Guide:
     - Configuration: user-guide/configuration.md
+    - Agents: user-guide/agents.md
+    - Multi-Agent Execution: user-guide/multi-agent.md
+    - Observability: user-guide/observability.md
+    - Tools: user-guide/tools.md
   - Reference:
     - CLI Commands: reference/cli.md
+  - Troubleshooting: troubleshooting.md
