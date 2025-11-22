@@ -18,6 +18,10 @@ Example .env configuration:
 
 import os
 import subprocess
+
+from .logging_config import get_logger
+
+logger = get_logger(__name__)
 from typing import Optional
 from functools import lru_cache
 
@@ -70,7 +74,7 @@ class SecretManager:
             return None
 
         if not op_reference.startswith("op://"):
-            print(f"Warning: 1Password reference must start with 'op://': {op_reference}")
+            logger.warning(f"1Password reference must start with 'op://': {op_reference}")
             return None
 
         try:
@@ -97,17 +101,17 @@ class SecretManager:
             return result.stdout.strip() if result.stdout else None
 
         except subprocess.TimeoutExpired:
-            print("Warning: 1Password CLI timeout")
+            logger.warning("1Password CLI timeout")
             return None
         except subprocess.CalledProcessError as e:
             # Item not found or other error
-            print(f"Warning: Failed to read from 1Password: {e.stderr if e.stderr else 'unknown error'}")
+            logger.warning(f"Failed to read from 1Password: {e.stderr if e.stderr else 'unknown error'}")
             return None
         except FileNotFoundError:
             # op command not found
             return None
         except Exception as e:
-            print(f"Warning: Error reading from 1Password: {e}")
+            logger.warning(f"Error reading from 1Password: {e}")
             return None
 
     @staticmethod

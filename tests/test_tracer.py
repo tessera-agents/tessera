@@ -5,6 +5,7 @@ Tests for OTEL tracer.
 import pytest
 from pathlib import Path
 import tempfile
+from unittest.mock import Mock
 
 from tessera.observability import init_tracer, get_tracer
 from tessera.observability.tracer import set_span_attributes, FileSpanExporter
@@ -20,7 +21,8 @@ class TestFileSpanExporter:
             file_path = Path(tmpdir) / "traces.jsonl"
             exporter = FileSpanExporter(file_path)
 
-            # Create mock span
+            # Create mock span with proper structure
+            mock_status_code = type('StatusCode', (), {'name': 'OK'})()
             mock_span = Mock()
             mock_span.context = Mock(trace_id=123, span_id=456)
             mock_span.name = "test_span"
@@ -28,7 +30,7 @@ class TestFileSpanExporter:
             mock_span.end_time = 2000
             mock_span.attributes = {"key": "value"}
             mock_span.events = []
-            mock_span.status = Mock(status_code=Mock(name="OK"), description=None)
+            mock_span.status = Mock(status_code=mock_status_code, description=None)
 
             exporter.export([mock_span])
 

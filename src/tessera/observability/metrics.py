@@ -134,7 +134,7 @@ class MetricsStore:
                 task_type,
                 agent_name,
                 json.dumps(agent_config),
-                datetime.now(),
+                datetime.now().isoformat(),
                 "pending",
             ),
         )
@@ -174,11 +174,11 @@ class MetricsStore:
 
         if status == "in_progress" and not self._get_started_at(task_id):
             updates.append("started_at = ?")
-            params.append(datetime.now())
+            params.append(datetime.now().isoformat())
 
         if status in ("completed", "failed"):
             updates.append("completed_at = ?")
-            params.append(datetime.now())
+            params.append(datetime.now().isoformat())
 
         if result_summary is not None:
             updates.append("result_summary = ?")
@@ -272,7 +272,7 @@ class MetricsStore:
                 quality_score,
                 reassigned,
                 off_topic,
-                datetime.now(),
+                datetime.now().isoformat(),
             ),
         )
 

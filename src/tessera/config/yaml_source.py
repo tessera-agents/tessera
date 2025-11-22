@@ -12,6 +12,9 @@ import os
 from pydantic_settings import BaseSettings, PydanticBaseSettingsSource
 
 from .xdg import get_tessera_config_dir
+from ..logging_config import get_logger
+
+logger = get_logger(__name__)
 
 
 def get_config_paths(app_name: str = "tessera") -> List[Path]:
@@ -90,7 +93,7 @@ class XDGYamlSettingsSource(PydanticBaseSettingsSource):
                     self._deep_merge(self._merged_data, data)
             except Exception as e:
                 # Log but don't fail on config read errors
-                print(f"Warning: Failed to load {config_path}: {e}")
+                logger.warning(f"Failed to load {config_path}: {e}")
 
     @staticmethod
     def _deep_merge(base: Dict, update: Dict) -> Dict:
