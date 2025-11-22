@@ -160,6 +160,48 @@ class PhaseExecutor:
 
         return subtasks
 
+    def execute_phase(
+        self, tasks: list[Any], phase_name: str | None = None
+    ) -> dict[str, Any]:
+        """
+        Execute a complete phase by applying sub-phases to all tasks.
+
+        Args:
+            tasks: List of tasks to execute in this phase
+            phase_name: Optional phase name (uses current if None)
+
+        Returns:
+            Phase execution results
+        """
+        phase = self.get_phase_by_name(phase_name) if phase_name else self.get_current_phase()
+
+        if not phase:
+            return {"status": "no_phase", "results": []}
+
+        results = []
+        for task in tasks:
+            # Apply sub-phases to this task
+            subphase_results = self.apply_subphases_to_task(
+                task_id=getattr(task, "task_id", str(id(task))),
+                task_result=task,
+                phase_name=phase.name,
+            )
+
+            results.append(
+                {
+                    "task": task,
+                    "subphase_results": subphase_results,
+                    "subtasks_created": self.should_create_subtasks(subphase_results),
+                }
+            )
+
+        return {
+            "phase": phase.name,
+            "tasks_processed": len(tasks),
+            "results": results,
+            "status": "completed",
+        }
+
     def format_subphase_instructions(self, phase_name: str | None = None) -> str:
         """
         Format sub-phase instructions for agent prompt.
