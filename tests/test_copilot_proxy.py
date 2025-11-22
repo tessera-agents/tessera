@@ -71,6 +71,7 @@ class TestCopilotProxyManager:
         assert manager.is_installed() is True
         mock_run.assert_called_once_with(
             ["npx", "copilot-api@latest", "--version"],
+            check=False,
             capture_output=True,
             text=True,
             timeout=5,
@@ -109,6 +110,7 @@ class TestCopilotProxyManager:
         assert manager.install() is True
         mock_run.assert_called_once_with(
             ["npm", "install", "-g", "copilot-api@latest"],
+            check=False,
             capture_output=True,
             text=True,
             timeout=120,

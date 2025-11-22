@@ -231,7 +231,11 @@ class TestSecretManager:
 
         assert result is True
         mock_run.assert_called_once_with(
-            ["op", "account", "list"], capture_output=True, text=True, timeout=2
+            ["op", "account", "list"],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=2,
         )
 
     @patch("subprocess.run")
