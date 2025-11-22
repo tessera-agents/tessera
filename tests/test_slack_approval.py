@@ -354,10 +354,14 @@ class TestCreateSlackClient:
 
     def test_create_client_missing_app_token(self):
         """Test error when app token missing."""
-        with pytest.raises(ValueError, match="Slack app token required"):
-            create_slack_client(bot_token="xoxb-test")
+        # Ensure env vars don't interfere
+        with patch.dict(os.environ, {}, clear=True):
+            with pytest.raises(ValueError, match="Slack app token required"):
+                create_slack_client(bot_token="xoxb-test")
 
     def test_create_client_missing_bot_token(self):
         """Test error when bot token missing."""
-        with pytest.raises(ValueError, match="Slack bot token required"):
-            create_slack_client(app_token="xapp-test")
+        # Ensure env vars don't interfere
+        with patch.dict(os.environ, {}, clear=True):
+            with pytest.raises(ValueError, match="Slack bot token required"):
+                create_slack_client(app_token="xapp-test")

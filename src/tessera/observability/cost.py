@@ -12,6 +12,9 @@ from typing import Optional, Dict
 from pathlib import Path
 
 from ..config.xdg import get_metrics_db_path
+from ..logging_config import get_logger
+
+logger = get_logger(__name__)
 
 
 class CostCalculator:
@@ -133,7 +136,7 @@ class CostCalculator:
 
         if not pricing:
             # Unknown model - log warning and return 0
-            print(f"Warning: No pricing found for model '{model}' (provider: {provider})")
+            logger.warning(f"No pricing found for model '{model}' (provider: {provider})")
             return 0.0
 
         prompt_cost = (prompt_tokens / 1000) * pricing["prompt_price"]
@@ -166,7 +169,7 @@ class CostCalculator:
             LIMIT 1
         """
 
-        result = cursor.execute(query, (model, provider, provider, datetime.now().date())).fetchone()
+        result = cursor.execute(query, (model, provider, provider, datetime.now().date().isoformat())).fetchone()
 
         if result:
             conn.close()
@@ -181,7 +184,7 @@ class CostCalculator:
               AND (deprecated_date IS NULL OR deprecated_date > ?)
         """
 
-        patterns = cursor.execute(query, (provider, provider, datetime.now().date())).fetchall()
+        patterns = cursor.execute(query, (provider, provider, datetime.now().date().isoformat())).fetchall()
 
         for pattern, prompt_price, completion_price in patterns:
             if re.match(pattern, model):
@@ -225,7 +228,7 @@ class CostCalculator:
                 model_pattern,
                 prompt_price_per_1k,
                 completion_price_per_1k,
-                datetime.now().date(),
+                datetime.now().date().isoformat(),
             ),
         )
 

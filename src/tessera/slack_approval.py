@@ -14,6 +14,10 @@ from slack_sdk.socket_mode.request import SocketModeRequest
 from slack_sdk.socket_mode.response import SocketModeResponse
 from langgraph.types import Command
 
+from .logging_config import get_logger
+
+logger = get_logger(__name__)
+
 from .graph_base import get_thread_config
 
 
@@ -269,7 +273,7 @@ class SlackApprovalCoordinator:
                             )
 
             except Exception as e:
-                print(f"Error processing Slack event: {e}")
+                logger.error(f"Error processing Slack event: {e}")
 
         return handle_socket_mode_request
 
