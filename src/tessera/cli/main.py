@@ -203,9 +203,74 @@ def init() -> None:
 
 
 @app.command()
+def workflow_list() -> None:
+    """List available workflow templates."""
+    from ..workflow.templates import WorkflowTemplateStorage
+
+    storage = WorkflowTemplateStorage()
+    templates = storage.list_templates()
+
+    if not templates:
+        console.print("[yellow]No workflow templates found.[/yellow]\n")
+        console.print(
+            "Install built-in templates: [cyan]tessera workflow install-builtins[/cyan]\n"
+        )
+        return
+
+    console.print("[cyan]Available Workflow Templates:[/cyan]\n")
+
+    for template_name in templates:
+        info = storage.get_template_info(template_name)
+        if info:
+            console.print(f"• [green]{info['name']}[/green]")
+            console.print(f"  {info['description']}")
+            console.print(
+                f"  [dim]Phases: {info['phase_count']}, Agents: {info['agent_count']}[/dim]\n"
+            )
+
+
+@app.command()
+def workflow_show(name: str) -> None:
+    """Show details of a workflow template."""
+    from ..workflow.templates import WorkflowTemplateStorage
+
+    storage = WorkflowTemplateStorage()
+    template = storage.load(name)
+
+    if template is None:
+        console.print(f"[red]Template not found:[/red] {name}\n")
+        return
+
+    console.print(f"[cyan]{template.name}[/cyan]")
+    console.print(f"{template.description}\n")
+    console.print(f"[dim]Complexity: {template.complexity}[/dim]")
+    console.print(f"[dim]Phases: {len(template.phases)}[/dim]\n")
+
+    console.print("[cyan]Phases:[/cyan]")
+    for phase in template.phases:
+        console.print(f"  • {phase.name}: {phase.description}")
+
+    if template.suggested_agents:
+        console.print("\n[cyan]Suggested Agents:[/cyan]")
+        for agent in template.suggested_agents:
+            console.print(f"  • {agent['name']} ({agent['model']})")
+
+
+@app.command()
+def workflow_install_builtins() -> None:
+    """Install built-in workflow templates."""
+    from ..workflow.templates import install_builtin_templates
+
+    count = install_builtin_templates()
+
+    console.print(f"[green]✓[/green] Installed {count} built-in templates\n")
+    console.print("List templates: [cyan]tessera workflow list[/cyan]\n")
+
+
+@app.command()
 def version() -> None:
     """Show Tessera version information."""
-    console.print("[cyan]Tessera v0.1.0[/cyan]")
+    console.print("[cyan]Tessera v0.3.0[/cyan]")
     console.print("[dim]Multi-Agent Orchestration Framework[/dim]\n")
 
 

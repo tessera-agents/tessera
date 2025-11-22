@@ -13,6 +13,12 @@ from .progress_display import ProgressDisplay, create_progress_display
 from .quality_monitor import QualityMonitor, check_test_coverage
 from .subphase_handler import SubPhaseHandler
 from .task_queue import QueuedTask, TaskQueue, TaskStatus
+from .templates import (
+    WorkflowTemplate,
+    WorkflowTemplateStorage,
+    create_builtin_templates,
+    install_builtin_templates,
+)
 
 __all__ = [
     "ActionLogger",
@@ -28,8 +34,12 @@ __all__ = [
     "SubPhaseHandler",
     "TaskQueue",
     "TaskStatus",
+    "WorkflowTemplate",
+    "WorkflowTemplateStorage",
     "check_test_coverage",
+    "create_builtin_templates",
     "create_progress_display",
     "get_action_logger",
     "get_process_monitor",
+    "install_builtin_templates",
 ]
