@@ -1,7 +1,7 @@
 """Integration tests for end-to-end workflows."""
 
 import pytest
-from autonomy import SupervisorAgent, InterviewerAgent, PanelSystem
+from tessera import SupervisorAgent, InterviewerAgent, PanelSystem
 from tessera.models import AgentResponse, TaskStatus
 
 
