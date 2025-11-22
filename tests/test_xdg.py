@@ -7,7 +7,7 @@ import os
 from pathlib import Path
 from unittest.mock import patch
 
-from tessera.config import (
+from tessera.config.xdg import (
     get_xdg_config_home,
     get_xdg_cache_home,
     get_xdg_data_home,
