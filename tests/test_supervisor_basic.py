@@ -34,11 +34,6 @@ class TestSupervisorBasic:
 
         assert supervisor.system_prompt == custom_prompt
 
-    @pytest.mark.skip(reason="Requires complex LLM response mocking")
-    def test_decompose_task(self):
-        """Test task decomposition (integration test)."""
-        pass
-
     def test_supervisor_stores_config(self):
         """Test supervisor stores framework config."""
         mock_llm = Mock()

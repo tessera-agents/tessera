@@ -3,6 +3,7 @@ Tests for CLI module.
 """
 
 import pytest
+from pathlib import Path
 from unittest.mock import patch, Mock
 from typer.testing import CliRunner
 
@@ -100,7 +101,8 @@ class TestCLIHelpers:
     @patch("tessera.cli.main.TesseraSettings")
     def test_load_config_handles_errors(self, mock_settings):
         """Test load_config handles errors gracefully."""
-        mock_settings.side_effect = Exception("Test error")
-        
+        # First call raises exception, second call returns a mock
+        mock_settings.side_effect = [Exception("Test error"), Mock()]
+
         settings = load_config(None)
         assert settings is not None  # Returns default
