@@ -193,13 +193,13 @@ log_cli_level = "INFO"
 [tool.bandit]
 exclude_dirs = ["tests", ".venv", ".cache"]
 skips = [
-    "B105",  # hardcoded password (false positive)
-    "B101",  # assert usage in tests
+    "B101",  # assert usage
+    "B105",  # hardcoded password (false positive on enum value "PASS")
     "B110",  # try-except-pass (intentional)
-    "B404",  # subprocess import (needed)
-    "B603",  # subprocess without shell (validated)
-    "B607",  # partial executable path (in PATH)
-    "B608",  # SQL injection (parameterized queries)
+    "B404",  # subprocess import (needed for proxy/1Password)
+    "B603",  # subprocess without shell (we validate input)
+    "B607",  # partial executable path (npm, npx, op, pytest are in PATH)
+    "B608",  # SQL injection (we use parameterized queries)
 ]
 
 [tool.hatch.build.targets.wheel]
