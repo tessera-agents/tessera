@@ -116,6 +116,7 @@ ignore = [
     "PTH123",  # open() vs Path.open() (open() is fine)
     "PLC0415", # Import at top (acceptable in some contexts)
     "SIM117",  # Multiple with statements (readable)
+    "TC003",   # Move stdlib imports to TYPE_CHECKING (not needed)
     "PLW0603", # Global statements (intentional for singletons)
     "ARG002",  # Unused method args (interface compliance)
     "PERF401", # List comprehension (readability over micro-optimization)
@@ -220,6 +221,7 @@ skips = [
     "B603",  # subprocess without shell (we validate input)
     "B607",  # partial executable path (npm, npx, op, pytest are in PATH)
     "B608",  # SQL injection (we use parameterized queries)
+    "B602",  # shell=True (validated input, using shlex for safety)
 ]
 
 [tool.hatch.build.targets.wheel]

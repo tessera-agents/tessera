@@ -268,9 +268,102 @@ def workflow_install_builtins() -> None:
 
 
 @app.command()
+def session_list() -> None:
+    """List all execution sessions."""
+    from ..api.session import get_session_manager
+
+    manager = get_session_manager()
+    sessions = manager.list_sessions()
+
+    if not sessions:
+        console.print("[yellow]No sessions found.[/yellow]\n")
+        return
+
+    console.print("[cyan]Execution Sessions:[/cyan]\n")
+
+    for session in sessions:
+        status_color = {
+            "created": "yellow",
+            "running": "green",
+            "paused": "yellow",
+            "completed": "green",
+            "failed": "red",
+            "cancelled": "dim",
+        }.get(session.status.value, "white")
+
+        console.print(
+            f"• [{status_color}]{session.session_id[:8]}...[/{status_color}] - {session.objective}"
+        )
+        console.print(f"  Status: [{status_color}]{session.status.value}[/{status_color}]")
+        console.print(f"  Created: {session.created_at.strftime('%Y-%m-%d %H:%M:%S')}\n")
+
+
+@app.command()
+def session_attach(session_id: str) -> None:
+    """Attach to and monitor a session."""
+    from ..api.session import get_session_manager
+
+    manager = get_session_manager()
+    session = manager.get_session(session_id)
+
+    if session is None:
+        console.print(f"[red]Session not found:[/red] {session_id}\n")
+        raise typer.Exit(1)
+
+    console.print(f"[cyan]Session {session_id[:8]}...[/cyan]")
+    console.print(f"Objective: {session.objective}")
+    console.print(f"Status: {session.status.value}\n")
+
+    # Display session details
+    if session.tasks:
+        console.print(f"[cyan]Tasks:[/cyan] {len(session.tasks)}")
+
+
+@app.command()
+def session_pause(session_id: str) -> None:
+    """Pause a running session."""
+    from ..api.session import get_session_manager
+
+    manager = get_session_manager()
+    success = manager.pause_session(session_id)
+
+    if not success:
+        console.print(f"[red]Failed to pause session:[/red] {session_id}\n")
+        raise typer.Exit(1)
+
+    console.print(f"[green]✓[/green] Session paused: {session_id}\n")
+
+
+@app.command()
+def session_resume(session_id: str) -> None:
+    """Resume a paused session."""
+    from ..api.session import get_session_manager
+
+    manager = get_session_manager()
+    success = manager.resume_session(session_id)
+
+    if not success:
+        console.print(f"[red]Failed to resume session:[/red] {session_id}\n")
+        raise typer.Exit(1)
+
+    console.print(f"[green]✓[/green] Session resumed: {session_id}\n")
+
+
+@app.command()
+def serve(host: str = "127.0.0.1", port: int = 8000) -> None:
+    """Start Tessera API server."""
+    from ..api.server import start_server
+
+    console.print("[cyan]Starting Tessera API server...[/cyan]")
+    console.print(f"Listening on http://{host}:{port}\n")
+
+    start_server(host=host, port=port)
+
+
+@app.command()
 def version() -> None:
     """Show Tessera version information."""
-    console.print("[cyan]Tessera v0.3.0[/cyan]")
+    console.print("[cyan]Tessera v0.4.0[/cyan]")
     console.print("[dim]Multi-Agent Orchestration Framework[/dim]\n")
 
 
