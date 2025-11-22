@@ -5,44 +5,46 @@ This module provides a LangGraph StateGraph version of the SupervisorAgent
 with built-in state persistence, checkpointing, and human-in-the-loop support.
 """
 
-from typing import TypedDict, Optional, Any, Literal
 from datetime import datetime
-from langgraph.graph import StateGraph, END
-from langchain_core.messages import HumanMessage, SystemMessage
+from typing import Literal, TypedDict
+
 from langchain_core.language_models import BaseChatModel
+from langchain_core.messages import HumanMessage, SystemMessage
+from langgraph.graph import END, StateGraph
 
 from .config import SUPERVISOR_PROMPT, FrameworkConfig
-from .models import Task, SubTask, TaskStatus, AgentResponse
+from .graph_base import get_checkpointer
 from .llm import create_llm
-from .graph_base import get_checkpointer, get_thread_config
+from .models import SubTask, Task, TaskStatus
 from .supervisor import SupervisorAgent  # For JSON parsing utility
 
 
 class SupervisorState(TypedDict):
     """State schema for SupervisorGraph."""
+
     # Input
     objective: str
-    thread_id: Optional[str]
+    thread_id: str | None
 
     # Task decomposition
-    task_id: Optional[str]
-    task: Optional[dict]  # Serialized Task
+    task_id: str | None
+    task: dict | None  # Serialized Task
 
     # Subtask execution
-    current_subtask_id: Optional[str]
-    current_subtask: Optional[dict]  # Serialized SubTask
-    agent_name: Optional[str]
-    agent_response: Optional[dict]  # Serialized AgentResponse
+    current_subtask_id: str | None
+    current_subtask: dict | None  # Serialized SubTask
+    agent_name: str | None
+    agent_response: dict | None  # Serialized AgentResponse
 
     # Review
-    review_result: Optional[dict]
+    review_result: dict | None
 
     # Final output
     completed_subtasks: list[dict]
-    final_output: Optional[str]
+    final_output: str | None
 
     # Control flow
-    next_action: Optional[Literal["assign", "execute", "review", "synthesize", "end"]]
+    next_action: Literal["assign", "execute", "review", "synthesize", "end"] | None
 
 
 class SupervisorGraph:
@@ -74,10 +76,10 @@ class SupervisorGraph:
 
     def __init__(
         self,
-        llm: Optional[BaseChatModel] = None,
-        config: Optional[FrameworkConfig] = None,
+        llm: BaseChatModel | None = None,
+        config: FrameworkConfig | None = None,
         system_prompt: str = SUPERVISOR_PROMPT,
-    ):
+    ) -> None:
         """
         Initialize the supervisor graph.
 
@@ -115,7 +117,7 @@ class SupervisorGraph:
             {
                 "assign": "assign",
                 "end": END,
-            }
+            },
         )
 
         workflow.add_conditional_edges(
@@ -125,7 +127,7 @@ class SupervisorGraph:
                 "execute": "execute",
                 "synthesize": "synthesize",
                 "end": END,
-            }
+            },
         )
 
         workflow.add_conditional_edges(
@@ -134,7 +136,7 @@ class SupervisorGraph:
             {
                 "review": "review",
                 "end": END,
-            }
+            },
         )
 
         workflow.add_conditional_edges(
@@ -145,7 +147,7 @@ class SupervisorGraph:
                 "execute": "execute",
                 "synthesize": "synthesize",
                 "end": END,
-            }
+            },
         )
 
         workflow.add_edge("synthesize", END)
@@ -276,13 +278,13 @@ Respond in JSON format:
         prompt = f"""
 Review this agent output for the assigned subtask:
 
-SUBTASK: {subtask['description']}
+SUBTASK: {subtask["description"]}
 
 ACCEPTANCE CRITERIA:
-{chr(10).join(f"- {criterion}" for criterion in subtask.get('acceptance_criteria', []))}
+{chr(10).join(f"- {criterion}" for criterion in subtask.get("acceptance_criteria", []))}
 
 AGENT OUTPUT:
-{agent_response['content']}
+{agent_response["content"]}
 
 Evaluate:
 1. Does the output meet all acceptance criteria?
@@ -332,13 +334,12 @@ Respond in JSON format:
                 "task": task_dict,
                 "next_action": "assign",
             }
-        else:
-            # Need revision
-            return {
-                **state,
-                "review_result": review,
-                "next_action": "execute",
-            }
+        # Need revision
+        return {
+            **state,
+            "review_result": review,
+            "next_action": "execute",
+        }
 
     def _synthesize_node(self, state: SupervisorState) -> SupervisorState:
         """Synthesize all subtask results."""
@@ -353,7 +354,7 @@ Respond in JSON format:
             }
 
         prompt = f"""
-Goal: {task_dict['goal']}
+Goal: {task_dict["goal"]}
 
 Completed Subtasks and Results:
 {chr(10).join(f"- {st['description']}: {st.get('result', 'N/A')}" for st in completed)}
@@ -382,12 +383,14 @@ Provide a clear, complete response that integrates all the subtask results.
             return "assign"
         return "end"
 
-    def _route_after_assign(self, state: SupervisorState) -> Literal["execute", "synthesize", "end"]:
+    def _route_after_assign(
+        self, state: SupervisorState
+    ) -> Literal["execute", "synthesize", "end"]:
         """Route after assignment."""
         next_action = state.get("next_action", "end")
         if next_action == "execute":
             return "execute"
-        elif next_action == "synthesize":
+        if next_action == "synthesize":
             return "synthesize"
         return "end"
 
@@ -397,14 +400,16 @@ Provide a clear, complete response that integrates all the subtask results.
             return "review"
         return "end"
 
-    def _route_after_review(self, state: SupervisorState) -> Literal["assign", "execute", "synthesize", "end"]:
+    def _route_after_review(
+        self, state: SupervisorState
+    ) -> Literal["assign", "execute", "synthesize", "end"]:
         """Route after review."""
         next_action = state.get("next_action", "end")
         if next_action in ["assign", "execute", "synthesize"]:
             return next_action
         return "end"
 
-    def invoke(self, input_data: Optional[dict], config: Optional[dict] = None) -> dict:
+    def invoke(self, input_data: dict | None, config: dict | None = None) -> dict:
         """
         Invoke the supervisor graph.
 
@@ -424,7 +429,7 @@ Provide a clear, complete response that integrates all the subtask results.
         """
         return self.app.invoke(input_data, config=config)
 
-    def stream(self, input_data: dict, config: Optional[dict] = None):
+    def stream(self, input_data: dict, config: dict | None = None):
         """
         Stream supervisor graph execution.
 

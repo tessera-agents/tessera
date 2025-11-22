@@ -1,16 +1,17 @@
 """Unit tests for Copilot proxy management."""
 
-import pytest
 import subprocess
-import time
+from unittest.mock import Mock, patch
+
+import pytest
 import requests
-from unittest.mock import Mock, patch, MagicMock
+
 from tessera.copilot_proxy import (
     CopilotProxyManager,
+    get_proxy_manager,
+    is_proxy_running,
     start_proxy,
     stop_proxy,
-    is_proxy_running,
-    get_proxy_manager,
 )
 
 
@@ -381,7 +382,7 @@ class TestCopilotProxyManager:
         mock_process = Mock()
         mock_process.wait.side_effect = [
             subprocess.TimeoutExpired("cmd", 5),  # First wait times out
-            None  # Second wait after kill succeeds
+            None,  # Second wait after kill succeeds
         ]
         manager.process = mock_process
         manager._started = True
@@ -496,9 +497,7 @@ class TestConvenienceFunctions:
 
         assert result is True
         mock_get_manager.assert_called_once_with(
-            github_token="ghu_testToken123",
-            rate_limit=60,
-            use_wait=False
+            github_token="ghu_testToken123", rate_limit=60, use_wait=False
         )
         mock_manager.start.assert_called_once_with(wait_for_ready=True)
 
@@ -543,11 +542,7 @@ class TestConvenienceFunctions:
 
         assert result == mock_instance
         mock_manager_class.assert_called_once_with(
-            github_token="ghu_testToken123",
-            rate_limit=45,
-            use_wait=True,
-            port=None,
-            verbose=True
+            github_token="ghu_testToken123", rate_limit=45, use_wait=True, port=None, verbose=True
         )
 
     def test_get_proxy_manager_returns_existing(self):

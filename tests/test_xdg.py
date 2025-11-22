@@ -2,21 +2,22 @@
 Tests for XDG directory helpers.
 """
 
-import pytest
 import os
 from pathlib import Path
 from unittest.mock import patch
 
+import pytest
+
 from tessera.config.xdg import (
-    get_xdg_config_home,
-    get_xdg_cache_home,
-    get_xdg_data_home,
-    get_tessera_config_dir,
-    get_tessera_cache_dir,
-    get_tessera_data_dir,
     ensure_directories,
     get_config_file_path,
     get_metrics_db_path,
+    get_tessera_cache_dir,
+    get_tessera_config_dir,
+    get_tessera_data_dir,
+    get_xdg_cache_home,
+    get_xdg_config_home,
+    get_xdg_data_home,
 )
 
 

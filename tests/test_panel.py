@@ -1,9 +1,10 @@
 """Unit tests for Panel system."""
 
 import pytest
-from tessera.panel import PanelSystem, PanelistAgent
-from tessera.models import Vote, ScoreMetrics
+
 from tessera.interviewer import InterviewerAgent
+from tessera.models import ScoreMetrics, Vote
+from tessera.panel import PanelistAgent, PanelSystem
 
 
 @pytest.mark.unit
@@ -122,7 +123,9 @@ class TestPanelSystem:
 
         assert len(panelists) == 3
 
-    def test_conduct_panel_interview(self, mock_llm_with_response, test_config, sample_ballot_response):
+    def test_conduct_panel_interview(
+        self, mock_llm_with_response, test_config, sample_ballot_response
+    ):
         """Test conducting a panel interview."""
         panel = PanelSystem(config=test_config)
 
@@ -168,7 +171,9 @@ class TestPanelSystem:
         assert len(result.final_ranking) == 2
         assert result.decision in ["CandidateA", "CandidateB", None]
 
-    def test_conduct_panel_interview_with_question_bank(self, mock_llm_with_response, test_config, sample_questions, sample_ballot_response):
+    def test_conduct_panel_interview_with_question_bank(
+        self, mock_llm_with_response, test_config, sample_questions, sample_ballot_response
+    ):
         """Test panel interview with provided question bank."""
         panel = PanelSystem(config=test_config)
         panel.create_default_panel(num_panelists=3)
@@ -194,7 +199,7 @@ class TestPanelSystem:
 
     def test_get_vote_summary(self, test_config):
         """Test getting vote summary."""
-        from tessera.models import PanelResult, Ballot
+        from tessera.models import Ballot, PanelResult
 
         panel = PanelSystem(config=test_config)
 
@@ -205,8 +210,12 @@ class TestPanelSystem:
                 panelist="P1",
                 vote=Vote.HIRE,
                 scores=ScoreMetrics(
-                    accuracy=4.0, relevance=4.0, completeness=4.0,
-                    explainability=4.0, efficiency=4.0, safety=4.0
+                    accuracy=4.0,
+                    relevance=4.0,
+                    completeness=4.0,
+                    explainability=4.0,
+                    efficiency=4.0,
+                    safety=4.0,
                 ),
                 overall_score=80.0,
                 rationale="Good",
@@ -216,8 +225,12 @@ class TestPanelSystem:
                 panelist="P2",
                 vote=Vote.PASS,
                 scores=ScoreMetrics(
-                    accuracy=3.0, relevance=3.0, completeness=3.0,
-                    explainability=3.0, efficiency=3.0, safety=3.0
+                    accuracy=3.0,
+                    relevance=3.0,
+                    completeness=3.0,
+                    explainability=3.0,
+                    efficiency=3.0,
+                    safety=3.0,
                 ),
                 overall_score=60.0,
                 rationale="Okay",
@@ -227,8 +240,12 @@ class TestPanelSystem:
                 panelist="P1",
                 vote=Vote.HIRE,
                 scores=ScoreMetrics(
-                    accuracy=5.0, relevance=5.0, completeness=5.0,
-                    explainability=5.0, efficiency=5.0, safety=5.0
+                    accuracy=5.0,
+                    relevance=5.0,
+                    completeness=5.0,
+                    explainability=5.0,
+                    efficiency=5.0,
+                    safety=5.0,
                 ),
                 overall_score=100.0,
                 rationale="Excellent",
@@ -262,11 +279,11 @@ class TestPanelRoles:
     def test_all_roles_have_prompts(self):
         """Test that all panel roles have defined prompts."""
         from tessera.panel import (
-            TECHNICAL_EVALUATOR_PROMPT,
             CREATIVE_EVALUATOR_PROMPT,
             EFFICIENCY_EVALUATOR_PROMPT,
-            USER_CENTRIC_EVALUATOR_PROMPT,
             RISK_EVALUATOR_PROMPT,
+            TECHNICAL_EVALUATOR_PROMPT,
+            USER_CENTRIC_EVALUATOR_PROMPT,
         )
 
         prompts = [
@@ -287,10 +304,7 @@ class TestPanelRoles:
         panel.create_default_panel(num_panelists=5)
 
         # Check that weights differ between panelists
-        weights_sets = [
-            tuple(sorted(p.scoring_weights.items()))
-            for p in panel.panelists
-        ]
+        weights_sets = [tuple(sorted(p.scoring_weights.items())) for p in panel.panelists]
 
         # At least some should be different
         assert len(set(weights_sets)) > 1

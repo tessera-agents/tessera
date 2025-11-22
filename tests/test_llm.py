@@ -2,11 +2,12 @@
 Tests for LLM provider abstraction.
 """
 
-import pytest
 from unittest.mock import Mock, patch
 
-from tessera.llm import create_llm, LLMProvider
+import pytest
+
 from tessera.legacy_config import LLMConfig
+from tessera.llm import LLMProvider, create_llm
 
 
 @pytest.mark.unit
@@ -16,14 +17,9 @@ class TestCreateLLM:
     @patch("tessera.llm.ChatLiteLLM")
     def test_create_llm_openai(self, mock_litellm):
         """Test creating OpenAI LLM."""
-        config = LLMConfig(
-            provider="openai",
-            models=["gpt-4"],
-            api_key="test-key",
-            temperature=0.7
-        )
+        config = LLMConfig(provider="openai", models=["gpt-4"], api_key="test-key", temperature=0.7)
 
-        llm = create_llm(config)
+        create_llm(config)
 
         mock_litellm.assert_called_once()
         call_kwargs = mock_litellm.call_args[1]
@@ -33,13 +29,9 @@ class TestCreateLLM:
     @patch("tessera.llm.ChatLiteLLM")
     def test_create_llm_anthropic(self, mock_litellm):
         """Test creating Anthropic LLM via Vertex."""
-        config = LLMConfig(
-            provider="anthropic",
-            models=["claude-3-sonnet"],
-            api_key="test-key"
-        )
+        config = LLMConfig(provider="anthropic", models=["claude-3-sonnet"], api_key="test-key")
 
-        llm = create_llm(config)
+        create_llm(config)
 
         # Anthropic models get provider prefix
         call_kwargs = mock_litellm.call_args[1]
@@ -49,16 +41,13 @@ class TestCreateLLM:
     def test_create_llm_vertex_ai(self, mock_litellm):
         """Test creating Vertex AI LLM."""
         import os
+
         os.environ["VERTEX_PROJECT"] = "test-project"
         os.environ["VERTEX_LOCATION"] = "us-east5"
 
-        config = LLMConfig(
-            provider="vertex_ai",
-            models=["claude-sonnet-4"],
-            api_key="not-used"
-        )
+        config = LLMConfig(provider="vertex_ai", models=["claude-sonnet-4"], api_key="not-used")
 
-        llm = create_llm(config)
+        create_llm(config)
 
         # Vertex AI should have model_kwargs with project/location
         call_kwargs = mock_litellm.call_args[1]
@@ -82,7 +71,7 @@ class TestCreateLLM:
             provider="openai",
             models=["gpt-4"],
             api_key="test-key",
-            base_url="http://localhost:4141/v1"
+            base_url="http://localhost:4141/v1",
         )
 
         llm = create_llm(config)
@@ -93,13 +82,9 @@ class TestCreateLLM:
     @patch("tessera.llm.ChatLiteLLM")
     def test_create_llm_metadata(self, mock_litellm):
         """Test LLM includes metadata."""
-        config = LLMConfig(
-            provider="openai",
-            models=["gpt-4"],
-            api_key="test-key"
-        )
+        config = LLMConfig(provider="openai", models=["gpt-4"], api_key="test-key")
 
-        llm = create_llm(config)
+        create_llm(config)
 
         call_kwargs = mock_litellm.call_args[1]
         assert "metadata" in call_kwargs
@@ -114,11 +99,7 @@ class TestLLMProvider:
     @patch("tessera.llm.create_llm")
     def test_llm_provider_create(self, mock_create_llm):
         """Test LLMProvider.create calls create_llm."""
-        config = LLMConfig(
-            provider="openai",
-            models=["gpt-4"],
-            api_key="test"
-        )
+        config = LLMConfig(provider="openai", models=["gpt-4"], api_key="test")
 
         LLMProvider.create(config)
 

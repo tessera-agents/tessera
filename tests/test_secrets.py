@@ -1,14 +1,16 @@
 """Unit tests for secret management."""
 
-import pytest
 import subprocess
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
+
+import pytest
+
 from tessera.secrets import (
     SecretManager,
+    check_secrets_available,
+    get_anthropic_api_key,
     get_github_token,
     get_openai_api_key,
-    get_anthropic_api_key,
-    check_secrets_available,
 )
 
 
@@ -39,7 +41,7 @@ class TestSecretManager:
         """Test getting GitHub token with custom op:// reference."""
         mock_1pass.return_value = "custom-token"
 
-        token = SecretManager.get_github_token()
+        SecretManager.get_github_token()
 
         mock_1pass.assert_called_once_with("op://Work/CustomItem/secret")
 
@@ -83,7 +85,9 @@ class TestSecretManager:
         key = SecretManager.get_anthropic_api_key()
         assert key == "sk-ant-env-key"
 
-    @patch.dict("os.environ", {"OP_ANTHROPIC_ITEM": "op://Private/Anthropic/credential"}, clear=True)
+    @patch.dict(
+        "os.environ", {"OP_ANTHROPIC_ITEM": "op://Private/Anthropic/credential"}, clear=True
+    )
     @patch("tessera.secrets.SecretManager.get_from_1password")
     def test_get_anthropic_api_key_from_1password(self, mock_1pass):
         """Test getting Anthropic API key from 1Password."""

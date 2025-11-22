@@ -1,14 +1,16 @@
 """Unit tests for configuration and LLM providers."""
 
-import pytest
 import os
-from unittest.mock import patch, Mock
+from unittest.mock import patch
+
+import pytest
+
 from tessera.config import (
+    INTERVIEWER_PROMPT,
+    SUPERVISOR_PROMPT,
+    FrameworkConfig,
     LLMConfig,
     ScoringWeights,
-    FrameworkConfig,
-    SUPERVISOR_PROMPT,
-    INTERVIEWER_PROMPT,
 )
 from tessera.llm import LLMProvider, create_llm
 
@@ -56,11 +58,15 @@ class TestLLMConfig:
         assert config.azure_endpoint == "https://test.openai.azure.com"
         assert config.azure_deployment == "test-deployment"
 
-    @patch.dict(os.environ, {
-        "OPENAI_API_KEY": "test-openai-key",
-        "OPENAI_MODEL": "gpt-4-turbo",
-        "DEFAULT_TEMPERATURE": "0.8",
-    }, clear=True)
+    @patch.dict(
+        os.environ,
+        {
+            "OPENAI_API_KEY": "test-openai-key",
+            "OPENAI_MODEL": "gpt-4-turbo",
+            "DEFAULT_TEMPERATURE": "0.8",
+        },
+        clear=True,
+    )
     @patch("tessera.secrets.SecretManager.get_from_1password")
     def test_llm_config_from_env_openai(self, mock_1password):
         """Test creating config from environment for OpenAI."""
@@ -74,10 +80,14 @@ class TestLLMConfig:
         assert config.model == "gpt-4-turbo"
         assert config.temperature == 0.8
 
-    @patch.dict(os.environ, {
-        "ANTHROPIC_API_KEY": "test-anthropic-key",
-        "ANTHROPIC_MODEL": "claude-3-opus",
-    }, clear=True)
+    @patch.dict(
+        os.environ,
+        {
+            "ANTHROPIC_API_KEY": "test-anthropic-key",
+            "ANTHROPIC_MODEL": "claude-3-opus",
+        },
+        clear=True,
+    )
     @patch("tessera.secrets.SecretManager.get_from_1password")
     def test_llm_config_from_env_anthropic(self, mock_1password):
         """Test creating config from environment for Anthropic."""
@@ -244,11 +254,14 @@ class TestFrameworkConfig:
         assert config.scoring_weights.accuracy == 0.5
         assert config.scoring_weights.safety == 0.5
 
-    @patch.dict(os.environ, {
-        "OPENAI_API_KEY": "test-key",
-        "MAX_ITERATIONS": "20",
-        "ENABLE_LOGGING": "false",
-    })
+    @patch.dict(
+        os.environ,
+        {
+            "OPENAI_API_KEY": "test-key",
+            "MAX_ITERATIONS": "20",
+            "ENABLE_LOGGING": "false",
+        },
+    )
     def test_framework_config_from_env(self):
         """Test creating framework config from environment."""
         config = FrameworkConfig.from_env()
@@ -295,6 +308,7 @@ class TestLLMProvider:
         LLMProvider.create(config)
 
         mock_chat_litellm.assert_called_once()
+
     @patch("tessera.llm.ChatLiteLLM")
     def test_create_anthropic_llm(self, mock_chat_litellm):
         """Test creating Anthropic LLM."""
@@ -308,6 +322,7 @@ class TestLLMProvider:
         LLMProvider.create(config)
 
         mock_chat_litellm.assert_called_once()
+
     @patch("tessera.llm.ChatLiteLLM")
     def test_create_azure_llm(self, mock_chat_litellm):
         """Test creating Azure OpenAI LLM."""
@@ -330,7 +345,7 @@ class TestLLMProvider:
         from pydantic import ValidationError
 
         with pytest.raises(ValidationError):
-            config = LLMConfig(
+            LLMConfig(
                 provider="invalid",  # type: ignore
                 api_key="test-key",
                 models=["test-model"],

@@ -6,10 +6,10 @@ import pytest
 from pydantic import ValidationError
 
 from tessera.config.schema import (
-    AgentDefinition,
     AgentDefaultsConfig,
-    ToolsGlobalConfig,
+    AgentDefinition,
     CostLimitConfig,
+    ToolsGlobalConfig,
     WorkflowPhase,
 )
 
@@ -20,11 +20,7 @@ class TestAgentDefinition:
 
     def test_minimal_agent(self):
         """Test minimal agent definition."""
-        agent = AgentDefinition(
-            name="test-agent",
-            model="gpt-4",
-            provider="openai"
-        )
+        agent = AgentDefinition(name="test-agent", model="gpt-4", provider="openai")
 
         assert agent.name == "test-agent"
         assert agent.model == "gpt-4"
@@ -38,7 +34,7 @@ class TestAgentDefinition:
             model="gpt-4",
             provider="openai",
             capabilities=["python", "testing"],
-            phase_affinity=["implementation"]
+            phase_affinity=["implementation"],
         )
 
         assert "python" in agent.capabilities
@@ -47,12 +43,7 @@ class TestAgentDefinition:
     def test_agent_temperature_validation(self):
         """Test temperature is validated."""
         # Valid temperature
-        agent = AgentDefinition(
-            name="agent",
-            model="gpt-4",
-            provider="openai",
-            temperature=0.7
-        )
+        agent = AgentDefinition(name="agent", model="gpt-4", provider="openai", temperature=0.7)
         assert agent.temperature == 0.7
 
         # Invalid temperature should raise
@@ -61,7 +52,7 @@ class TestAgentDefinition:
                 name="agent",
                 model="gpt-4",
                 provider="openai",
-                temperature=3.0  # > 2.0
+                temperature=3.0,  # > 2.0
             )
 
 
@@ -99,11 +90,7 @@ class TestCostLimitConfig:
 
     def test_cost_limits(self):
         """Test cost limit configuration."""
-        config = CostLimitConfig(
-            daily_usd=10.0,
-            max_usd=5.0,
-            enforcement="hard"
-        )
+        config = CostLimitConfig(daily_usd=10.0, max_usd=5.0, enforcement="hard")
 
         assert config.daily_usd == 10.0
         assert config.max_usd == 5.0
@@ -131,25 +118,16 @@ class TestWorkflowPhase:
 
     def test_phase_with_dependencies(self):
         """Test phase with dependencies."""
-        phase = WorkflowPhase(
-            name="execution",
-            depends_on=["architecture", "research"]
-        )
+        phase = WorkflowPhase(name="execution", depends_on=["architecture", "research"])
 
         assert "architecture" in phase.depends_on
         assert "research" in phase.depends_on
 
     def test_phase_complexity_filtering(self):
         """Test phase complexity requirements."""
-        simple_phase = WorkflowPhase(
-            name="simple-only",
-            required_for_complexity=["simple"]
-        )
+        simple_phase = WorkflowPhase(name="simple-only", required_for_complexity=["simple"])
 
-        complex_phase = WorkflowPhase(
-            name="complex-only",
-            required_for_complexity=["complex"]
-        )
+        WorkflowPhase(name="complex-only", required_for_complexity=["complex"])
 
         assert "simple" in simple_phase.required_for_complexity
         assert "complex" not in simple_phase.required_for_complexity

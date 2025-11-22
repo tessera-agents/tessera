@@ -2,9 +2,10 @@
 Tests for sub-phase handler.
 """
 
-import pytest
-from pathlib import Path
 import tempfile
+from pathlib import Path
+
+import pytest
 
 from tessera.workflow import SubPhaseHandler
 
@@ -21,11 +22,7 @@ class TestSubPhaseHandler:
 
             handler = SubPhaseHandler(tmpdir_path)
 
-            sub_phase = {
-                "name": "create_output",
-                "type": "deliverable",
-                "outputs": ["output.txt"]
-            }
+            sub_phase = {"name": "create_output", "type": "deliverable", "outputs": ["output.txt"]}
 
             result = handler.handle_deliverable(sub_phase, None)
 
@@ -38,11 +35,7 @@ class TestSubPhaseHandler:
         with tempfile.TemporaryDirectory() as tmpdir:
             handler = SubPhaseHandler(Path(tmpdir))
 
-            sub_phase = {
-                "name": "create_docs",
-                "type": "deliverable",
-                "outputs": ["missing.md"]
-            }
+            sub_phase = {"name": "create_docs", "type": "deliverable", "outputs": ["missing.md"]}
 
             result = handler.handle_deliverable(sub_phase, None)
 
@@ -56,7 +49,7 @@ class TestSubPhaseHandler:
         sub_phase = {
             "name": "validate",
             "type": "checklist",
-            "questions": ["Is it complete?", "Is it tested?"]
+            "questions": ["Is it complete?", "Is it tested?"],
         }
 
         result = handler.handle_checklist(sub_phase, None)
@@ -73,7 +66,7 @@ class TestSubPhaseHandler:
             "name": "code_review",
             "type": "subtask",
             "description": "Review the code",
-            "agent": "code-reviewer"
+            "agent": "code-reviewer",
         }
 
         result = handler.handle_subtask(sub_phase, "parent-task-1")

@@ -2,10 +2,11 @@
 Tests for YAML configuration source.
 """
 
-import pytest
 import tempfile
 from pathlib import Path
 from unittest.mock import patch
+
+import pytest
 
 from tessera.config.yaml_source import XDGYamlSettingsSource, get_config_paths
 
@@ -31,7 +32,7 @@ class TestGetConfigPaths:
 
         # Paths should be in precedence order (highest first)
         # Local configs should come before user configs
-        for i, path in enumerate(paths):
+        for i, _path in enumerate(paths):
             if i > 0:
                 # Later paths should not be more specific than earlier ones
                 assert True  # Basic check that list is ordered
@@ -43,7 +44,6 @@ class TestXDGYamlSettingsSource:
 
     def test_initialization(self):
         """Test source can be initialized."""
-        from pydantic import BaseModel
         from pydantic_settings import BaseSettings
 
         class TestSettings(BaseSettings):
@@ -64,9 +64,9 @@ class TestXDGYamlSettingsSource:
 
         # Nested values should be merged
         assert result["b"]["c"] == 99  # Updated
-        assert result["b"]["d"] == 3   # Preserved
-        assert result["b"]["e"] == 4   # Added
-        assert result["f"] == 5        # New top-level
+        assert result["b"]["d"] == 3  # Preserved
+        assert result["b"]["e"] == 4  # Added
+        assert result["f"] == 5  # New top-level
 
     def test_call_returns_merged_data(self):
         """Test __call__ returns merged configuration."""

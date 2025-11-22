@@ -8,12 +8,12 @@ Note: GitHub docs don't provide Last-Modified or ETag headers, so we use
 content-based change detection (hash comparison) to avoid unnecessary cache updates.
 """
 
+import hashlib
+import json
 import re
 import time
-import hashlib
-from typing import Dict, Optional, Set, Tuple
 from pathlib import Path
-import json
+
 import requests
 
 from .logging_config import get_logger
@@ -32,11 +32,11 @@ DOCS_URL = "https://docs.github.com/en/copilot/concepts/billing/copilot-requests
 class PremiumModelInfo:
     """Information about premium models and their multipliers."""
 
-    def __init__(self):
-        self._premium_models: Dict[str, float] = {}
-        self._free_models: Set[str] = set()
+    def __init__(self) -> None:
+        self._premium_models: dict[str, float] = {}
+        self._free_models: set[str] = set()
         self._last_updated: float = 0.0
-        self._content_hash: Optional[str] = None  # Hash of parsed content for change detection
+        self._content_hash: str | None = None  # Hash of parsed content for change detection
         self._load_cache()
 
     def _load_cache(self) -> bool:
@@ -45,7 +45,7 @@ class PremiumModelInfo:
             return False
 
         try:
-            with open(CACHE_FILE, "r") as f:
+            with open(CACHE_FILE) as f:
                 data = json.load(f)
 
             # Check if cache is still fresh
@@ -59,10 +59,10 @@ class PremiumModelInfo:
             self._content_hash = data.get("content_hash")
             return True
 
-        except (json.JSONDecodeError, KeyError, IOError):
+        except (OSError, json.JSONDecodeError, KeyError):
             return False
 
-    def _save_cache(self):
+    def _save_cache(self) -> None:
         """Save premium model data to cache."""
         CACHE_FILE.parent.mkdir(parents=True, exist_ok=True)
 
@@ -128,7 +128,7 @@ class PremiumModelInfo:
             self._free_models.clear()
 
             parsed_count = 0
-            for model_name, multiplier_paid, multiplier_free in rows:
+            for model_name, multiplier_paid, _multiplier_free in rows:
                 model_name = model_name.strip()
                 multiplier_paid = multiplier_paid.strip()
 
@@ -168,7 +168,7 @@ class PremiumModelInfo:
             logger.warning(f"Failed to fetch premium model info: {e}")
             return False
 
-    def _use_fallback_values(self):
+    def _use_fallback_values(self) -> None:
         """Use hardcoded fallback values when parsing fails."""
         self._free_models = {"gpt-5-mini", "gpt-4.1", "gpt-4o"}
         self._premium_models = {
@@ -183,7 +183,7 @@ class PremiumModelInfo:
             "claude-opus-4.1": 10.0,
         }
 
-    def _normalize_model_name(self, name: str) -> Optional[str]:
+    def _normalize_model_name(self, name: str) -> str | None:
         """
         Normalize model name from documentation to API format.
 
@@ -219,7 +219,7 @@ class PremiumModelInfo:
 
         return mappings.get(name)
 
-    def ensure_loaded(self):
+    def ensure_loaded(self) -> None:
         """Ensure premium model data is loaded, fetching if necessary."""
         if not self._premium_models and not self._free_models:
             # Try to load from cache first
@@ -273,7 +273,7 @@ class PremiumModelInfo:
 
         return self._premium_models.get(model_id, 0.0)
 
-    def get_all_premium_models(self) -> Dict[str, float]:
+    def get_all_premium_models(self) -> dict[str, float]:
         """
         Get all premium models and their multipliers.
 
@@ -283,7 +283,7 @@ class PremiumModelInfo:
         self.ensure_loaded()
         return self._premium_models.copy()
 
-    def get_all_free_models(self) -> Set[str]:
+    def get_all_free_models(self) -> set[str]:
         """
         Get all free (unlimited) models.
 
@@ -295,7 +295,7 @@ class PremiumModelInfo:
 
 
 # Global singleton instance
-_premium_info: Optional[PremiumModelInfo] = None
+_premium_info: PremiumModelInfo | None = None
 
 
 def get_premium_info() -> PremiumModelInfo:

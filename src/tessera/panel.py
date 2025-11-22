@@ -4,20 +4,20 @@ Panel interview system implementation with round-robin voting.
 
 import json
 from datetime import datetime
-from typing import Any, Optional
-from langchain_core.messages import HumanMessage, SystemMessage
+from typing import Any
+
 from langchain_core.language_models import BaseChatModel
+from langchain_core.messages import HumanMessage, SystemMessage
 
 from .config import FrameworkConfig
-from .models import (
-    PanelResult,
-    Ballot,
-    Vote,
-    ScoreMetrics,
-)
-from .llm import create_llm
 from .interviewer import InterviewerAgent
-
+from .llm import create_llm
+from .models import (
+    Ballot,
+    PanelResult,
+    ScoreMetrics,
+    Vote,
+)
 
 # Panelist role prompts
 TECHNICAL_EVALUATOR_PROMPT = """You are a Technical Evaluator in an agent evaluation panel.
@@ -46,7 +46,7 @@ class PanelistAgent:
         llm: BaseChatModel,
         system_prompt: str,
         scoring_weights: dict[str, float],
-    ):
+    ) -> None:
         """
         Initialize a panelist.
 
@@ -200,9 +200,9 @@ class PanelSystem:
 
     def __init__(
         self,
-        config: Optional[FrameworkConfig] = None,
-        interviewer: Optional[InterviewerAgent] = None,
-    ):
+        config: FrameworkConfig | None = None,
+        interviewer: InterviewerAgent | None = None,
+    ) -> None:
         """
         Initialize the panel system.
 
@@ -312,7 +312,7 @@ class PanelSystem:
         task_description: str,
         candidates: list[str],
         candidate_llms: dict[str, BaseChatModel],
-        question_bank: Optional[list[dict[str, str]]] = None,
+        question_bank: list[dict[str, str]] | None = None,
     ) -> PanelResult:
         """
         Conduct a full panel interview with round-robin evaluation.
@@ -354,7 +354,7 @@ class PanelSystem:
             }
 
             # Each panelist asks a question in round-robin
-            for i, panelist in enumerate(self.panelists):
+            for _i, panelist in enumerate(self.panelists):
                 # Select question for this panelist
                 question = panelist.ask_question(task_description, question_bank)
 

@@ -1,10 +1,12 @@
 """Unit tests for Interviewer agent."""
 
-import pytest
 import json
-from tessera.interviewer import InterviewerAgent
-from tessera.models import QuestionResponse, ScoreMetrics, InterviewResult
+
+import pytest
+
 from tessera.config import ScoringWeights
+from tessera.interviewer import InterviewerAgent
+from tessera.models import InterviewResult, QuestionResponse, ScoreMetrics
 
 
 @pytest.mark.unit
@@ -32,22 +34,24 @@ class TestInterviewerAgent:
 
     def test_design_interview(self, mock_llm_with_response, test_config):
         """Test designing interview questions."""
-        questions_response = json.dumps({
-            "questions": [
-                {
-                    "question_id": "Q1",
-                    "text": "How would you implement caching?",
-                    "type": "sample",
-                    "evaluation_focus": "technical accuracy"
-                },
-                {
-                    "question_id": "Q2",
-                    "text": "What edge cases exist?",
-                    "type": "edge-case",
-                    "evaluation_focus": "completeness"
-                }
-            ]
-        })
+        questions_response = json.dumps(
+            {
+                "questions": [
+                    {
+                        "question_id": "Q1",
+                        "text": "How would you implement caching?",
+                        "type": "sample",
+                        "evaluation_focus": "technical accuracy",
+                    },
+                    {
+                        "question_id": "Q2",
+                        "text": "What edge cases exist?",
+                        "type": "edge-case",
+                        "evaluation_focus": "completeness",
+                    },
+                ]
+            }
+        )
 
         llm = mock_llm_with_response(questions_response)
         interviewer = InterviewerAgent(llm=llm, config=test_config)
@@ -58,7 +62,14 @@ class TestInterviewerAgent:
         assert questions[0]["question_id"] == "Q1"
         assert questions[1]["type"] == "edge-case"
 
-    def test_conduct_interview(self, mock_llm_with_response, test_config, sample_questions, sample_score_response, sample_recommendation_response):
+    def test_conduct_interview(
+        self,
+        mock_llm_with_response,
+        test_config,
+        sample_questions,
+        sample_score_response,
+        sample_recommendation_response,
+    ):
         """Test conducting an interview."""
         # Mock for scoring
         score_llm = mock_llm_with_response(sample_score_response)
@@ -72,6 +83,7 @@ class TestInterviewerAgent:
 
         # Patch the recommendation generation
         original_generate = interviewer._generate_recommendation
+
         def mock_generate(*args, **kwargs):
             interviewer.llm = rec_llm
             result = original_generate(*args, **kwargs)
@@ -146,7 +158,9 @@ class TestInterviewerAgent:
 
         assert score == 0.0
 
-    def test_compare_candidates(self, mock_llm_with_response, test_config, sample_comparison_response):
+    def test_compare_candidates(
+        self, mock_llm_with_response, test_config, sample_comparison_response
+    ):
         """Test comparing multiple candidates."""
         llm = mock_llm_with_response(sample_comparison_response)
         interviewer = InterviewerAgent(llm=llm, config=test_config)
@@ -185,7 +199,9 @@ class TestInterviewerAgent:
 
         assert "error" in comparison
 
-    def test_compare_candidates_assigns_rankings(self, mock_llm_with_response, test_config, sample_comparison_response):
+    def test_compare_candidates_assigns_rankings(
+        self, mock_llm_with_response, test_config, sample_comparison_response
+    ):
         """Test that compare_candidates assigns rankings to results."""
         llm = mock_llm_with_response(sample_comparison_response)
         interviewer = InterviewerAgent(llm=llm, config=test_config)
@@ -201,17 +217,21 @@ class TestInterviewerAgent:
     def test_break_tie(self, mock_llm_with_response, test_config):
         """Test breaking a tie between candidates."""
         # Mock for tie-breaker question
-        question_response = json.dumps({
-            "question": "Design a failover strategy for your cache",
-            "evaluation_focus": "resilience and planning"
-        })
+        question_response = json.dumps(
+            {
+                "question": "Design a failover strategy for your cache",
+                "evaluation_focus": "resilience and planning",
+            }
+        )
 
         # Mock for evaluation
-        eval_response = json.dumps({
-            "selected_candidate": "CandidateA",
-            "justification": "Better handling of edge cases",
-            "scores": {"CandidateA": 88, "CandidateB": 82}
-        })
+        eval_response = json.dumps(
+            {
+                "selected_candidate": "CandidateA",
+                "justification": "Better handling of edge cases",
+                "scores": {"CandidateA": 88, "CandidateB": 82},
+            }
+        )
 
         # Create interviewer with question mock
         question_llm = mock_llm_with_response(question_response)
@@ -234,8 +254,7 @@ class TestInterviewerAgent:
             invoke_count[0] += 1
             if invoke_count[0] == 1:
                 return original_invoke(*args, **kwargs)
-            else:
-                return eval_llm.invoke(*args, **kwargs)
+            return eval_llm.invoke(*args, **kwargs)
 
         interviewer.llm.invoke = counted_invoke
 
@@ -288,7 +307,9 @@ class TestInterviewerAgent:
         assert "85.0" in formatted
         assert "78.0" in formatted
 
-    def test_score_responses(self, mock_llm_with_response, test_config, sample_questions, sample_score_response):
+    def test_score_responses(
+        self, mock_llm_with_response, test_config, sample_questions, sample_score_response
+    ):
         """Test scoring responses."""
         llm = mock_llm_with_response(sample_score_response)
         interviewer = InterviewerAgent(llm=llm, config=test_config)
@@ -317,7 +338,9 @@ class TestInterviewerAgent:
         assert all(s.candidate == "TestCandidate" for s in scores)
         assert all(s.overall_score > 0 for s in scores)
 
-    def test_generate_recommendation(self, mock_llm_with_response, test_config, sample_recommendation_response):
+    def test_generate_recommendation(
+        self, mock_llm_with_response, test_config, sample_recommendation_response
+    ):
         """Test generating recommendation."""
         llm = mock_llm_with_response(sample_recommendation_response)
         interviewer = InterviewerAgent(llm=llm, config=test_config)
@@ -327,14 +350,19 @@ class TestInterviewerAgent:
         ]
 
         from tessera.models import Score
+
         scores = [
             Score(
                 question_id="Q1",
                 candidate="TestCandidate",
                 panelist="interviewer",
                 metrics=ScoreMetrics(
-                    accuracy=4.0, relevance=4.0, completeness=4.0,
-                    explainability=3.0, efficiency=3.0, safety=4.0
+                    accuracy=4.0,
+                    relevance=4.0,
+                    completeness=4.0,
+                    explainability=3.0,
+                    efficiency=3.0,
+                    safety=4.0,
                 ),
                 rationale="Good answer",
                 overall_score=80.0,

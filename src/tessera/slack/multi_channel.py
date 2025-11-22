@@ -8,14 +8,14 @@ Supports:
 - Threaded conversations
 """
 
-import os
 import ssl
+from typing import Any
+
 import certifi
-from typing import Optional, Dict, Any, List
 from slack_sdk import WebClient
 from slack_sdk.socket_mode import SocketModeClient
 
-from .agent_identity import AgentIdentityManager, AgentIdentity
+from .agent_identity import AgentIdentityManager
 
 
 class MultiChannelSlackClient:
@@ -30,9 +30,9 @@ class MultiChannelSlackClient:
         bot_token: str,
         agent_channel: str,
         user_channel: str,
-        app_token: Optional[str] = None,
-        identity_manager: Optional[AgentIdentityManager] = None,
-    ):
+        app_token: str | None = None,
+        identity_manager: AgentIdentityManager | None = None,
+    ) -> None:
         """
         Initialize multi-channel Slack client.
 
@@ -69,9 +69,9 @@ class MultiChannelSlackClient:
         self,
         agent_name: str,
         message: str,
-        channel: Optional[str] = None,
-        thread_ts: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        channel: str | None = None,
+        thread_ts: str | None = None,
+    ) -> dict[str, Any]:
         """
         Post message as an agent to agent collaboration channel.
 
@@ -90,7 +90,7 @@ class MultiChannelSlackClient:
         if not channel:
             raise ValueError("Agent channel not configured")
 
-        response = self.web_client.chat_postMessage(
+        return self.web_client.chat_postMessage(
             channel=channel,
             text=message,
             username=identity.display_name,
@@ -110,16 +110,15 @@ class MultiChannelSlackClient:
             ],
         )
 
-        return response
 
     def post_user_request(
         self,
         agent_name: str,
         message: str,
         request_type: str = "approval",
-        metadata: Optional[Dict[str, Any]] = None,
-        channel: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        metadata: dict[str, Any] | None = None,
+        channel: str | None = None,
+    ) -> dict[str, Any]:
         """
         Post approval/question request to user channel.
 
@@ -164,9 +163,7 @@ class MultiChannelSlackClient:
             metadata_text = "\n".join(
                 f"*{k.replace('_', ' ').title()}:* {v}" for k, v in metadata.items()
             )
-            blocks.append(
-                {"type": "section", "text": {"type": "mrkdwn", "text": metadata_text}}
-            )
+            blocks.append({"type": "section", "text": {"type": "mrkdwn", "text": metadata_text}})
 
         # Add approval buttons for approval requests
         if request_type == "approval":
@@ -198,14 +195,11 @@ class MultiChannelSlackClient:
                 }
             )
 
-        response = self.web_client.chat_postMessage(
-            channel=channel, text=message, blocks=blocks
-        )
+        return self.web_client.chat_postMessage(channel=channel, text=message, blocks=blocks)
 
-        return response
 
     def post_status_update(
-        self, agent_name: str, status: str, details: Optional[Dict[str, Any]] = None
+        self, agent_name: str, status: str, details: dict[str, Any] | None = None
     ) -> None:
         """
         Post status update to agent channel.
@@ -225,9 +219,9 @@ class MultiChannelSlackClient:
         self,
         agent_name: str,
         question: str,
-        context: Optional[str] = None,
-        suggested_answers: Optional[List[str]] = None,
-    ) -> Dict[str, Any]:
+        context: str | None = None,
+        suggested_answers: list[str] | None = None,
+    ) -> dict[str, Any]:
         """
         Post question to user channel with optional suggested answers.
 
@@ -252,9 +246,7 @@ class MultiChannelSlackClient:
         ]
 
         if context:
-            blocks.append(
-                {"type": "context", "elements": [{"type": "mrkdwn", "text": context}]}
-            )
+            blocks.append({"type": "context", "elements": [{"type": "mrkdwn", "text": context}]})
 
         # Add suggested answers as buttons if provided
         if suggested_answers:
@@ -285,17 +277,15 @@ class MultiChannelSlackClient:
             }
         )
 
-        return self.web_client.chat_postMessage(
-            channel=channel, text=question, blocks=blocks
-        )
+        return self.web_client.chat_postMessage(channel=channel, text=question, blocks=blocks)
 
     def post_clarification_request(
         self,
         agent_name: str,
         requirement: str,
         ambiguity: str,
-        options: Optional[List[str]] = None,
-    ) -> Dict[str, Any]:
+        options: list[str] | None = None,
+    ) -> dict[str, Any]:
         """
         Request clarification on ambiguous requirement.
 
@@ -312,7 +302,7 @@ class MultiChannelSlackClient:
 
         if options:
             message += "\n\n*Possible interpretations:*\n"
-            message += "\n".join(f"{i+1}. {opt}" for i, opt in enumerate(options))
+            message += "\n".join(f"{i + 1}. {opt}" for i, opt in enumerate(options))
 
         return self.post_user_question(
             agent_name=agent_name,

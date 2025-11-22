@@ -1,8 +1,9 @@
 """Unit tests for PanelGraph (LangGraph version)."""
 
 import pytest
+
+from tessera.graph_base import clear_checkpoint_db, get_thread_config
 from tessera.panel_graph import PanelGraph
-from tessera.graph_base import get_thread_config, clear_checkpoint_db
 
 
 @pytest.mark.unit
@@ -87,7 +88,7 @@ class TestPanelGraph:
         # Extract all states
         all_states = []
         for state_update in states:
-            for node_name, state_data in state_update.items():
+            for state_data in state_update.values():
                 if isinstance(state_data, dict):
                     all_states.append(state_data)
 

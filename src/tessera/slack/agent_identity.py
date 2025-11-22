@@ -4,7 +4,6 @@ Agent identity management for Slack.
 Generates identities from agent configuration, no hard-coded defaults.
 """
 
-from typing import Dict, Optional, List
 from dataclasses import dataclass
 
 
@@ -45,19 +44,28 @@ class AgentIdentityManager:
 
     # Color palette (cycled through agents)
     COLORS = [
-        "#FF6B6B", "#4ECDC4", "#45B7D1", "#5F27CD",
-        "#EE5A6F", "#00D2D3", "#FF9FF3", "#54A0FF",
-        "#FFA502", "#2ED573", "#FF6348", "#1E90FF",
+        "#FF6B6B",
+        "#4ECDC4",
+        "#45B7D1",
+        "#5F27CD",
+        "#EE5A6F",
+        "#00D2D3",
+        "#FF9FF3",
+        "#54A0FF",
+        "#FFA502",
+        "#2ED573",
+        "#FF6348",
+        "#1E90FF",
     ]
 
-    def __init__(self, agent_configs: Optional[List] = None):
+    def __init__(self, agent_configs: list | None = None) -> None:
         """
         Initialize from agent configurations.
 
         Args:
             agent_configs: List of AgentDefinition from TesseraSettings
         """
-        self.identities: Dict[str, AgentIdentity] = {}
+        self.identities: dict[str, AgentIdentity] = {}
         self._color_index = 0
 
         if agent_configs:
@@ -101,14 +109,14 @@ class AgentIdentityManager:
                 return emoji
 
         # Check role if available
-        if hasattr(config, 'role') and config.role:
+        if hasattr(config, "role") and config.role:
             role_lower = config.role.lower()
             for keyword, emoji in self.EMOJI_HINTS.items():
                 if keyword in role_lower:
                     return emoji
 
         # Check capabilities
-        if hasattr(config, 'capabilities') and config.capabilities:
+        if hasattr(config, "capabilities") and config.capabilities:
             for cap in config.capabilities:
                 cap_lower = cap.lower()
                 for keyword, emoji in self.EMOJI_HINTS.items():
@@ -120,13 +128,13 @@ class AgentIdentityManager:
     def _extract_description(self, config) -> str:
         """Extract short description from config."""
         # Try system_prompt first
-        if hasattr(config, 'system_prompt') and config.system_prompt:
+        if hasattr(config, "system_prompt") and config.system_prompt:
             # Take first line or first 100 chars
-            first_line = config.system_prompt.split('\n')[0]
+            first_line = config.system_prompt.split("\n")[0]
             return first_line[:100].strip()
 
         # Try capabilities
-        if hasattr(config, 'capabilities') and config.capabilities:
+        if hasattr(config, "capabilities") and config.capabilities:
             return ", ".join(config.capabilities[:3])
 
         # Fallback

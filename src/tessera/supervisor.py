@@ -4,13 +4,14 @@ Supervisor agent implementation.
 
 import json
 from datetime import datetime
-from typing import Any, Optional
-from langchain_core.messages import HumanMessage, SystemMessage
+from typing import Any
+
 from langchain_core.language_models import BaseChatModel
+from langchain_core.messages import HumanMessage, SystemMessage
 
 from .config import SUPERVISOR_PROMPT, FrameworkConfig
-from .models import Task, SubTask, TaskStatus, AgentResponse
 from .llm import create_llm
+from .models import AgentResponse, SubTask, Task, TaskStatus
 
 
 class SupervisorAgent:
@@ -23,10 +24,10 @@ class SupervisorAgent:
 
     def __init__(
         self,
-        llm: Optional[BaseChatModel] = None,
-        config: Optional[FrameworkConfig] = None,
+        llm: BaseChatModel | None = None,
+        config: FrameworkConfig | None = None,
         system_prompt: str = SUPERVISOR_PROMPT,
-    ):
+    ) -> None:
         """
         Initialize the supervisor agent.
 
@@ -40,7 +41,7 @@ class SupervisorAgent:
         self.system_prompt = system_prompt
         self.tasks: dict[str, Task] = {}
 
-    def decompose_task(self, objective: str, callbacks: Optional[list] = None) -> Task:
+    def decompose_task(self, objective: str, callbacks: list | None = None) -> Task:
         """
         Decompose a complex objective into subtasks.
 
@@ -128,7 +129,7 @@ Respond in JSON format:
         task_id: str,
         subtask_id: str,
         status: TaskStatus,
-        result: Optional[str] = None,
+        result: str | None = None,
     ) -> None:
         """
         Update the status of a subtask.

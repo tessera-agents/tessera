@@ -2,13 +2,13 @@
 Basic tests for supervisor agent (avoiding complex LLM mocking).
 """
 
+from unittest.mock import Mock
+
 import pytest
-from unittest.mock import Mock, MagicMock
 from langchain_core.messages import AIMessage
 
+from tessera.legacy_config import FrameworkConfig, LLMConfig
 from tessera.supervisor import SupervisorAgent
-from tessera.legacy_config import LLMConfig, FrameworkConfig
-from tessera.models import Task, SubTask
 
 
 @pytest.mark.unit
@@ -37,9 +37,7 @@ class TestSupervisorBasic:
     def test_supervisor_stores_config(self):
         """Test supervisor stores framework config."""
         mock_llm = Mock()
-        config = FrameworkConfig(
-            llm=LLMConfig(provider="openai", models=["gpt-4"], api_key="test")
-        )
+        config = FrameworkConfig(llm=LLMConfig(provider="openai", models=["gpt-4"], api_key="test"))
 
         supervisor = SupervisorAgent(llm=mock_llm, config=config)
 

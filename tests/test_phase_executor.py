@@ -3,10 +3,9 @@ Tests for phase executor.
 """
 
 import pytest
-from pathlib import Path
 
-from tessera.workflow import PhaseExecutor
 from tessera.config.schema import WorkflowPhase
+from tessera.workflow import PhaseExecutor
 
 
 @pytest.mark.unit
@@ -16,17 +15,10 @@ class TestPhaseExecutor:
     def test_filter_phases_by_complexity(self):
         """Test phases are filtered by complexity."""
         phases = [
+            WorkflowPhase(name="simple-phase", required_for_complexity=["simple"]),
+            WorkflowPhase(name="complex-phase", required_for_complexity=["complex"]),
             WorkflowPhase(
-                name="simple-phase",
-                required_for_complexity=["simple"]
-            ),
-            WorkflowPhase(
-                name="complex-phase",
-                required_for_complexity=["complex"]
-            ),
-            WorkflowPhase(
-                name="all-phase",
-                required_for_complexity=["simple", "medium", "complex"]
+                name="all-phase", required_for_complexity=["simple", "medium", "complex"]
             ),
         ]
 
@@ -79,9 +71,7 @@ class TestPhaseExecutor:
                 description="Code implementation",
                 typical_tasks=["Write code", "Add tests"],
                 agents=["python-expert"],
-                sub_phases=[
-                    {"name": "write_tests", "type": "deliverable"}
-                ]
+                sub_phases=[{"name": "write_tests", "type": "deliverable"}],
             ),
         ]
 

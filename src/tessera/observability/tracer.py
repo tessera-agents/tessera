@@ -4,21 +4,19 @@ Pure OpenTelemetry tracing for Tessera - 100% local, zero cloud dependencies.
 Provides local-first LLM call tracing using standard OpenTelemetry with NO external services.
 """
 
-import os
 import json
+import os
 from pathlib import Path
-from typing import Optional
+
 from opentelemetry import trace
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import BatchSpanProcessor, SimpleSpanProcessor
 from opentelemetry.sdk.resources import Resource
-from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import SimpleSpanProcessor
 
 from ..config.xdg import get_tessera_cache_dir
 
-
 # Global tracer instance
-_tracer: Optional[trace.Tracer] = None
+_tracer: trace.Tracer | None = None
 _initialized: bool = False
 
 
@@ -29,7 +27,7 @@ class FileSpanExporter:
     100% local - no network calls, no cloud services.
     """
 
-    def __init__(self, file_path: Path):
+    def __init__(self, file_path: Path) -> None:
         """
         Initialize file exporter.
 
@@ -66,7 +64,6 @@ class FileSpanExporter:
 
     def shutdown(self) -> None:
         """Shutdown exporter."""
-        pass
 
     def force_flush(self, timeout_millis: int = 30000) -> bool:
         """Force flush any pending spans."""
@@ -76,7 +73,7 @@ class FileSpanExporter:
 def init_tracer(
     app_name: str = "tessera",
     export_to_file: bool = True,
-    file_path: Optional[Path] = None,
+    file_path: Path | None = None,
 ) -> trace.Tracer:
     """
     Initialize pure OpenTelemetry tracer - 100% local, zero cloud dependencies.
@@ -150,10 +147,10 @@ def get_tracer() -> trace.Tracer:
 
 
 def set_span_attributes(
-    agent_name: Optional[str] = None,
-    task_id: Optional[str] = None,
-    task_type: Optional[str] = None,
-    phase: Optional[str] = None,
+    agent_name: str | None = None,
+    task_id: str | None = None,
+    task_type: str | None = None,
+    phase: str | None = None,
     **custom_attributes,
 ) -> None:
     """

@@ -85,10 +85,46 @@ line-length = 100
 target-version = "py313"
 cache-dir = ".cache/ruff"
 
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "D",       # pydocstyle - add selectively
+    "COM812",  # Trailing comma (formatter conflict)
+    "ISC001",  # Implicit string concat (formatter conflict)
+    "EM",      # Error message strings (pragmatic)
+    "FBT",     # Boolean positional args (common pattern)
+    "TRY003",  # Long exception messages (readable errors)
+    "B904",    # Exception chaining (not always needed)
+    "C901",    # Complexity (some functions naturally complex)
+    "PLR0912", # Too many branches
+    "PLR0913", # Too many arguments
+    "PLR0915", # Too many statements
+    "TID252",  # Relative imports (fine for internal modules)
+    "G004",    # Logging f-strings (modern idiom)
+    "S603",    # subprocess without shell check (we control input)
+    "S607",    # Partial executable path (intentional)
+]
+
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
 line-ending = "auto"
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = [
+    "S101",    # assert usage
+    "PLR2004", # Magic values
+    "ARG",     # Unused pytest fixtures
+    "ANN",     # Type annotations
+    "SLF001",  # Private member access
+    "PLC0415", # Import placement
+]
+"src/tessera/cli/*" = [
+    "T201",    # print() allowed in CLI
+]
 
 [tool.mypy]
 python_version = "3.13"

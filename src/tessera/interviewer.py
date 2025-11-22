@@ -4,18 +4,19 @@ Interviewer agent implementation.
 
 import json
 from datetime import datetime
-from typing import Any, Optional
-from langchain_core.messages import HumanMessage, SystemMessage
+from typing import Any
+
 from langchain_core.language_models import BaseChatModel
+from langchain_core.messages import HumanMessage, SystemMessage
 
 from .config import INTERVIEWER_PROMPT, FrameworkConfig
+from .llm import create_llm
 from .models import (
     InterviewResult,
     QuestionResponse,
     Score,
     ScoreMetrics,
 )
-from .llm import create_llm
 
 
 class InterviewerAgent:
@@ -28,10 +29,10 @@ class InterviewerAgent:
 
     def __init__(
         self,
-        llm: Optional[BaseChatModel] = None,
-        config: Optional[FrameworkConfig] = None,
+        llm: BaseChatModel | None = None,
+        config: FrameworkConfig | None = None,
         system_prompt: str = INTERVIEWER_PROMPT,
-    ):
+    ) -> None:
         """
         Initialize the interviewer agent.
 
@@ -150,7 +151,7 @@ Please provide a detailed answer.
             guardrails=recommendation.get("guardrails", []),
             transcript={
                 "task_description": task_description,
-                "questions": [q for q in questions],
+                "questions": list(questions),
                 "timestamp": datetime.now().isoformat(),
             },
         )
@@ -311,7 +312,7 @@ Respond in JSON format:
         """Score candidate responses."""
         scores: list[Score] = []
 
-        for q, r in zip(questions, responses):
+        for q, r in zip(questions, responses, strict=False):
             score_prompt = f"""
 Task: {task_description}
 

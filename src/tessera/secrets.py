@@ -18,19 +18,18 @@ Example .env configuration:
 
 import os
 import subprocess
+from functools import lru_cache
 
 from .logging_config import get_logger
 
 logger = get_logger(__name__)
-from typing import Optional
-from functools import lru_cache
 
 
 class SecretManager:
     """Manage secrets from environment variables and 1Password."""
 
     @staticmethod
-    def get_github_token() -> Optional[str]:
+    def get_github_token() -> str | None:
         """
         Get GitHub token from:
         1. Environment variable (GITHUB_TOKEN)
@@ -53,7 +52,7 @@ class SecretManager:
 
     @staticmethod
     @lru_cache(maxsize=128)
-    def get_from_1password(op_reference: str) -> Optional[str]:
+    def get_from_1password(op_reference: str) -> str | None:
         """
         Retrieve a secret from 1Password using op:// secret reference.
 
@@ -81,7 +80,7 @@ class SecretManager:
             # Check if op CLI is available
             result = subprocess.run(
                 ["which", "op"],
-                capture_output=True,
+                check=False, capture_output=True,
                 text=True,
                 timeout=2,
             )
@@ -105,7 +104,9 @@ class SecretManager:
             return None
         except subprocess.CalledProcessError as e:
             # Item not found or other error
-            logger.warning(f"Failed to read from 1Password: {e.stderr if e.stderr else 'unknown error'}")
+            logger.warning(
+                f"Failed to read from 1Password: {e.stderr if e.stderr else 'unknown error'}"
+            )
             return None
         except FileNotFoundError:
             # op command not found
@@ -115,7 +116,7 @@ class SecretManager:
             return None
 
     @staticmethod
-    def get_openai_api_key() -> Optional[str]:
+    def get_openai_api_key() -> str | None:
         """
         Get OpenAI API key from:
         1. Environment variable (OPENAI_API_KEY)
@@ -137,7 +138,7 @@ class SecretManager:
         return None
 
     @staticmethod
-    def get_anthropic_api_key() -> Optional[str]:
+    def get_anthropic_api_key() -> str | None:
         """
         Get Anthropic API key from:
         1. Environment variable (ANTHROPIC_API_KEY)
@@ -169,7 +170,7 @@ class SecretManager:
         try:
             result = subprocess.run(
                 ["op", "account", "list"],
-                capture_output=True,
+                check=False, capture_output=True,
                 text=True,
                 timeout=2,
             )
@@ -178,7 +179,7 @@ class SecretManager:
             return False
 
     @staticmethod
-    def get_all_secrets() -> dict[str, Optional[str]]:
+    def get_all_secrets() -> dict[str, str | None]:
         """
         Get all configured secrets.
 
@@ -193,17 +194,17 @@ class SecretManager:
 
 
 # Convenience functions
-def get_github_token() -> Optional[str]:
+def get_github_token() -> str | None:
     """Get GitHub token from any configured source."""
     return SecretManager.get_github_token()
 
 
-def get_openai_api_key() -> Optional[str]:
+def get_openai_api_key() -> str | None:
     """Get OpenAI API key from any configured source."""
     return SecretManager.get_openai_api_key()
 
 
-def get_anthropic_api_key() -> Optional[str]:
+def get_anthropic_api_key() -> str | None:
     """Get Anthropic API key from any configured source."""
     return SecretManager.get_anthropic_api_key()
 

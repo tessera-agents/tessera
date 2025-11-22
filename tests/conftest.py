@@ -1,9 +1,10 @@
 """Pytest configuration and shared fixtures."""
 
+from unittest.mock import Mock, patch
+
 import pytest
-import os
-from unittest.mock import Mock, MagicMock, patch
 from langchain_core.messages import AIMessage
+
 from tessera.config import FrameworkConfig, LLMConfig, ScoringWeights
 
 
@@ -11,13 +12,14 @@ from tessera.config import FrameworkConfig, LLMConfig, ScoringWeights
 @pytest.fixture(autouse=True)
 def mock_llm_creation():
     """Automatically mock LLM creation for all tests."""
+
     def mock_create_llm(*args, **kwargs):
         llm = Mock()
         llm.invoke = Mock(return_value=AIMessage(content='{"result": "test"}'))
         return llm
 
-    with patch('tessera.llm.create_llm', side_effect=mock_create_llm):
-        with patch('tessera.llm.ChatLiteLLM', return_value=mock_create_llm()):
+    with patch("tessera.llm.create_llm", side_effect=mock_create_llm):
+        with patch("tessera.llm.ChatLiteLLM", return_value=mock_create_llm()):
             yield
 
 
@@ -32,10 +34,12 @@ def mock_llm():
 @pytest.fixture
 def mock_llm_with_response():
     """Create a mock LLM that returns custom responses."""
+
     def _create_mock(response_content: str):
         llm = Mock()
         llm.invoke = Mock(return_value=AIMessage(content=response_content))
         return llm
+
     return _create_mock
 
 

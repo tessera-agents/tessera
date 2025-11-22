@@ -1,11 +1,9 @@
 """Unit tests for Supervisor agent."""
 
 import pytest
-import json
-from datetime import datetime
-from langchain_core.messages import AIMessage
-from tessera.supervisor import SupervisorAgent
+
 from tessera.models import AgentResponse, TaskStatus
+from tessera.supervisor import SupervisorAgent
 
 
 @pytest.mark.unit
@@ -45,7 +43,9 @@ class TestSupervisorAgent:
         assert len(task.subtasks[0].acceptance_criteria) == 2
         assert task.subtasks[1].dependencies == ["subtask_1"]
 
-    def test_decompose_task_stores_in_tasks_dict(self, mock_llm_with_response, test_config, sample_task_decomposition):
+    def test_decompose_task_stores_in_tasks_dict(
+        self, mock_llm_with_response, test_config, sample_task_decomposition
+    ):
         """Test task decomposition stores task in tasks dictionary."""
         llm = mock_llm_with_response(sample_task_decomposition)
         supervisor = SupervisorAgent(llm=llm, config=test_config)
@@ -76,7 +76,9 @@ class TestSupervisorAgent:
         with pytest.raises(ValueError, match="Task .* not found"):
             supervisor.assign_subtask("invalid_task_id", "subtask_1", "agent_1")
 
-    def test_update_subtask_status(self, mock_llm_with_response, test_config, sample_task_decomposition):
+    def test_update_subtask_status(
+        self, mock_llm_with_response, test_config, sample_task_decomposition
+    ):
         """Test updating subtask status."""
         llm = mock_llm_with_response(sample_task_decomposition)
         supervisor = SupervisorAgent(llm=llm, config=test_config)
@@ -106,7 +108,9 @@ class TestSupervisorAgent:
                 TaskStatus.COMPLETED,
             )
 
-    def test_review_agent_output(self, mock_llm_with_response, test_config, sample_task_decomposition, sample_review_response):
+    def test_review_agent_output(
+        self, mock_llm_with_response, test_config, sample_task_decomposition, sample_review_response
+    ):
         """Test reviewing agent output."""
         # First decompose a task
         decomp_llm = mock_llm_with_response(sample_task_decomposition)
@@ -201,7 +205,9 @@ class TestSupervisorAgent:
         with pytest.raises(ValueError, match="Failed to parse JSON"):
             supervisor._parse_json_response("not valid json at all")
 
-    def test_synthesize_results(self, mock_llm_with_response, test_config, sample_task_decomposition):
+    def test_synthesize_results(
+        self, mock_llm_with_response, test_config, sample_task_decomposition
+    ):
         """Test synthesizing results from completed subtasks."""
         # Decompose task
         decomp_llm = mock_llm_with_response(sample_task_decomposition)
@@ -231,7 +237,9 @@ class TestSupervisorAgent:
         assert len(result) > 0
         assert "synthesis" in result.lower() or "Final" in result
 
-    def test_synthesize_results_no_completed_subtasks(self, mock_llm_with_response, test_config, sample_task_decomposition):
+    def test_synthesize_results_no_completed_subtasks(
+        self, mock_llm_with_response, test_config, sample_task_decomposition
+    ):
         """Test synthesizing when no subtasks are completed."""
         llm = mock_llm_with_response(sample_task_decomposition)
         supervisor = SupervisorAgent(llm=llm, config=test_config)

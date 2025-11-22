@@ -3,10 +3,9 @@ Tests for workflow components.
 """
 
 import pytest
-from unittest.mock import Mock
 
-from tessera.workflow import TaskQueue, TaskStatus, AgentPool, AgentInstance
 from tessera.config.schema import AgentDefinition
+from tessera.workflow import AgentPool, TaskQueue, TaskStatus
 
 
 @pytest.mark.unit
@@ -86,7 +85,7 @@ class TestAgentPool:
                 name="python-expert",
                 model="gpt-4",
                 provider="openai",
-                capabilities=["python", "coding"]
+                capabilities=["python", "coding"],
             ),
         ]
 
@@ -123,13 +122,13 @@ class TestAgentPool:
                 name="python-expert",
                 model="gpt-4",
                 provider="openai",
-                capabilities=["python", "testing"]
+                capabilities=["python", "testing"],
             ),
             AgentDefinition(
                 name="js-expert",
                 model="gpt-4",
                 provider="openai",
-                capabilities=["javascript", "react"]
+                capabilities=["javascript", "react"],
             ),
         ]
 

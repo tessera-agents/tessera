@@ -1,8 +1,7 @@
 """
-Slack Socket Mode integration for LangGraph approval workflows.
+Slack Socket Mode integration for LangGraph Human-in-the-Loop workflows.
 
 Provides privacy-preserving approval workflows without requiring webhooks.
-Uses native Slack SDK with Socket Mode for local, self-hosted operation.
 """
 
 import json
@@ -17,16 +16,13 @@ from slack_sdk.socket_mode.response import SocketModeResponse
 from slack_sdk.web import WebClient
 
 from .graph_base import get_thread_config
-from .logging_config import get_logger
-
-logger = get_logger(__name__)
 
 
-class SlackApprovalCoordinator:
+class SlackHITLCoordinator:
     """
     Coordinates LangGraph interrupts with Slack Socket Mode.
 
-    Provides approval workflows using:
+    Provides human-in-the-loop approval workflows using:
     - LangGraph's native interrupt() function
     - Slack Socket Mode (WebSocket-based, no webhooks)
     - Local SQLite state persistence
@@ -34,7 +30,7 @@ class SlackApprovalCoordinator:
     Example:
         >>> from slack_sdk.socket_mode import SocketModeClient
         >>> from slack_sdk.web import WebClient
-        >>> from tessera.supervisor_graph import SupervisorGraph
+        >>> from autonomy.supervisor_graph import SupervisorGraph
         >>>
         >>> # Initialize Slack clients
         >>> slack_client = SocketModeClient(
@@ -44,7 +40,7 @@ class SlackApprovalCoordinator:
         >>>
         >>> # Initialize coordinator
         >>> supervisor = SupervisorGraph()
-        >>> coordinator = SlackApprovalCoordinator(
+        >>> coordinator = SlackHITLCoordinator(
         >>>     graph=supervisor,
         >>>     slack_client=slack_client
         >>> )
@@ -72,7 +68,7 @@ class SlackApprovalCoordinator:
         default_channel: str | None = None,
     ) -> None:
         """
-        Initialize Slack approval coordinator.
+        Initialize Slack HITL coordinator.
 
         Args:
             graph: LangGraph graph with interrupt nodes
@@ -81,7 +77,9 @@ class SlackApprovalCoordinator:
         """
         self.graph = graph
         self.slack_client = slack_client
-        self.default_channel = default_channel or os.environ.get("SLACK_APPROVAL_CHANNEL")
+        self.default_channel = default_channel or os.environ.get(
+            "SLACK_APPROVAL_CHANNEL"
+        )
         self.pending_interrupts: dict[str, dict] = {}  # message_ts -> interrupt_data
 
     def invoke_with_slack_approval(
@@ -117,7 +115,9 @@ class SlackApprovalCoordinator:
             interrupt_data = result["__interrupt__"]
 
             # Send approval request to Slack
-            msg_ts = self._send_approval_request(channel=channel, interrupt_data=interrupt_data)
+            msg_ts = self._send_approval_request(
+                channel=channel, interrupt_data=interrupt_data
+            )
 
             # Store pending interrupt
             self.pending_interrupts[msg_ts] = {
@@ -194,7 +194,9 @@ class SlackApprovalCoordinator:
 
         return response["ts"]
 
-    def handle_approval_response(self, action_value: str, message_ts: str) -> dict | None:
+    def handle_approval_response(
+        self, action_value: str, message_ts: str
+    ) -> dict | None:
         """
         Resume graph after user responds in Slack.
 
@@ -241,7 +243,9 @@ class SlackApprovalCoordinator:
             Event handler function to register with SocketModeClient
         """
 
-        def handle_socket_mode_request(client: SocketModeClient, req: SocketModeRequest) -> None:
+        def handle_socket_mode_request(
+            client: SocketModeClient, req: SocketModeRequest
+        ) -> None:
             """Handle Socket Mode events."""
             # Always acknowledge
             response = SocketModeResponse(envelope_id=req.envelope_id)
@@ -265,8 +269,8 @@ class SlackApprovalCoordinator:
                                 action_value=action_value, message_ts=message_ts
                             )
 
-            except Exception as e:
-                logger.exception(f"Error processing Slack event: {e}")
+            except Exception:
+                pass
 
         return handle_socket_mode_request
 

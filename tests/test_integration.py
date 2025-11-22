@@ -1,7 +1,8 @@
 """Integration tests for end-to-end workflows."""
 
 import pytest
-from tessera import SupervisorAgent, InterviewerAgent, PanelSystem
+
+from tessera import InterviewerAgent, PanelSystem, SupervisorAgent
 from tessera.models import AgentResponse, TaskStatus
 
 
@@ -43,12 +44,10 @@ class TestSupervisorInterviewerIntegration:
 
         # Design questions
         questions_llm = mock_llm_with_response(
-            '{"questions": ' + str(sample_questions).replace("'", '"') + '}'
+            '{"questions": ' + str(sample_questions).replace("'", '"') + "}"
         )
         interviewer.llm = questions_llm
-        questions = interviewer.design_interview(
-            interview_request["task_description"]
-        )
+        questions = interviewer.design_interview(interview_request["task_description"])
 
         assert len(questions) > 0
 
@@ -185,6 +184,7 @@ class TestMultiCandidateEvaluation:
             rec_llm = mock_llm_with_response(sample_recommendation_response)
 
             original_generate = interviewer._generate_recommendation
+
             def mock_generate(*args, **kwargs):
                 interviewer.llm = rec_llm
                 result = original_generate(*args, **kwargs)
@@ -212,7 +212,7 @@ class TestMultiCandidateEvaluation:
 
         assert len(comparison["rankings"]) == 3
         assert "selected_candidate" in comparison
-        assert comparison["selected_candidate"] in candidate_llms.keys()
+        assert comparison["selected_candidate"] in candidate_llms
 
 
 @pytest.mark.integration
@@ -317,7 +317,7 @@ class TestFullSystemIntegration:
             candidate_llms=candidate_llms,
         )
 
-        assert panel_result.decision in candidate_llms.keys()
+        assert panel_result.decision in candidate_llms
 
         # Step 3: Assign selected agent to subtask
         selected_agent = panel_result.decision

@@ -2,11 +2,12 @@
 Tests for multi-agent executor.
 """
 
-import pytest
 from unittest.mock import Mock
 
-from tessera.workflow import MultiAgentExecutor, AgentPool, TaskQueue
-from tessera.models import Task, SubTask, TaskStatus
+import pytest
+
+from tessera.models import SubTask, Task
+from tessera.workflow import AgentPool, MultiAgentExecutor, TaskQueue
 
 
 @pytest.mark.unit
@@ -19,9 +20,7 @@ class TestMultiAgentExecutor:
         agent_pool = AgentPool([])
 
         executor = MultiAgentExecutor(
-            supervisor=mock_supervisor,
-            agent_pool=agent_pool,
-            max_parallel=3
+            supervisor=mock_supervisor, agent_pool=agent_pool, max_parallel=3
         )
 
         assert executor.supervisor == mock_supervisor
@@ -37,7 +36,7 @@ class TestMultiAgentExecutor:
             subtasks=[
                 SubTask(task_id="sub-1", description="First task"),
                 SubTask(task_id="sub-2", description="Second task"),
-            ]
+            ],
         )
 
         agent_pool = AgentPool([])

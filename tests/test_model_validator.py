@@ -1,14 +1,16 @@
 """Unit tests for model validator."""
 
+from unittest.mock import Mock, patch
+
 import pytest
-from unittest.mock import Mock, patch, MagicMock
 import requests
+
+from tessera.config import LLMConfig
 from tessera.model_validator import (
     ModelValidator,
-    validate_config_models,
     list_available_models,
+    validate_config_models,
 )
-from tessera.config import LLMConfig
 
 
 @pytest.mark.unit
@@ -29,19 +31,13 @@ class TestModelValidatorFetchModels:
         }
         mock_get.return_value = mock_response
 
-        result = ModelValidator.fetch_available_models(
-            "http://localhost:3000/v1",
-            "test-key"
-        )
+        result = ModelValidator.fetch_available_models("http://localhost:3000/v1", "test-key")
 
         assert result == ["gpt-4", "gpt-3.5-turbo", "o1-preview"]
         mock_get.assert_called_once_with(
             "http://localhost:3000/v1/models",
-            headers={
-                "Authorization": "Bearer test-key",
-                "Content-Type": "application/json"
-            },
-            timeout=10.0
+            headers={"Authorization": "Bearer test-key", "Content-Type": "application/json"},
+            timeout=10.0,
         )
 
     @patch("requests.get")
@@ -54,7 +50,7 @@ class TestModelValidatorFetchModels:
 
         ModelValidator.fetch_available_models(
             "http://localhost:3000",  # No /v1
-            "test-key"
+            "test-key",
         )
 
         # Should append /v1
@@ -71,7 +67,7 @@ class TestModelValidatorFetchModels:
 
         ModelValidator.fetch_available_models(
             "http://localhost:3000/",  # Trailing slash
-            "test-key"
+            "test-key",
         )
 
         # Should strip and append /v1
@@ -85,10 +81,7 @@ class TestModelValidatorFetchModels:
         mock_response.text = "Not found"
         mock_get.return_value = mock_response
 
-        result = ModelValidator.fetch_available_models(
-            "http://localhost:3000/v1",
-            "test-key"
-        )
+        result = ModelValidator.fetch_available_models("http://localhost:3000/v1", "test-key")
 
         assert result is None
 
@@ -100,10 +93,7 @@ class TestModelValidatorFetchModels:
         mock_response.json.return_value = {"models": ["gpt-4"]}  # Wrong format
         mock_get.return_value = mock_response
 
-        result = ModelValidator.fetch_available_models(
-            "http://localhost:3000/v1",
-            "test-key"
-        )
+        result = ModelValidator.fetch_available_models("http://localhost:3000/v1", "test-key")
 
         assert result is None
 
@@ -112,10 +102,7 @@ class TestModelValidatorFetchModels:
         """Test handling timeout error."""
         mock_get.side_effect = requests.exceptions.Timeout()
 
-        result = ModelValidator.fetch_available_models(
-            "http://localhost:3000/v1",
-            "test-key"
-        )
+        result = ModelValidator.fetch_available_models("http://localhost:3000/v1", "test-key")
 
         assert result is None
 
@@ -124,10 +111,7 @@ class TestModelValidatorFetchModels:
         """Test handling connection error."""
         mock_get.side_effect = requests.exceptions.ConnectionError()
 
-        result = ModelValidator.fetch_available_models(
-            "http://localhost:3000/v1",
-            "test-key"
-        )
+        result = ModelValidator.fetch_available_models("http://localhost:3000/v1", "test-key")
 
         assert result is None
 
@@ -136,10 +120,7 @@ class TestModelValidatorFetchModels:
         """Test handling generic exception."""
         mock_get.side_effect = Exception("Something went wrong")
 
-        result = ModelValidator.fetch_available_models(
-            "http://localhost:3000/v1",
-            "test-key"
-        )
+        result = ModelValidator.fetch_available_models("http://localhost:3000/v1", "test-key")
 
         assert result is None
 
@@ -151,11 +132,7 @@ class TestModelValidatorFetchModels:
         mock_response.json.return_value = {"data": [{"id": "gpt-4"}]}
         mock_get.return_value = mock_response
 
-        ModelValidator.fetch_available_models(
-            "http://localhost:3000/v1",
-            "test-key",
-            timeout=30.0
-        )
+        ModelValidator.fetch_available_models("http://localhost:3000/v1", "test-key", timeout=30.0)
 
         assert mock_get.call_args[1]["timeout"] == 30.0
 
@@ -170,7 +147,7 @@ class TestModelValidatorValidateModels:
             provider="openai",
             api_key="test-key",
             models=["gpt-4"],
-            base_url=None  # No proxy
+            base_url=None,  # No proxy
         )
 
         result = ModelValidator.validate_models(config)
@@ -186,7 +163,7 @@ class TestModelValidatorValidateModels:
             provider="openai",
             api_key="test-key",
             models=[],  # No models
-            base_url="http://localhost:3000/v1"
+            base_url="http://localhost:3000/v1",
         )
 
         with pytest.raises(SystemExit) as exc_info:
@@ -201,10 +178,7 @@ class TestModelValidatorValidateModels:
         mock_fetch.return_value = ["gpt-4", "gpt-3.5-turbo"]
 
         config = LLMConfig(
-            provider="openai",
-            api_key="test-key",
-            models=[],
-            base_url="http://localhost:3000/v1"
+            provider="openai", api_key="test-key", models=[], base_url="http://localhost:3000/v1"
         )
 
         result = ModelValidator.validate_models(config, strict=False)
@@ -220,7 +194,7 @@ class TestModelValidatorValidateModels:
             provider="openai",
             api_key="test-key",
             models=["gpt-4"],
-            base_url="http://localhost:3000/v1"
+            base_url="http://localhost:3000/v1",
         )
 
         with pytest.raises(SystemExit) as exc_info:
@@ -237,7 +211,7 @@ class TestModelValidatorValidateModels:
             provider="openai",
             api_key="test-key",
             models=["gpt-4"],
-            base_url="http://localhost:3000/v1"
+            base_url="http://localhost:3000/v1",
         )
 
         result = ModelValidator.validate_models(config, strict=False)
@@ -253,7 +227,7 @@ class TestModelValidatorValidateModels:
             provider="openai",
             api_key="test-key",
             models=["gpt-4", "gpt-3.5-turbo"],
-            base_url="http://localhost:3000/v1"
+            base_url="http://localhost:3000/v1",
         )
 
         result = ModelValidator.validate_models(config, strict=True)
@@ -269,7 +243,7 @@ class TestModelValidatorValidateModels:
             provider="openai",
             api_key="test-key",
             models=["gpt-4", "invalid-model"],
-            base_url="http://localhost:3000/v1"
+            base_url="http://localhost:3000/v1",
         )
 
         with pytest.raises(SystemExit) as exc_info:
@@ -286,7 +260,7 @@ class TestModelValidatorValidateModels:
             provider="openai",
             api_key="test-key",
             models=["gpt-4", "invalid-model"],
-            base_url="http://localhost:3000/v1"
+            base_url="http://localhost:3000/v1",
         )
 
         result = ModelValidator.validate_models(config, strict=False)
@@ -304,32 +278,17 @@ class TestModelValidatorDisplayModels:
         mock_fetch.return_value = ["gpt-4", "gpt-3.5-turbo", "o1-preview"]
 
         # Should not raise
-        ModelValidator.display_available_models(
-            "http://localhost:3000/v1",
-            "test-key"
-        )
+        ModelValidator.display_available_models("http://localhost:3000/v1", "test-key")
 
-        mock_fetch.assert_called_once_with(
-            "http://localhost:3000/v1",
-            "test-key"
-        )
+        mock_fetch.assert_called_once_with("http://localhost:3000/v1", "test-key")
 
     @patch("tessera.model_validator.ModelValidator.fetch_available_models")
     def test_display_available_models_more_than_three(self, mock_fetch):
         """Test displaying more than 3 models shows count."""
-        mock_fetch.return_value = [
-            "gpt-4",
-            "gpt-3.5-turbo",
-            "o1-preview",
-            "gpt-4-32k",
-            "claude-3"
-        ]
+        mock_fetch.return_value = ["gpt-4", "gpt-3.5-turbo", "o1-preview", "gpt-4-32k", "claude-3"]
 
         # Should not raise
-        ModelValidator.display_available_models(
-            "http://localhost:3000/v1",
-            "test-key"
-        )
+        ModelValidator.display_available_models("http://localhost:3000/v1", "test-key")
 
         mock_fetch.assert_called_once()
 
@@ -339,10 +298,7 @@ class TestModelValidatorDisplayModels:
         mock_fetch.return_value = None
 
         # Should not raise, just print error
-        ModelValidator.display_available_models(
-            "http://localhost:3000/v1",
-            "test-key"
-        )
+        ModelValidator.display_available_models("http://localhost:3000/v1", "test-key")
 
         mock_fetch.assert_called_once()
 
@@ -356,11 +312,7 @@ class TestConvenienceFunctions:
         """Test validate_config_models convenience function."""
         mock_validate.return_value = True
 
-        config = LLMConfig(
-            provider="openai",
-            api_key="test-key",
-            models=["gpt-4"]
-        )
+        config = LLMConfig(provider="openai", api_key="test-key", models=["gpt-4"])
 
         result = validate_config_models(config, strict=False)
 
@@ -370,22 +322,13 @@ class TestConvenienceFunctions:
     @patch("tessera.model_validator.ModelValidator.display_available_models")
     def test_list_available_models(self, mock_display):
         """Test list_available_models convenience function."""
-        list_available_models(
-            base_url="http://custom:3000/v1",
-            api_key="custom-key"
-        )
+        list_available_models(base_url="http://custom:3000/v1", api_key="custom-key")
 
-        mock_display.assert_called_once_with(
-            "http://custom:3000/v1",
-            "custom-key"
-        )
+        mock_display.assert_called_once_with("http://custom:3000/v1", "custom-key")
 
     @patch("tessera.model_validator.ModelValidator.display_available_models")
     def test_list_available_models_defaults(self, mock_display):
         """Test list_available_models with default arguments."""
         list_available_models()
 
-        mock_display.assert_called_once_with(
-            "http://localhost:3000/v1",
-            "dummy"
-        )
+        mock_display.assert_called_once_with("http://localhost:3000/v1", "dummy")

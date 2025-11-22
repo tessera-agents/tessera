@@ -35,7 +35,7 @@ def parse_model_list(env_value: str | None, default: list[str]) -> list[str]:
 class LLMConfig(BaseModel):
     """Configuration for LLM providers."""
 
-    provider: Literal["openai", "anthropic", "azure", "vertex_ai", "ollama"] = "openai"
+    provider: Literal["openai", "anthropic", "azure"] = "openai"
     api_key: str | None = None
 
     # Model configuration - models list is the source of truth
@@ -72,7 +72,8 @@ class LLMConfig(BaseModel):
 
                 # Fetch and display available models from the API
                 available = ModelValidator.fetch_available_models(
-                    self.base_url, self.api_key or "dummy"
+                    self.base_url,
+                    self.api_key or "dummy"
                 )
 
                 if available:
@@ -115,7 +116,7 @@ class LLMConfig(BaseModel):
                 "=" * 80,
                 "\nYou are attempting to use premium models that consume your limited",
                 "monthly quota (300 premium requests/month on Copilot Individual):",
-                "",
+                ""
             ]
 
             for model, multiplier in premium_models:
@@ -128,31 +129,29 @@ class LLMConfig(BaseModel):
                 else:
                     error_msg.append(f"  • {model} ({int(multiplier)}× multiplier - EXPENSIVE!)")
 
-            error_msg.extend(
-                [
-                    "",
-                    "To use premium models, you must explicitly opt-in by setting:",
-                    "  allow_premium_models=True",
-                    "",
-                    "Example:",
-                    "  config = LLMConfig(",
-                    "      models=['claude-3.5-sonnet'],",
-                    "      allow_premium_models=True  # Explicit opt-in",
-                    "  )",
-                    "",
-                    "Or in your .env file:",
-                    "  ALLOW_PREMIUM_MODELS=true",
-                    "",
-                    "FREE models available (unlimited on Copilot Individual):",
-                    "  • gpt-5-mini",
-                    "  • gpt-4.1",
-                    "  • gpt-4o",
-                    "",
-                    "For pricing details, see:",
-                    "  https://docs.github.com/en/copilot/concepts/billing/copilot-requests",
-                    "=" * 80,
-                ]
-            )
+            error_msg.extend([
+                "",
+                "To use premium models, you must explicitly opt-in by setting:",
+                "  allow_premium_models=True",
+                "",
+                "Example:",
+                "  config = LLMConfig(",
+                "      models=['claude-3.5-sonnet'],",
+                "      allow_premium_models=True  # Explicit opt-in",
+                "  )",
+                "",
+                "Or in your .env file:",
+                "  ALLOW_PREMIUM_MODELS=true",
+                "",
+                "FREE models available (unlimited on Copilot Individual):",
+                "  • gpt-5-mini",
+                "  • gpt-4.1",
+                "  • gpt-4o",
+                "",
+                "For pricing details, see:",
+                "  https://docs.github.com/en/copilot/concepts/billing/copilot-requests",
+                "=" * 80,
+            ])
 
             raise ValueError("\n".join(error_msg))
 
@@ -195,11 +194,7 @@ class LLMConfig(BaseModel):
                 models = parse_model_list(models_str, default=[])
 
             # Check if premium models are allowed
-            allow_premium = os.getenv("ALLOW_PREMIUM_MODELS", "false").lower() in (
-                "true",
-                "1",
-                "yes",
-            )
+            allow_premium = os.getenv("ALLOW_PREMIUM_MODELS", "false").lower() in ("true", "1", "yes")
 
             return cls(
                 provider="openai",

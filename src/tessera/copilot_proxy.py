@@ -5,11 +5,11 @@ This module manages a copilot-api proxy server as a subprocess,
 eliminating the need for Docker.
 """
 
+import atexit
+import os
 import subprocess
 import time
-import os
-import atexit
-from typing import Optional
+
 import requests
 
 from .logging_config import get_logger
@@ -22,12 +22,12 @@ class CopilotProxyManager:
 
     def __init__(
         self,
-        github_token: Optional[str] = None,
+        github_token: str | None = None,
         rate_limit: int = 30,
         use_wait: bool = True,
-        port: Optional[int] = None,
+        port: int | None = None,
         verbose: bool = True,
-    ):
+    ) -> None:
         """
         Initialize Copilot proxy manager.
 
@@ -43,13 +43,13 @@ class CopilotProxyManager:
         self.use_wait = use_wait
         self.port = port
         self.verbose = verbose
-        self.process: Optional[subprocess.Popen] = None
+        self.process: subprocess.Popen | None = None
         self._started = False
 
         # Register cleanup on exit
         atexit.register(self.stop)
 
-    def _get_github_token(self) -> Optional[str]:
+    def _get_github_token(self) -> str | None:
         """Get GitHub token from environment or 1Password."""
         # Try environment variable first
         token = os.getenv("GITHUB_TOKEN")
@@ -73,7 +73,7 @@ class CopilotProxyManager:
         try:
             result = subprocess.run(
                 ["npx", "copilot-api@latest", "--version"],
-                capture_output=True,
+                check=False, capture_output=True,
                 text=True,
                 timeout=5,
             )
@@ -92,7 +92,7 @@ class CopilotProxyManager:
         try:
             result = subprocess.run(
                 ["npm", "install", "-g", "copilot-api@latest"],
-                capture_output=True,
+                check=False, capture_output=True,
                 text=True,
                 timeout=120,
             )
@@ -100,15 +100,14 @@ class CopilotProxyManager:
             if result.returncode == 0:
                 logger.info("✓ copilot-api installed successfully")
                 return True
-            else:
-                logger.error(f"✗ Installation failed: {result.stderr}")
-                return False
+            logger.error(f"✗ Installation failed: {result.stderr}")
+            return False
 
         except subprocess.TimeoutExpired:
-            logger.error("✗ Installation timed out")
+            logger.exception("✗ Installation timed out")
             return False
         except FileNotFoundError:
-            logger.error("✗ npm not found. Please install Node.js first.")
+            logger.exception("✗ npm not found. Please install Node.js first.")
             return False
 
     def start(self, wait_for_ready: bool = True, timeout: float = 30.0) -> bool:
@@ -139,7 +138,7 @@ class CopilotProxyManager:
             )
 
         # Validate token format
-        if not self.github_token.startswith('ghu_'):
+        if not self.github_token.startswith("ghu_"):
             raise ValueError(
                 f"Invalid GitHub Copilot token format.\n"
                 "\n"
@@ -153,9 +152,13 @@ class CopilotProxyManager:
 
         # Build command
         cmd = [
-            "npx", "copilot-api@latest", "start",
-            "--rate-limit", str(self.rate_limit),
-            "--github-token", self.github_token
+            "npx",
+            "copilot-api@latest",
+            "start",
+            "--rate-limit",
+            str(self.rate_limit),
+            "--github-token",
+            self.github_token,
         ]
 
         # Only add port if specified (otherwise use copilot-api default 4141)
@@ -194,18 +197,17 @@ class CopilotProxyManager:
                     port_display = self.port if self.port is not None else 4141
                     logger.info(f"✓ Proxy server ready at http://localhost:{port_display}")
                     return True
-                else:
-                    logger.error("✗ Proxy failed to start within timeout")
-                    self.stop()
-                    return False
+                logger.error("✗ Proxy failed to start within timeout")
+                self.stop()
+                return False
 
             return True
 
         except FileNotFoundError:
-            logger.error("✗ npx not found. Please install Node.js first.")
+            logger.exception("✗ npx not found. Please install Node.js first.")
             return False
         except Exception as e:
-            logger.error(f"✗ Failed to start proxy: {e}")
+            logger.exception(f"✗ Failed to start proxy: {e}")
             return False
 
     def wait_for_ready(self, timeout: float = 30.0) -> bool:
@@ -242,7 +244,7 @@ class CopilotProxyManager:
 
         return False
 
-    def stop(self):
+    def stop(self) -> None:
         """Stop the proxy server."""
         if not self._started or not self.process:
             return
@@ -304,14 +306,14 @@ class CopilotProxyManager:
 
 
 # Singleton instance for easy access
-_proxy_instance: Optional[CopilotProxyManager] = None
+_proxy_instance: CopilotProxyManager | None = None
 
 
 def get_proxy_manager(
-    github_token: Optional[str] = None,
+    github_token: str | None = None,
     rate_limit: int = 30,
     use_wait: bool = True,
-    port: Optional[int] = None,
+    port: int | None = None,
     verbose: bool = True,
 ) -> CopilotProxyManager:
     """
@@ -342,7 +344,7 @@ def get_proxy_manager(
 
 
 def start_proxy(
-    github_token: Optional[str] = None,
+    github_token: str | None = None,
     rate_limit: int = 30,
     use_wait: bool = True,
     wait_for_ready: bool = True,
@@ -363,7 +365,7 @@ def start_proxy(
     return manager.start(wait_for_ready=wait_for_ready)
 
 
-def stop_proxy():
+def stop_proxy() -> None:
     """Stop the copilot-api proxy server (convenience function)."""
     global _proxy_instance
     if _proxy_instance:

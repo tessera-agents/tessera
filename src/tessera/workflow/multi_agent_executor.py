@@ -2,14 +2,12 @@
 Multi-agent executor for coordinating parallel task execution.
 """
 
-from typing import Dict, List, Optional, Any
-from datetime import datetime
 import time
+from typing import Any
 
-from .task_queue import TaskQueue, QueuedTask, TaskStatus
-from .agent_pool import AgentPool
-from ..models import Task
 from ..observability import MetricsStore
+from .agent_pool import AgentPool
+from .task_queue import TaskQueue, TaskStatus
 
 
 class MultiAgentExecutor:
@@ -30,8 +28,8 @@ class MultiAgentExecutor:
         agent_pool: AgentPool,
         max_parallel: int = 3,
         max_iterations: int = 10,
-        metrics_store: Optional[MetricsStore] = None,
-    ):
+        metrics_store: MetricsStore | None = None,
+    ) -> None:
         """
         Initialize multi-agent executor.
 
@@ -51,7 +49,7 @@ class MultiAgentExecutor:
         self.task_queue = TaskQueue()
         self.current_phase = "execution"  # For v0.2, hardcode to execution
 
-    def execute_project(self, objective: str) -> Dict[str, Any]:
+    def execute_project(self, objective: str) -> dict[str, Any]:
         """
         Execute multi-agent project generation.
 
@@ -109,9 +107,7 @@ class MultiAgentExecutor:
                     # v0.3 will delegate to specialized agents
                     subtask_result = self.supervisor.decompose_task(task.description)
 
-                    self.task_queue.mark_complete(
-                        task.task_id, result=subtask_result
-                    )
+                    self.task_queue.mark_complete(task.task_id, result=subtask_result)
 
                     # Track success
                     self.agent_pool.mark_task_complete(agent_name, success=True)
@@ -136,9 +132,7 @@ class MultiAgentExecutor:
             "objective": objective,
             "tasks_total": len(self.task_queue.tasks),
             "tasks_completed": sum(
-                1
-                for t in self.task_queue.tasks.values()
-                if t.status == TaskStatus.COMPLETED
+                1 for t in self.task_queue.tasks.values() if t.status == TaskStatus.COMPLETED
             ),
             "tasks_failed": sum(
                 1 for t in self.task_queue.tasks.values() if t.status == TaskStatus.FAILED
@@ -148,7 +142,7 @@ class MultiAgentExecutor:
             "status": "completed" if self.task_queue.is_complete() else "incomplete",
         }
 
-    def get_progress(self) -> Dict[str, Any]:
+    def get_progress(self) -> dict[str, Any]:
         """
         Get current execution progress.
 

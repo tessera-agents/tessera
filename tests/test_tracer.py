@@ -2,13 +2,14 @@
 Tests for OTEL tracer.
 """
 
-import pytest
-from pathlib import Path
 import tempfile
+from pathlib import Path
 from unittest.mock import Mock
 
-from tessera.observability import init_tracer, get_tracer
-from tessera.observability.tracer import set_span_attributes, FileSpanExporter
+import pytest
+
+from tessera.observability import get_tracer, init_tracer
+from tessera.observability.tracer import FileSpanExporter, set_span_attributes
 
 
 @pytest.mark.unit
@@ -22,7 +23,7 @@ class TestFileSpanExporter:
             exporter = FileSpanExporter(file_path)
 
             # Create mock span with proper structure
-            mock_status_code = type('StatusCode', (), {'name': 'OK'})()
+            mock_status_code = type("StatusCode", (), {"name": "OK"})()
             mock_span = Mock()
             mock_span.context = Mock(trace_id=123, span_id=456)
             mock_span.name = "test_span"
@@ -69,12 +70,7 @@ class TestTracer:
     def test_set_span_attributes(self):
         """Test setting span attributes."""
         # Just verify it doesn't error
-        set_span_attributes(
-            agent_name="test",
-            task_id="task-1",
-            task_type="test"
-        )
+        set_span_attributes(agent_name="test", task_id="task-1", task_type="test")
         # Attributes set on non-recording span won't error
 
 
-from unittest.mock import Mock

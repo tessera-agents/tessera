@@ -4,41 +4,42 @@ LangGraph-based Interviewer Agent implementation.
 Provides state persistence and checkpointing for interview workflows.
 """
 
-from typing import TypedDict, Optional, Literal, Any
 from datetime import datetime
-from langgraph.graph import StateGraph, END
-from langchain_core.messages import HumanMessage, SystemMessage
+from typing import Literal, TypedDict
+
 from langchain_core.language_models import BaseChatModel
+from langchain_core.messages import HumanMessage, SystemMessage
+from langgraph.graph import END, StateGraph
 
 from .config import INTERVIEWER_PROMPT, FrameworkConfig
-from .models import InterviewResult, QuestionResponse, Score, ScoreMetrics
-from .llm import create_llm
-from .graph_base import get_checkpointer, get_thread_config
+from .graph_base import get_checkpointer
 from .interviewer import InterviewerAgent  # For utility methods
+from .llm import create_llm
 
 
 class InterviewerState(TypedDict):
     """State schema for InterviewerGraph."""
+
     # Input
     task_description: str
-    candidate_name: Optional[str]
-    thread_id: Optional[str]
+    candidate_name: str | None
+    thread_id: str | None
 
     # Questions
-    questions: Optional[list[dict]]
+    questions: list[dict] | None
 
     # Responses
-    responses: Optional[list[dict]]
+    responses: list[dict] | None
 
     # Scoring
-    scores: Optional[list[dict]]
-    overall_score: Optional[float]
+    scores: list[dict] | None
+    overall_score: float | None
 
     # Final output
-    recommendation: Optional[dict]
+    recommendation: dict | None
 
     # Control flow
-    next_action: Optional[Literal["ask_questions", "score", "recommend", "end"]]
+    next_action: Literal["ask_questions", "score", "recommend", "end"] | None
 
 
 class InterviewerGraph:
@@ -64,10 +65,10 @@ class InterviewerGraph:
 
     def __init__(
         self,
-        llm: Optional[BaseChatModel] = None,
-        config: Optional[FrameworkConfig] = None,
+        llm: BaseChatModel | None = None,
+        config: FrameworkConfig | None = None,
         system_prompt: str = INTERVIEWER_PROMPT,
-    ):
+    ) -> None:
         """
         Initialize the interviewer graph.
 
@@ -150,18 +151,20 @@ Respond in JSON format:
     def _interview_node(self, state: InterviewerState) -> InterviewerState:
         """Simulate candidate responses (in real use, this would query actual candidates)."""
         questions = state.get("questions", [])
-        candidate_name = state.get("candidate_name", "unknown")
+        state.get("candidate_name", "unknown")
 
         # For now, simulate responses
         # In real implementation, this would invoke candidate LLM
         responses = []
         for q in questions:
-            responses.append({
-                "question_id": q.get("question_id"),
-                "question_text": q.get("text"),
-                "answer": f"Simulated response to: {q.get('text')[:50]}...",
-                "timestamp": datetime.now().isoformat(),
-            })
+            responses.append(
+                {
+                    "question_id": q.get("question_id"),
+                    "question_text": q.get("text"),
+                    "answer": f"Simulated response to: {q.get('text')[:50]}...",
+                    "timestamp": datetime.now().isoformat(),
+                }
+            )
 
         return {
             **state,
@@ -172,7 +175,7 @@ Respond in JSON format:
     def _score_node(self, state: InterviewerState) -> InterviewerState:
         """Score candidate responses."""
         responses = state.get("responses", [])
-        questions = state.get("questions", [])
+        state.get("questions", [])
 
         scores = []
         for resp in responses:
@@ -180,8 +183,8 @@ Respond in JSON format:
             prompt = f"""
 Score this response on a scale of 0-5 for each metric:
 
-Question: {resp['question_text']}
-Answer: {resp['answer']}
+Question: {resp["question_text"]}
+Answer: {resp["answer"]}
 
 Provide scores for:
 - accuracy (correctness and precision)
@@ -211,31 +214,39 @@ Respond in JSON format:
             response = self.llm.invoke(messages)
             score_data = InterviewerAgent._parse_json_response(None, response.content)
 
-            scores.append({
-                "question_id": resp["question_id"],
-                "metrics": score_data,
-            })
+            scores.append(
+                {
+                    "question_id": resp["question_id"],
+                    "metrics": score_data,
+                }
+            )
 
         # Calculate overall weighted score
         if scores:
             avg_metrics = {
                 "accuracy": sum(s["metrics"].get("accuracy", 0) for s in scores) / len(scores),
                 "relevance": sum(s["metrics"].get("relevance", 0) for s in scores) / len(scores),
-                "completeness": sum(s["metrics"].get("completeness", 0) for s in scores) / len(scores),
-                "explainability": sum(s["metrics"].get("explainability", 0) for s in scores) / len(scores),
+                "completeness": sum(s["metrics"].get("completeness", 0) for s in scores)
+                / len(scores),
+                "explainability": sum(s["metrics"].get("explainability", 0) for s in scores)
+                / len(scores),
                 "efficiency": sum(s["metrics"].get("efficiency", 0) for s in scores) / len(scores),
                 "safety": sum(s["metrics"].get("safety", 0) for s in scores) / len(scores),
             }
 
             # Calculate weighted score
             overall = (
-                avg_metrics["accuracy"] * self.scoring_weights.accuracy +
-                avg_metrics["relevance"] * self.scoring_weights.relevance +
-                avg_metrics["completeness"] * self.scoring_weights.completeness +
-                avg_metrics["explainability"] * self.scoring_weights.explainability +
-                avg_metrics["efficiency"] * self.scoring_weights.efficiency +
-                avg_metrics["safety"] * self.scoring_weights.safety
-            ) / 5.0 * 100  # Convert to percentage
+                (
+                    avg_metrics["accuracy"] * self.scoring_weights.accuracy
+                    + avg_metrics["relevance"] * self.scoring_weights.relevance
+                    + avg_metrics["completeness"] * self.scoring_weights.completeness
+                    + avg_metrics["explainability"] * self.scoring_weights.explainability
+                    + avg_metrics["efficiency"] * self.scoring_weights.efficiency
+                    + avg_metrics["safety"] * self.scoring_weights.safety
+                )
+                / 5.0
+                * 100
+            )  # Convert to percentage
         else:
             overall = 0.0
 
@@ -274,7 +285,7 @@ Respond in JSON format:
             "next_action": "end",
         }
 
-    def invoke(self, input_data: Optional[dict], config: Optional[dict] = None) -> dict:
+    def invoke(self, input_data: dict | None, config: dict | None = None) -> dict:
         """
         Invoke the interviewer graph.
 
@@ -287,7 +298,7 @@ Respond in JSON format:
         """
         return self.app.invoke(input_data, config=config)
 
-    def stream(self, input_data: dict, config: Optional[dict] = None):
+    def stream(self, input_data: dict, config: dict | None = None):
         """
         Stream interviewer graph execution.
 

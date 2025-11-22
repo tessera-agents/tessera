@@ -2,12 +2,9 @@
 Agent pool management for multi-agent execution.
 """
 
-from typing import Dict, List, Optional
 from dataclasses import dataclass
 
 from ..config.schema import AgentDefinition
-from ..supervisor import SupervisorAgent
-from ..interviewer import InterviewerAgent
 
 
 @dataclass
@@ -17,7 +14,7 @@ class AgentInstance:
     name: str
     agent: any  # SupervisorAgent, InterviewerAgent, etc.
     config: AgentDefinition
-    current_task: Optional[str] = None  # Currently assigned task ID
+    current_task: str | None = None  # Currently assigned task ID
     tasks_completed: int = 0
     tasks_failed: int = 0
     total_cost: float = 0.0
@@ -34,17 +31,17 @@ class AgentPool:
     - Select best agent for each task
     """
 
-    def __init__(self, agent_configs: List[AgentDefinition]):
+    def __init__(self, agent_configs: list[AgentDefinition]) -> None:
         """
         Initialize agent pool.
 
         Args:
             agent_configs: List of agent configurations
         """
-        self.agents: Dict[str, AgentInstance] = {}
+        self.agents: dict[str, AgentInstance] = {}
         self._load_agents(agent_configs)
 
-    def _load_agents(self, configs: List[AgentDefinition]) -> None:
+    def _load_agents(self, configs: list[AgentDefinition]) -> None:
         """
         Load agents from configurations.
 
@@ -62,7 +59,7 @@ class AgentPool:
                 config=config,
             )
 
-    def get_agent(self, name: str) -> Optional[AgentInstance]:
+    def get_agent(self, name: str) -> AgentInstance | None:
         """
         Get agent by name.
 
@@ -74,7 +71,7 @@ class AgentPool:
         """
         return self.agents.get(name)
 
-    def get_available_agents(self) -> List[AgentInstance]:
+    def get_available_agents(self) -> list[AgentInstance]:
         """
         Get agents that are not currently assigned to a task.
 
@@ -83,9 +80,7 @@ class AgentPool:
         """
         return [agent for agent in self.agents.values() if agent.current_task is None]
 
-    def assign_task_to_agent(
-        self, task_id: str, agent_name: str
-    ) -> Optional[AgentInstance]:
+    def assign_task_to_agent(self, task_id: str, agent_name: str) -> AgentInstance | None:
         """
         Assign task to specific agent.
 
@@ -103,8 +98,8 @@ class AgentPool:
         return None
 
     def find_best_agent(
-        self, capabilities_needed: List[str], phase: Optional[str] = None
-    ) -> Optional[str]:
+        self, capabilities_needed: list[str], phase: str | None = None
+    ) -> str | None:
         """
         Find best agent for task based on capabilities and phase affinity.
 
@@ -130,9 +125,7 @@ class AgentPool:
 
             # Performance bonus (success rate)
             if agent.tasks_completed + agent.tasks_failed > 0:
-                success_rate = agent.tasks_completed / (
-                    agent.tasks_completed + agent.tasks_failed
-                )
+                success_rate = agent.tasks_completed / (agent.tasks_completed + agent.tasks_failed)
                 score += success_rate * 3
 
             if score > 0:
@@ -163,7 +156,7 @@ class AgentPool:
             else:
                 agent.tasks_failed += 1
 
-    def get_pool_status(self) -> Dict:
+    def get_pool_status(self) -> dict:
         """
         Get pool status summary.
 
