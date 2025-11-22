@@ -29,28 +29,37 @@ Tessera orchestrates multiple AI agents working together to generate complete, t
 ### Installation
 
 ```bash
-# Option 1: Run directly with uvx (recommended)
+# Option 1: Install from PyPI
+pip install tessera-agents
+
+# Option 2: Run directly with uvx
 uvx tessera-agents init
 
-# Option 2: Install globally, then use 'tessera' command
+# Option 3: Install as uv tool
 uv tool install tessera-agents
-tessera init
 ```
 
 ### First Project
 
 ```bash
+# Initialize configuration
+tessera init
+
+# Generate a project
 tessera main "Build a FastAPI REST API with user authentication"
 ```
 
-**Current (v0.1.0):** Supervisor decomposes task into subtasks
-**Planned (v0.2.0+):** Full multi-agent execution with:
-1. User interview for requirements
-2. Research best practices
-3. Architecture design
-4. Project generation
-5. Parallel agent implementation
-6. Testing, review, and documentation
+**v1.0.0 Features:**
+- ✅ True async parallel multi-agent execution
+- ✅ Quality monitoring with loop detection
+- ✅ Comprehensive metrics and cost tracking
+- ✅ Phase-aware workflow execution
+- ✅ Real-time progress tracking
+
+**Coming in v1.1.0+:**
+- Real-time progress display in CLI
+- Agent capability matching and delegation
+- Workflow template system
 
 ---
 
