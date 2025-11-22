@@ -429,7 +429,7 @@ Provide a clear, complete response that integrates all the subtask results.
         """
         return self.app.invoke(input_data, config=config)
 
-    def stream(self, input_data: dict, config: dict | None = None):
+    def stream(self, input_data: dict, config: dict | None = None) -> object:
         """
         Stream supervisor graph execution.
 

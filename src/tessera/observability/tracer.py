@@ -37,7 +37,7 @@ class FileSpanExporter:
         self.file_path = file_path
         self.file_path.parent.mkdir(parents=True, exist_ok=True)
 
-    def export(self, spans) -> None:
+    def export(self, spans: list) -> None:
         """Export spans to JSONL file."""
         with open(self.file_path, "a") as f:
             for span in spans:
@@ -151,7 +151,7 @@ def set_span_attributes(
     task_id: str | None = None,
     task_type: str | None = None,
     phase: str | None = None,
-    **custom_attributes,
+    **custom_attributes: object,
 ) -> None:
     """
     Set custom attributes on the current span.

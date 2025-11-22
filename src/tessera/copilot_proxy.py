@@ -295,12 +295,12 @@ class CopilotProxyManager:
         port = self.port if self.port is not None else 4141
         return f"http://localhost:{port}/v1"
 
-    def __enter__(self):
+    def __enter__(self) -> "CopilotProxyManager":
         """Context manager entry."""
         self.start()
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type: object, exc_val: object, exc_tb: object) -> None:
         """Context manager exit."""
         self.stop()
 

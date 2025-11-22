@@ -302,7 +302,7 @@ class PanelGraph:
         """
         return self.app.invoke(input_data, config=config)
 
-    def stream(self, input_data: dict, config: dict | None = None):
+    def stream(self, input_data: dict, config: dict | None = None) -> object:
         """
         Stream panel graph execution.
 
