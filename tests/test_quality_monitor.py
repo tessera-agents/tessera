@@ -1,6 +1,7 @@
 """Tests for quality monitoring."""
 
 import pytest
+from unittest.mock import Mock, patch
 
 from tessera.workflow.quality_monitor import QualityMonitor, check_test_coverage
 
