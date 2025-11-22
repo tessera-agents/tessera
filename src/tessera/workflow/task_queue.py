@@ -185,6 +185,7 @@ class TaskQueue:
         if task_id in self.tasks:
             self.tasks[task_id].status = TaskStatus.FAILED
             self.tasks[task_id].error = error
+            self.tasks[task_id].completed_at = datetime.now()
             self.tasks[task_id].retries += 1
 
     def get_task(self, task_id: str) -> QueuedTask | None:
