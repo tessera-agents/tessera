@@ -12,6 +12,10 @@ import atexit
 from typing import Optional
 import requests
 
+from .logging_config import get_logger
+
+logger = get_logger(__name__)
+
 
 class CopilotProxyManager:
     """Manages copilot-api proxy server as a subprocess."""
@@ -84,7 +88,7 @@ class CopilotProxyManager:
         Returns:
             True if installation successful
         """
-        print("Installing copilot-api...")
+        logger.info("Installing copilot-api...")
         try:
             result = subprocess.run(
                 ["npm", "install", "-g", "copilot-api@latest"],
@@ -94,17 +98,17 @@ class CopilotProxyManager:
             )
 
             if result.returncode == 0:
-                print("✓ copilot-api installed successfully")
+                logger.info("✓ copilot-api installed successfully")
                 return True
             else:
-                print(f"✗ Installation failed: {result.stderr}")
+                logger.error(f"✗ Installation failed: {result.stderr}")
                 return False
 
         except subprocess.TimeoutExpired:
-            print("✗ Installation timed out")
+            logger.error("✗ Installation timed out")
             return False
         except FileNotFoundError:
-            print("✗ npm not found. Please install Node.js first.")
+            logger.error("✗ npm not found. Please install Node.js first.")
             return False
 
     def start(self, wait_for_ready: bool = True, timeout: float = 30.0) -> bool:
@@ -119,7 +123,7 @@ class CopilotProxyManager:
             True if server started successfully
         """
         if self._started:
-            print("Proxy already running")
+            logger.info("Proxy already running")
             return True
 
         if not self.github_token:
@@ -168,10 +172,10 @@ class CopilotProxyManager:
         env = os.environ.copy()
 
         port_display = self.port if self.port is not None else "4141 (default)"
-        print(f"Starting copilot-api proxy on port {port_display}...")
-        print(f"  Rate limit: {self.rate_limit}s")
-        print(f"  Wait mode: {self.use_wait}")
-        print(f"  Verbose: {self.verbose}")
+        logger.info(f"Starting copilot-api proxy on port {port_display}...")
+        logger.debug(f"  Rate limit: {self.rate_limit}s")
+        logger.debug(f"  Wait mode: {self.use_wait}")
+        logger.debug(f"  Verbose: {self.verbose}")
 
         try:
             # Start process
@@ -188,20 +192,20 @@ class CopilotProxyManager:
             if wait_for_ready:
                 if self.wait_for_ready(timeout=timeout):
                     port_display = self.port if self.port is not None else 4141
-                    print(f"✓ Proxy server ready at http://localhost:{port_display}")
+                    logger.info(f"✓ Proxy server ready at http://localhost:{port_display}")
                     return True
                 else:
-                    print("✗ Proxy failed to start within timeout")
+                    logger.error("✗ Proxy failed to start within timeout")
                     self.stop()
                     return False
 
             return True
 
         except FileNotFoundError:
-            print("✗ npx not found. Please install Node.js first.")
+            logger.error("✗ npx not found. Please install Node.js first.")
             return False
         except Exception as e:
-            print(f"✗ Failed to start proxy: {e}")
+            logger.error(f"✗ Failed to start proxy: {e}")
             return False
 
     def wait_for_ready(self, timeout: float = 30.0) -> bool:
@@ -228,10 +232,10 @@ class CopilotProxyManager:
 
             # Check if process died
             if self.process and self.process.poll() is not None:
-                print(f"✗ Proxy process exited with code {self.process.returncode}")
+                logger.error(f"✗ Proxy process exited with code {self.process.returncode}")
                 stderr = self.process.stderr.read() if self.process.stderr else ""
                 if stderr:
-                    print(f"  Error output: {stderr}")
+                    logger.error(f"  Error output: {stderr}")
                 return False
 
             time.sleep(0.5)
@@ -243,7 +247,7 @@ class CopilotProxyManager:
         if not self._started or not self.process:
             return
 
-        print("Stopping copilot-api proxy...")
+        logger.info("Stopping copilot-api proxy...")
 
         try:
             # Try graceful shutdown first
@@ -252,15 +256,15 @@ class CopilotProxyManager:
             # Wait up to 5 seconds for graceful shutdown
             try:
                 self.process.wait(timeout=5.0)
-                print("✓ Proxy stopped gracefully")
+                logger.info("✓ Proxy stopped gracefully")
             except subprocess.TimeoutExpired:
                 # Force kill if still running
                 self.process.kill()
                 self.process.wait()
-                print("✓ Proxy forcefully stopped")
+                logger.info("✓ Proxy forcefully stopped")
 
         except Exception as e:
-            print(f"Warning: Error stopping proxy: {e}")
+            logger.warning(f"Error stopping proxy: {e}")
 
         finally:
             self.process = None

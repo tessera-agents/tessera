@@ -16,6 +16,10 @@ from pathlib import Path
 import json
 import requests
 
+from .logging_config import get_logger
+
+logger = get_logger(__name__)
+
 
 # Cache configuration
 CACHE_FILE = Path(".cache/premium_models.json")
@@ -97,7 +101,7 @@ class PremiumModelInfo:
 
             if not table_match:
                 # Fallback to hardcoded values if table not found
-                print("Warning: Model multipliers table not found in docs, using fallback values")
+                logger.warning("Model multipliers table not found in docs, using fallback values")
                 self._use_fallback_values()
                 self._last_updated = time.time()
                 self._save_cache()
@@ -151,7 +155,7 @@ class PremiumModelInfo:
 
             # If we didn't parse any models, use fallback
             if parsed_count == 0:
-                print("Warning: No models parsed from docs, using fallback values")
+                logger.warning("No models parsed from docs, using fallback values")
                 self._use_fallback_values()
 
             # Save the new content hash and update timestamp
@@ -161,7 +165,7 @@ class PremiumModelInfo:
             return True
 
         except Exception as e:
-            print(f"Warning: Failed to fetch premium model info: {e}")
+            logger.warning(f"Failed to fetch premium model info: {e}")
             return False
 
     def _use_fallback_values(self):
