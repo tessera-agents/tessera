@@ -204,7 +204,13 @@ def check_test_coverage(project_root: Path = Path()) -> float | None:
     Returns:
         Coverage percentage or None if not available
     """
+    import os
     import subprocess
+
+    # Prevent runaway if already in pytest (detect pytest env var)
+    if os.getenv("PYTEST_CURRENT_TEST"):
+        logger.debug("Already in pytest session, skipping coverage check")
+        return None
 
     try:
         result = subprocess.run(

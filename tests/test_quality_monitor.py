@@ -177,11 +177,16 @@ class TestQualityMonitor:
 class TestCoverageCheck:
     """Test coverage checking functionality."""
 
-    def test_check_test_coverage(self):
+    @patch("tessera.workflow.quality_monitor.subprocess.run")
+    def test_check_test_coverage(self, mock_run):
         """Test coverage check function."""
-        # This test runs actual pytest, so just verify it doesn't crash
+        # Mock subprocess to avoid spawning pytest
+        mock_run.return_value = Mock(
+            stdout="TOTAL    100    20    80%\n",
+            returncode=0,
+        )
+
         coverage = check_test_coverage()
 
-        # Coverage might be None if pytest fails or isn't available
-        # Just verify the function runs without error
-        assert coverage is None or isinstance(coverage, float)
+        # Should parse coverage from output
+        assert coverage == 80.0
