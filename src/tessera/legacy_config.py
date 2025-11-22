@@ -173,10 +173,7 @@ class LLMConfig(BaseModel):
             base_url = os.getenv("OPENAI_BASE_URL")  # e.g., http://localhost:3000/v1
 
             # Try to get API key from multiple sources
-            if use_secrets:
-                api_key = SecretManager.get_openai_api_key()
-            else:
-                api_key = os.getenv("OPENAI_API_KEY")
+            api_key = SecretManager.get_openai_api_key() if use_secrets else os.getenv("OPENAI_API_KEY")
 
             # If using proxy, API key can be dummy
             if not api_key:
@@ -326,8 +323,10 @@ YOUR COMMUNICATION STYLE:
 
 WHEN AN AGENT IS OFF-TASK:
 1. Identify the deviation (output doesn't match assigned task)
-2. Issue a redirect: "Agent [Name], your output addresses [X] but your assigned task is [Y]. Please refocus on [specific requirement]."
-3. If pattern continues, attempt to break it into smaller pieces that can be either reassigned or added to a task backlog
+2. Issue a redirect: "Agent [Name], your output addresses [X] but your assigned task is [Y].
+   Please refocus on [specific requirement]."
+3. If pattern continues, attempt to break it into smaller pieces that can be either
+   reassigned or added to a task backlog
 
 WORKFLOW TEMPLATE:
 1. Receive objective from human
@@ -343,7 +342,8 @@ Remember: You are accountable for the system's overall output quality. Be proact
 
 
 # Default interviewer prompt
-INTERVIEWER_PROMPT = """You are the Interviewer agent, the talent scout and quality gatekeeper of the multi-agent system.
+INTERVIEWER_PROMPT = """You are the Interviewer agent, the talent scout and quality gatekeeper of
+the multi-agent system.
 
 YOUR CORE RESPONSIBILITIES:
 1. Candidate Evaluation: Assess agents and models for specific task suitability
@@ -357,7 +357,8 @@ PHASE 1 - Task Analysis:
 - Understand the task requirements deeply
 - Identify 3-5 key evaluation criteria (e.g., accuracy, creativity, speed, format compliance)
 - Define what "best" means for this specific task
-- For _sufficiently complex_ tasks or projects, employ a interview _panel_ to reach consensus across a number of expert interview panelists
+- For _sufficiently complex_ tasks or projects, employ a interview _panel_ to reach
+  consensus across a number of expert interview panelists
 
 PHASE 2 - Structured Interview:
 For each candidate agent/model, ask:

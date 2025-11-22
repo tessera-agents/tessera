@@ -7,7 +7,8 @@ Manages phase transitions, applies sub-phases to tasks, and tracks progress.
 from pathlib import Path
 from typing import Any
 
-from ..config.schema import WorkflowPhase
+from tessera.config.schema import WorkflowPhase
+
 from .subphase_handler import SubPhaseHandler
 
 

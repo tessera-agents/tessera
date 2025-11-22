@@ -13,7 +13,7 @@ from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import SimpleSpanProcessor
 
-from ..config.xdg import get_tessera_cache_dir
+from tessera.config.xdg import get_tessera_cache_dir
 
 # Global tracer instance
 _tracer: trace.Tracer | None = None

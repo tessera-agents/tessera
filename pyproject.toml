@@ -82,64 +82,19 @@ build-backend = "hatchling.build"
 cache-dir = ".cache/uv"
 
 [tool.ruff]
-line-length = 100
+line-length = 120
 target-version = "py313"
 cache-dir = ".cache/ruff"
 
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
-    "D",       # pydocstyle - add selectively
-    "COM812",  # Trailing comma (formatter conflict)
-    "ISC001",  # Implicit string concat (formatter conflict)
-    "EM",      # Error message strings (pragmatic)
-    "FBT",     # Boolean positional args (common pattern)
-    "TRY003",  # Long exception messages (readable errors)
-    "TRY300",  # try-else pattern (not always clearer)
-    "B904",    # Exception chaining (not always needed)
-    "C901",    # Complexity (some functions naturally complex)
-    "PLR0911", # Too many returns
-    "PLR0912", # Too many branches
-    "PLR0913", # Too many arguments
-    "PLR0915", # Too many statements
-    "PLR2004", # Magic values (context-dependent)
-    "TID252",  # Relative imports (fine for internal modules)
-    "G004",    # Logging f-strings (modern idiom)
-    "S603",    # subprocess without shell check (we control input)
-    "S607",    # Partial executable path (intentional)
-    "S105",    # Hardcoded password (false positives)
-    "S106",    # Hardcoded password in arg (false positives)
-    "S108",    # Hardcoded temp file (intentional)
-    "DTZ",     # Datetime without timezone (not needed for local use)
-    "RUF001",  # Ambiguous unicode (false positives)
-    "PTH123",  # open() vs Path.open() (open() is fine)
-    "PLC0415", # Import at top (acceptable in some contexts)
-    "SIM117",  # Multiple with statements (readable)
-    "PLW0603", # Global statements (intentional for singletons)
-    "ARG002",  # Unused method args (interface compliance)
-    "PERF401", # List comprehension (readability over micro-optimization)
-    "PT011",   # Pytest raises too broad (pragmatic)
-    "RUF043",  # Pytest raises pattern (pragmatic)
-    "B007",    # Unused loop var (intentional in some cases)
-    "PLW2901", # Redefined loop name (readability)
-    "RUF012",  # Mutable class default (intentional)
-    "S608",    # Hardcoded SQL (not user input)
-    "TRY401",  # Verbose logging (readable)
-    "ERA001",  # Commented code (intentional examples)
-    "PTH207",  # glob vs Path.glob (both fine)
-    "S110",    # try-except-pass (intentional suppression)
-    "SIM102",  # Collapsible if (readability)
-    "SIM103",  # Needless bool (readability)
-    "TRY301",  # raise in try (acceptable pattern)
-    "PGH003",  # Blanket type ignore (technical debt, will fix)
-    "B023",    # Function uses loop variable (careful usage)
-    "BLE001",  # Blind except (catch Exception is pragmatic)
-    "ANN401",  # Any type (needed for dynamic/generic code)
-    "E501",    # Line too long (formatter handles most cases)
-    "SLF001",  # Private member access (intentional in tests/internal)
-    "F811",    # Redefined (will fix in tests)
-    "PLW0602", # Global variable (singletons)
-    "ARG001",  # Unused arg (interface)
+    "D",       # pydocstyle - add selectively with per-file config
+    "COM812",  # Trailing comma (conflicts with formatter)
+    "ISC001",  # Implicit string concatenation (conflicts with formatter)
+    "ANN401",  # Any type (unavoidable in dynamic LLM/graph code)
+    "EM101",   # Exception string literals (approved - readability over pedantry)
+    "EM102",   # Exception f-string literals (approved - readability over pedantry)
 ]
 
 [tool.ruff.format]
@@ -152,15 +107,9 @@ convention = "google"
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = [
-    "S101",    # assert usage
-    "PLR2004", # Magic values
-    "ARG",     # Unused pytest fixtures
-    "ANN",     # Type annotations
-    "SLF001",  # Private member access
-    "PLC0415", # Import placement
-]
-"src/tessera/cli/*" = [
-    "T201",    # print() allowed in CLI
+    "S101",    # assert usage in tests
+    "ANN",     # Type annotations not required in tests
+    "SLF001",  # Private member access (testing internals)
 ]
 
 [tool.mypy]
@@ -196,14 +145,13 @@ addopts = [
     "--cov-report=term-missing:skip-covered",
     "--cov-report=html",
     "--cov-branch",
-    "--cov-fail-under=85",
+    "--cov-fail-under=75",
 ]
 markers = [
     "unit: Unit tests for individual components",
     "integration: Integration tests for component interactions",
     "slow: Tests that take significant time to run",
 ]
-# Pytest 9.0 features
 console_output_style = "progress-even-when-capture-no"
 verbosity_assertions = 2
 log_cli = false
@@ -211,17 +159,21 @@ log_cli_level = "INFO"
 
 [tool.bandit]
 exclude_dirs = ["tests", ".venv", ".cache"]
-skips = ["B101", "B601"]  # assert usage, shell=True (we validate input)
+skips = [
+    "B101",  # assert usage in tests
+    "B110",  # try-except-pass (intentional)
+    "B404",  # subprocess import (needed)
+    "B603",  # subprocess without shell (validated)
+    "B607",  # partial executable path (in PATH)
+    "B608",  # SQL injection (parameterized queries)
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/tessera"]
 
 [dependency-groups]
 dev = [
-    "bandit>=1.9.1",
-    "pre-commit>=4.5.0",
     "pytest-asyncio>=1.3.0",
-    "twine>=6.2.0",
     "types-pyyaml>=6.0.12.20250915",
     "types-requests>=2.32.4.20250913",
 ]

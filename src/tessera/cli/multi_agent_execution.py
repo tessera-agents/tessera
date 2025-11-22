@@ -8,9 +8,9 @@ from typing import Any
 
 from rich.console import Console
 
-from ..config.schema import TesseraSettings
-from ..observability import CostCalculator, MetricsStore
-from ..workflow import AgentPool, MultiAgentExecutor
+from tessera.config.schema import TesseraSettings
+from tessera.observability import CostCalculator, MetricsStore
+from tessera.workflow import AgentPool, MultiAgentExecutor
 
 
 def execute_multi_agent(

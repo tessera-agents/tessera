@@ -6,7 +6,8 @@ import asyncio
 import time
 from typing import Any
 
-from ..observability import MetricsStore
+from tessera.observability import MetricsStore
+
 from .agent_pool import AgentPool
 from .task_queue import TaskQueue, TaskStatus
 

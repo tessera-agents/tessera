@@ -4,13 +4,7 @@ Tessera configuration module.
 
 # XDG helpers
 # Re-export original config classes for backward compatibility
-from ..legacy_config import (
-    INTERVIEWER_PROMPT,
-    SUPERVISOR_PROMPT,
-    FrameworkConfig,
-    LLMConfig,
-    ScoringWeights,
-)
+from tessera.legacy_config import INTERVIEWER_PROMPT, SUPERVISOR_PROMPT, FrameworkConfig, LLMConfig, ScoringWeights
 
 # Unified config schema
 from .schema import TesseraSettings

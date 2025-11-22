@@ -10,8 +10,8 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
-from ..config.xdg import get_tessera_cache_dir
-from ..logging_config import get_logger
+from tessera.config.xdg import get_tessera_cache_dir
+from tessera.logging_config import get_logger
 
 logger = get_logger(__name__)
 

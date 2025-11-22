@@ -10,8 +10,8 @@ import sqlite3
 from datetime import datetime
 from pathlib import Path
 
-from ..config.xdg import get_metrics_db_path
-from ..logging_config import get_logger
+from tessera.config.xdg import get_metrics_db_path
+from tessera.logging_config import get_logger
 
 logger = get_logger(__name__)
 

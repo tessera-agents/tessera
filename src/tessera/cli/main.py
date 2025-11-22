@@ -21,10 +21,10 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Confirm, Prompt
 
-from ..config.schema import TesseraSettings
-from ..config.xdg import ensure_directories, get_config_file_path
-from ..observability import CostCalculator, MetricsStore, TokenUsageCallback, init_tracer
-from ..workflow import PhaseExecutor
+from tessera.config.schema import TesseraSettings
+from tessera.config.xdg import ensure_directories, get_config_file_path
+from tessera.observability import CostCalculator, MetricsStore, TokenUsageCallback, init_tracer
+from tessera.workflow import PhaseExecutor
 
 app = typer.Typer(
     name="tessera",
@@ -164,9 +164,9 @@ def main(
         import time
         import uuid
 
-        from ..legacy_config import LLMConfig
-        from ..observability.tracer import get_tracer, set_span_attributes
-        from ..supervisor import SupervisorAgent
+        from tessera.legacy_config import LLMConfig
+        from tessera.observability.tracer import get_tracer, set_span_attributes
+        from tessera.supervisor import SupervisorAgent
 
         task_id = f"task-{uuid.uuid4().hex[:8]}"
         tracer = get_tracer()
@@ -225,8 +225,8 @@ def main(
             console.print("[yellow]Initializing supervisor agent...[/yellow]")
 
             # Create FrameworkConfig (SupervisorAgent expects this, not LLMConfig)
-            from ..legacy_config import FrameworkConfig
-            from ..secrets import SecretManager
+            from tessera.legacy_config import FrameworkConfig
+            from tessera.secrets import SecretManager
 
             # Try to get API key from multiple sources
             # Vertex AI uses gcloud auth, not API keys
@@ -292,7 +292,10 @@ def main(
                 metrics_store.update_task_status(
                     task_id,
                     "completed",
-                    result_summary=f"Multi-agent: {execution_result['tasks_completed']}/{execution_result['tasks_total']} tasks",
+                    result_summary=(
+                        f"Multi-agent: {execution_result['tasks_completed']}/"
+                        f"{execution_result['tasks_total']} tasks"
+                    ),
                     trace_id=str(span.get_span_context().trace_id),
                     llm_calls_count=execution_result.get("tasks_total", 0),
                 )
@@ -513,7 +516,7 @@ def init() -> None:
     # Create default supervisor prompt
     supervisor_prompt_file = dirs["config_prompts"] / "supervisor.md"
     if not supervisor_prompt_file.exists():
-        from ..legacy_config import SUPERVISOR_PROMPT
+        from tessera.legacy_config import SUPERVISOR_PROMPT
 
         supervisor_prompt_file.write_text(SUPERVISOR_PROMPT)
 

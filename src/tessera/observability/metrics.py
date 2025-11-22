@@ -14,7 +14,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from ..config.xdg import get_metrics_db_path
+from tessera.config.xdg import get_metrics_db_path
 
 
 class MetricsStore:

@@ -1,6 +1,6 @@
 # Multi-Agent Execution
 
-Tessera v1.0.0 supports true parallel multi-agent execution using asyncio for concurrent task processing.
+Tessera v0.3.0 supports true parallel multi-agent execution using asyncio for concurrent task processing.
 
 ---
 

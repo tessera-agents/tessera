@@ -5,7 +5,7 @@ Agent pool management for multi-agent execution.
 from dataclasses import dataclass
 from typing import Any
 
-from ..config.schema import AgentDefinition
+from tessera.config.schema import AgentDefinition
 
 
 @dataclass

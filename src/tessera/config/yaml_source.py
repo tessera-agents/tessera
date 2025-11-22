@@ -11,7 +11,8 @@ from typing import Any
 import yaml
 from pydantic_settings import BaseSettings, PydanticBaseSettingsSource
 
-from ..logging_config import get_logger
+from tessera.logging_config import get_logger
+
 from .xdg import get_tessera_config_dir
 
 logger = get_logger(__name__)

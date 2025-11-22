@@ -183,7 +183,8 @@ class TestQualityMonitor:
 class TestCoverageCheck:
     """Test coverage checking functionality."""
 
-    @patch("tessera.workflow.quality_monitor.subprocess.run")
+    @patch.dict("os.environ", {}, clear=True)  # Clear PYTEST_CURRENT_TEST
+    @patch("subprocess.run")
     def test_check_test_coverage(self, mock_run):
         """Test coverage check function."""
         # Mock subprocess to avoid spawning pytest

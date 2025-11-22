@@ -184,7 +184,7 @@ class TestSecretManager:
         assert result is None
 
     @patch("subprocess.run")
-    def test_get_from_1password_op_not_installed(self, mock_run):
+    def test_get_from_1password_op_command_not_found(self, mock_run):
         """Test get_from_1password when op command not found."""
         SecretManager.get_from_1password.cache_clear()
 
