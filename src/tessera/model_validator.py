@@ -71,7 +71,6 @@ class ModelValidator:
 
         # If no models configured, this is an error
         if not config.models:
-
             # Fetch and display available models
             available = ModelValidator.fetch_available_models(config.base_url, config.api_key)
             if available:
@@ -130,7 +129,6 @@ class ModelValidator:
                 pass
         else:
             pass
-
 
 
 def validate_config_models(config: LLMConfig, strict: bool = True) -> bool:

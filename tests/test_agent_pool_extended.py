@@ -1,7 +1,8 @@
 """Extended tests for agent pool functionality."""
 
-import pytest
 from unittest.mock import Mock
+
+import pytest
 
 from tessera.config.schema import AgentDefinition
 from tessera.workflow.agent_pool import AgentInstance, AgentPool
@@ -110,7 +111,9 @@ class TestAgentPoolExtended:
     def test_find_best_agent(self):
         """Test finding best agent for capabilities."""
         configs = [
-            AgentDefinition(name="python-expert", model="gpt-4", capabilities=["python", "testing"]),
+            AgentDefinition(
+                name="python-expert", model="gpt-4", capabilities=["python", "testing"]
+            ),
             AgentDefinition(name="docs-writer", model="gpt-4", capabilities=["documentation"]),
         ]
 

@@ -2,8 +2,9 @@
 Tests for phase executor.
 """
 
-import pytest
 from unittest.mock import Mock
+
+import pytest
 
 from tessera.config.schema import WorkflowPhase
 from tessera.workflow import PhaseExecutor

@@ -5,8 +5,9 @@ Prevents runaway processes and ensures cleanup.
 """
 
 import atexit
-import psutil
 from typing import Any
+
+import psutil
 
 from ..logging_config import get_logger
 

@@ -72,5 +72,3 @@ class TestTracer:
         # Just verify it doesn't error
         set_span_attributes(agent_name="test", task_id="task-1", task_type="test")
         # Attributes set on non-recording span won't error
-
-

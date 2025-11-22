@@ -160,9 +160,7 @@ class PhaseExecutor:
 
         return subtasks
 
-    def execute_phase(
-        self, tasks: list[Any], phase_name: str | None = None
-    ) -> dict[str, Any]:
+    def execute_phase(self, tasks: list[Any], phase_name: str | None = None) -> dict[str, Any]:
         """
         Execute a complete phase by applying sub-phases to all tasks.
 

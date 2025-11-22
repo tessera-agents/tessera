@@ -319,10 +319,13 @@ class TestCreateSlackClient:
 
     def test_create_client_with_env_vars(self):
         """Test creating client from environment variables."""
-        with patch.dict(
-            os.environ,
-            {"SLACK_APP_TOKEN": "xapp-env", "SLACK_BOT_TOKEN": "xoxb-env"},
-        ), patch("tessera.slack_approval.SocketModeClient") as mock_socket_client:
+        with (
+            patch.dict(
+                os.environ,
+                {"SLACK_APP_TOKEN": "xapp-env", "SLACK_BOT_TOKEN": "xoxb-env"},
+            ),
+            patch("tessera.slack_approval.SocketModeClient") as mock_socket_client,
+        ):
             with patch("tessera.slack_approval.WebClient") as mock_web_client:
                 create_slack_client()
 

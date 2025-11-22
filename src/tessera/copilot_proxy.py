@@ -73,7 +73,8 @@ class CopilotProxyManager:
         try:
             result = subprocess.run(
                 ["npx", "copilot-api@latest", "--version"],
-                check=False, capture_output=True,
+                check=False,
+                capture_output=True,
                 text=True,
                 timeout=5,
             )
@@ -92,7 +93,8 @@ class CopilotProxyManager:
         try:
             result = subprocess.run(
                 ["npm", "install", "-g", "copilot-api@latest"],
-                check=False, capture_output=True,
+                check=False,
+                capture_output=True,
                 text=True,
                 timeout=120,
             )

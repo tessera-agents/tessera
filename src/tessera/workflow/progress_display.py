@@ -4,15 +4,13 @@ Real-time progress display for multi-agent execution.
 Provides live updates on task execution status using Rich progress bars.
 """
 
-from typing import Any
-
 from rich.console import Console
 from rich.live import Live
-from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskID
+from rich.progress import BarColumn, Progress, SpinnerColumn, TaskID, TextColumn
 from rich.table import Table
 
-from .task_queue import TaskQueue, TaskStatus
 from .agent_pool import AgentPool
+from .task_queue import TaskQueue
 
 
 class ProgressDisplay:

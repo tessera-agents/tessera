@@ -69,7 +69,6 @@ class LLMConfig(BaseModel):
 
                 from .model_validator import ModelValidator
 
-
                 # Fetch and display available models from the API
                 available = ModelValidator.fetch_available_models(
                     self.base_url, self.api_key or "dummy"

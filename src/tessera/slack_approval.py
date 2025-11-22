@@ -302,4 +302,3 @@ def create_slack_client(
 
     web_client = WebClient(token=bot_token)
     return SocketModeClient(app_token=app_token, web_client=web_client)
-

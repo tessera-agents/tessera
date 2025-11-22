@@ -1,7 +1,6 @@
 """Tests for async multi-agent executor."""
 
-import asyncio
-from unittest.mock import AsyncMock, Mock
+from unittest.mock import Mock
 
 import pytest
 

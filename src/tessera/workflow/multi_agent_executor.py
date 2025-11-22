@@ -124,9 +124,7 @@ class MultiAgentExecutor:
                 self.task_queue.mark_in_progress(task.task_id, agent_name)
 
                 # Execute task
-                result = await self.execute_task_async(
-                    task.task_id, task.description, agent_name
-                )
+                result = await self.execute_task_async(task.task_id, task.description, agent_name)
 
                 # Update queue based on result
                 if result["success"]:

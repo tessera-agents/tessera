@@ -77,9 +77,7 @@ class SlackHITLCoordinator:
         """
         self.graph = graph
         self.slack_client = slack_client
-        self.default_channel = default_channel or os.environ.get(
-            "SLACK_APPROVAL_CHANNEL"
-        )
+        self.default_channel = default_channel or os.environ.get("SLACK_APPROVAL_CHANNEL")
         self.pending_interrupts: dict[str, dict] = {}  # message_ts -> interrupt_data
 
     def invoke_with_slack_approval(
@@ -115,9 +113,7 @@ class SlackHITLCoordinator:
             interrupt_data = result["__interrupt__"]
 
             # Send approval request to Slack
-            msg_ts = self._send_approval_request(
-                channel=channel, interrupt_data=interrupt_data
-            )
+            msg_ts = self._send_approval_request(channel=channel, interrupt_data=interrupt_data)
 
             # Store pending interrupt
             self.pending_interrupts[msg_ts] = {
@@ -194,9 +190,7 @@ class SlackHITLCoordinator:
 
         return response["ts"]
 
-    def handle_approval_response(
-        self, action_value: str, message_ts: str
-    ) -> dict | None:
+    def handle_approval_response(self, action_value: str, message_ts: str) -> dict | None:
         """
         Resume graph after user responds in Slack.
 
@@ -243,9 +237,7 @@ class SlackHITLCoordinator:
             Event handler function to register with SocketModeClient
         """
 
-        def handle_socket_mode_request(
-            client: SocketModeClient, req: SocketModeRequest
-        ) -> None:
+        def handle_socket_mode_request(client: SocketModeClient, req: SocketModeRequest) -> None:
             """Handle Socket Mode events."""
             # Always acknowledge
             response = SocketModeResponse(envelope_id=req.envelope_id)
@@ -306,4 +298,3 @@ def create_slack_client(
 
     web_client = WebClient(token=bot_token)
     return SocketModeClient(app_token=app_token, web_client=web_client)
-

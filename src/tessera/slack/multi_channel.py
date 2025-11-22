@@ -110,7 +110,6 @@ class MultiChannelSlackClient:
             ],
         )
 
-
     def post_user_request(
         self,
         agent_name: str,
@@ -196,7 +195,6 @@ class MultiChannelSlackClient:
             )
 
         return self.web_client.chat_postMessage(channel=channel, text=message, blocks=blocks)
-
 
     def post_status_update(
         self, agent_name: str, status: str, details: dict[str, Any] | None = None

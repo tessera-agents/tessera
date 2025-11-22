@@ -80,7 +80,8 @@ class SecretManager:
             # Check if op CLI is available
             result = subprocess.run(
                 ["which", "op"],
-                check=False, capture_output=True,
+                check=False,
+                capture_output=True,
                 text=True,
                 timeout=2,
             )
@@ -170,7 +171,8 @@ class SecretManager:
         try:
             result = subprocess.run(
                 ["op", "account", "list"],
-                check=False, capture_output=True,
+                check=False,
+                capture_output=True,
                 text=True,
                 timeout=2,
             )

@@ -1,12 +1,13 @@
 """Extended observability tests for coverage."""
 
-import pytest
 from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
+import pytest
+
+from tessera.observability import get_tracer, init_tracer
 from tessera.observability.callbacks import TokenUsageCallback
 from tessera.observability.metrics import MetricsStore
-from tessera.observability import init_tracer, get_tracer
 
 
 @pytest.mark.unit
@@ -27,7 +28,6 @@ class TestTokenUsageCallbackExtended:
                     }
                 }
             ),
-            **{},
         )
 
         # Second LLM call
@@ -40,7 +40,6 @@ class TestTokenUsageCallbackExtended:
                     }
                 }
             ),
-            **{},
         )
 
         assert callback.total_tokens == 500  # 100+50+200+150
@@ -60,7 +59,6 @@ class TestTokenUsageCallbackExtended:
                     }
                 }
             ),
-            **{},
         )
 
         assert callback.total_tokens == 0
@@ -78,7 +76,6 @@ class TestTokenUsageCallbackExtended:
                     }
                 }
             ),
-            **{},
         )
 
         usage = callback.get_usage()

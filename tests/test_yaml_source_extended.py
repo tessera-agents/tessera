@@ -1,9 +1,10 @@
 """Extended YAML source tests for coverage."""
 
-import pytest
 import tempfile
 from pathlib import Path
 from unittest.mock import patch
+
+import pytest
 
 from tessera.config.yaml_source import XDGYamlSettingsSource, get_config_paths
 

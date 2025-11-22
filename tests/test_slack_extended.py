@@ -1,8 +1,11 @@
 """Extended Slack integration tests for coverage."""
 
-import pytest
-from unittest.mock import Mock, MagicMock, patch
+from pathlib import Path
+from unittest.mock import MagicMock, Mock, patch
 
+import pytest
+
+from tessera.observability.metrics import MetricsStore
 from tessera.slack.agent_identity import AgentIdentity, AgentIdentityManager
 from tessera.slack.multi_channel import MultiChannelSlackClient
 

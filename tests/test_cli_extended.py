@@ -1,12 +1,12 @@
 """Extended CLI tests for coverage."""
 
-import pytest
 from pathlib import Path
+from unittest.mock import Mock, patch
+
+import pytest
 from typer.testing import CliRunner
-from unittest.mock import Mock, patch, MagicMock
 
 from tessera.cli.main import app, load_config
-
 
 runner = CliRunner()
 
@@ -72,10 +72,11 @@ class TestMultiAgentExecutionCLI:
     @patch("tessera.cli.multi_agent_execution.AgentPool")
     def test_execute_multi_agent_basic(self, mock_pool, mock_executor):
         """Test basic multi-agent execution."""
-        from tessera.cli.multi_agent_execution import execute_multi_agent
-        from tessera.config.schema import TesseraSettings, AgentDefinition
-        from tessera.observability import MetricsStore, CostCalculator
         from rich.console import Console
+
+        from tessera.cli.multi_agent_execution import execute_multi_agent
+        from tessera.config.schema import AgentDefinition, TesseraSettings
+        from tessera.observability import CostCalculator, MetricsStore
 
         # Setup mocks
         mock_executor_instance = Mock()

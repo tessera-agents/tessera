@@ -1,8 +1,9 @@
 """Extended sub-phase handler tests for coverage."""
 
-import pytest
-from pathlib import Path
 import tempfile
+from pathlib import Path
+
+import pytest
 
 from tessera.workflow.subphase_handler import SubPhaseHandler
 
