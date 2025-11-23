@@ -56,9 +56,9 @@ class TestCLIMainExecution:
 
     @patch("tessera.cli.main.ensure_directories")
     @patch("tessera.cli.main.load_config")
-    @patch("tessera.cli.main.init_tracer")
-    @patch("tessera.cli.main.MetricsStore")
-    @patch("tessera.cli.main.CostCalculator")
+    @patch("tessera.cli.commands.main_cmd.init_tracer")
+    @patch("tessera.cli.commands.main_cmd.MetricsStore")
+    @patch("tessera.cli.commands.main_cmd.CostCalculator")
     def test_main_dry_run(self, mock_cost, mock_metrics, mock_tracer, mock_config, mock_dirs):
         """Test dry-run mode."""
         mock_config.return_value = Mock(

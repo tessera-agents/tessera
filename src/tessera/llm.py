@@ -63,7 +63,7 @@ def create_llm(config: LLMConfig | None = None) -> BaseChatModel:
             model_name = f"{config.provider}/{config.model}"
 
     # Build kwargs for ChatLiteLLM
-    import os
+    import os # noqa: PLC0415
 
     llm_kwargs = {
         "model": model_name,

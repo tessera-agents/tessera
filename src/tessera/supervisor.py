@@ -287,7 +287,7 @@ Respond in JSON format:
             return json.loads(content)
         except json.JSONDecodeError as e:
             # If parsing fails, try to extract JSON object
-            import re
+            import re # noqa: PLC0415
 
             json_match = re.search(r"\{.*\}", content, re.DOTALL)
             if json_match:

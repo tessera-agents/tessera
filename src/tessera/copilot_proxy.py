@@ -58,7 +58,7 @@ class CopilotProxyManager:
 
         # Try 1Password
         try:
-            from .secrets import SecretManager
+            from .secrets import SecretManager # noqa: PLC0415
 
             token = SecretManager.get_github_token()
             if token:
