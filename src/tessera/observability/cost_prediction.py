@@ -71,7 +71,7 @@ class CostPredictor:
         estimated_completion_tokens = int(estimated_prompt_tokens * 0.6)  # Typical ratio
 
         # Calculate cost
-        estimated_cost = self.cost_calc.calculate_cost(
+        estimated_cost = self.cost_calc.calculate(
             prompt_tokens=estimated_prompt_tokens,
             completion_tokens=estimated_completion_tokens,
             model=model,

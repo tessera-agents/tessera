@@ -58,7 +58,7 @@ class ToolExecutor:
             raise ValueError(error)
 
         # Check permission
-        allowed, reason = check_tool_permission(tool_name, self.agent_name)
+        allowed, reason = check_tool_permission(tool_name, tool.risk_level, self.agent_name)
 
         if not allowed:
             error = f"Tool execution denied: {reason}"
