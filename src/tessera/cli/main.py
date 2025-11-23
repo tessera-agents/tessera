@@ -67,20 +67,14 @@ def load_config(custom_path: str | None = None) -> TesseraSettings:
 
 @app.command()
 def main(
-    task: Annotated[
-        str, typer.Argument(help="Task description. If not provided, starts interactive mode.")
-    ] = "",
+    task: Annotated[str, typer.Argument(help="Task description. If not provided, starts interactive mode.")] = "",
     dry_run: Annotated[bool, typer.Option("--dry-run", help="Show plan without executing")] = False,
-    background: Annotated[
-        bool, typer.Option("--background", "-b", help="Run in background mode")
-    ] = False,
+    background: Annotated[bool, typer.Option("--background", "-b", help="Run in background mode")] = False,
     multi_agent: Annotated[
         bool, typer.Option("--multi-agent", "-m", help="Use multi-agent execution (v0.2.0)")
     ] = False,
     max_parallel: Annotated[int, typer.Option("--max-parallel", help="Max parallel agents")] = 3,
-    config_file: Annotated[
-        str, typer.Option("--config", "-c", help="Custom config file path")
-    ] = "",
+    config_file: Annotated[str, typer.Option("--config", "-c", help="Custom config file path")] = "",
 ) -> None:
     """
     Main entry point for Tessera.
@@ -180,9 +174,7 @@ def main(
             )
 
             # Get supervisor agent config from settings
-            supervisor_config = (
-                settings.agents.definitions[0] if settings.agents.definitions else None
-            )
+            supervisor_config = settings.agents.definitions[0] if settings.agents.definitions else None
 
             if supervisor_config:
                 agent_model = supervisor_config.model
@@ -216,9 +208,7 @@ def main(
 
             if dry_run:
                 console.print("[yellow]Dry-run complete - no execution performed.[/yellow]\n")
-                metrics_store.update_task_status(
-                    task_id, "completed", result_summary="Dry-run only"
-                )
+                metrics_store.update_task_status(task_id, "completed", result_summary="Dry-run only")
                 return
 
             # Create supervisor agent with LLM config
@@ -252,12 +242,8 @@ def main(
                 if not api_key:
                     console.print("\n[red]Error:[/red] No API key found")
                     console.print(f"Please set: export {api_key_name}=your-key-here")
-                    console.print(
-                        f"Or configure 1Password: OP_{agent_provider.upper()}_ITEM=op://...\n"
-                    )
-                    metrics_store.update_task_status(
-                        task_id, "failed", error_message="Missing API key"
-                    )
+                    console.print(f"Or configure 1Password: OP_{agent_provider.upper()}_ITEM=op://...\n")
+                    metrics_store.update_task_status(task_id, "failed", error_message="Missing API key")
                     raise typer.Exit(3)
 
             llm_config = LLMConfig(
@@ -300,9 +286,7 @@ def main(
                     llm_calls_count=execution_result.get("tasks_total", 0),
                 )
 
-                console.print(
-                    f"[green]✓[/green] Multi-agent execution completed in {duration:.1f}s\n"
-                )
+                console.print(f"[green]✓[/green] Multi-agent execution completed in {duration:.1f}s\n")
                 return
 
             console.print("[yellow]Executing task with supervisor (single-agent)...[/yellow]\n")
@@ -367,9 +351,7 @@ def main(
                 if current_phase:
                     console.print(f"[dim]Current phase: {current_phase.name}[/dim]")
 
-                    subphase_results = phase_executor.apply_subphases_to_task(
-                        task_id=task_id, task_result=result
-                    )
+                    subphase_results = phase_executor.apply_subphases_to_task(task_id=task_id, task_result=result)
 
                     # Display sub-phase results
                     for sp_result in subphase_results:
@@ -467,16 +449,12 @@ def init() -> None:
     api_key_env = ""
     if provider != "ollama":
         console.print(f"\n[dim]You'll need an API key for {provider}.[/dim]")
-        has_key = Confirm.ask(
-            f"Do you have a {provider.upper()}_API_KEY environment variable set?", default=True
-        )
+        has_key = Confirm.ask(f"Do you have a {provider.upper()}_API_KEY environment variable set?", default=True)
 
         if has_key:
             api_key_env = f"{provider.upper()}_API_KEY"
         else:
-            console.print(
-                f"\n[yellow]Please set {provider.upper()}_API_KEY in your environment:[/yellow]"
-            )
+            console.print(f"\n[yellow]Please set {provider.upper()}_API_KEY in your environment:[/yellow]")
             console.print(f"  export {provider.upper()}_API_KEY=your-key-here\n")
 
     # 3. Default model
@@ -527,9 +505,7 @@ def init() -> None:
 
     console.print("[yellow]Next steps:[/yellow]")
     console.print(f"  1. Review config: [dim]{config_file}[/dim]")
-    console.print(
-        f"  2. Set API key: [dim]export {api_key_env or 'YOUR_PROVIDER'}_API_KEY=...[/dim]"
-    )
+    console.print(f"  2. Set API key: [dim]export {api_key_env or 'YOUR_PROVIDER'}_API_KEY=...[/dim]")
     console.print("  3. Run Tessera: [dim]tessera[/dim]\n")
 
     # Test config load

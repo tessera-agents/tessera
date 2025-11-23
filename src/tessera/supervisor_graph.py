@@ -5,7 +5,7 @@ This module provides a LangGraph StateGraph version of the SupervisorAgent
 with built-in state persistence, checkpointing, and human-in-the-loop support.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Literal, TypedDict
 
 from langchain_core.language_models import BaseChatModel
@@ -192,7 +192,7 @@ Respond in JSON format:
         result = SupervisorAgent._parse_json_response(None, response.content)
 
         # Create task with microseconds for uniqueness
-        task_id = f"task_{datetime.now().strftime('%Y%m%d_%H%M%S_%f')}"
+        task_id = f"task_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S_%f')}"
         task = Task(
             task_id=task_id,
             goal=result.get("goal", objective),
@@ -258,7 +258,7 @@ Respond in JSON format:
         agent_response = {
             "agent_name": state["agent_name"],
             "content": result,
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
         return {

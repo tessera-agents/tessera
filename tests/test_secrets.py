@@ -85,9 +85,7 @@ class TestSecretManager:
         key = SecretManager.get_anthropic_api_key()
         assert key == "sk-ant-env-key"
 
-    @patch.dict(
-        "os.environ", {"OP_ANTHROPIC_ITEM": "op://Private/Anthropic/credential"}, clear=True
-    )
+    @patch.dict("os.environ", {"OP_ANTHROPIC_ITEM": "op://Private/Anthropic/credential"}, clear=True)
     @patch("tessera.secrets.SecretManager.get_from_1password")
     def test_get_anthropic_api_key_from_1password(self, mock_1pass):
         """Test getting Anthropic API key from 1Password."""

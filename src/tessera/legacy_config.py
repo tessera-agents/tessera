@@ -70,9 +70,7 @@ class LLMConfig(BaseModel):
                 from .model_validator import ModelValidator
 
                 # Fetch and display available models from the API
-                available = ModelValidator.fetch_available_models(
-                    self.base_url, self.api_key or "dummy"
-                )
+                available = ModelValidator.fetch_available_models(self.base_url, self.api_key or "dummy")
 
                 if available:
                     for _i, _model_name in enumerate(available, 1):
@@ -203,9 +201,7 @@ class LLMConfig(BaseModel):
                 models=models,
                 temperature=float(os.getenv("DEFAULT_TEMPERATURE", "0.7")),
                 max_retries=int(os.getenv("MAX_RETRIES", "3")),
-                timeout=(
-                    float(os.getenv("REQUEST_TIMEOUT")) if os.getenv("REQUEST_TIMEOUT") else None
-                ),
+                timeout=(float(os.getenv("REQUEST_TIMEOUT")) if os.getenv("REQUEST_TIMEOUT") else None),
                 allow_premium_models=allow_premium,
                 base_url=base_url,
             )
@@ -227,9 +223,7 @@ class LLMConfig(BaseModel):
                 models=models,
                 temperature=float(os.getenv("DEFAULT_TEMPERATURE", "0.7")),
                 max_retries=int(os.getenv("MAX_RETRIES", "3")),
-                timeout=(
-                    float(os.getenv("REQUEST_TIMEOUT")) if os.getenv("REQUEST_TIMEOUT") else None
-                ),
+                timeout=(float(os.getenv("REQUEST_TIMEOUT")) if os.getenv("REQUEST_TIMEOUT") else None),
             )
         if provider == "azure":
             return cls(
@@ -239,9 +233,7 @@ class LLMConfig(BaseModel):
                 azure_deployment=os.getenv("AZURE_OPENAI_DEPLOYMENT"),
                 temperature=float(os.getenv("DEFAULT_TEMPERATURE", "0.7")),
                 max_retries=int(os.getenv("MAX_RETRIES", "3")),
-                timeout=(
-                    float(os.getenv("REQUEST_TIMEOUT")) if os.getenv("REQUEST_TIMEOUT") else None
-                ),
+                timeout=(float(os.getenv("REQUEST_TIMEOUT")) if os.getenv("REQUEST_TIMEOUT") else None),
             )
         raise ValueError(f"Unsupported provider: {provider}")
 
@@ -258,14 +250,7 @@ class ScoringWeights(BaseModel):
 
     def normalize(self) -> "ScoringWeights":
         """Ensure weights sum to 1.0."""
-        total = (
-            self.accuracy
-            + self.relevance
-            + self.completeness
-            + self.explainability
-            + self.efficiency
-            + self.safety
-        )
+        total = self.accuracy + self.relevance + self.completeness + self.explainability + self.efficiency + self.safety
         if total == 0:
             return self
         return ScoringWeights(

@@ -3,7 +3,7 @@ Panel interview system implementation with round-robin voting.
 """
 
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 from langchain_core.language_models import BaseChatModel
@@ -326,7 +326,7 @@ class PanelSystem:
         Returns:
             Panel result with votes and decision
         """
-        session_id = f"panel_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        session_id = f"panel_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}"
 
         # Generate questions if not provided
         if not question_bank:

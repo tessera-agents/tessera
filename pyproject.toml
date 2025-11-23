@@ -93,8 +93,12 @@ ignore = [
     "COM812",  # Trailing comma (conflicts with formatter)
     "ISC001",  # Implicit string concatenation (conflicts with formatter)
     "ANN401",  # Any type (unavoidable in dynamic LLM/graph code)
-    "EM101",   # Exception string literals (approved - readability over pedantry)
-    "EM102",   # Exception f-string literals (approved - readability over pedantry)
+    "EM101",   # Exception string literals (approved - readability)
+    "EM102",   # Exception f-string literals (approved - readability)
+    "TRY003",  # Raise vanilla args (same as EM, approved)
+    "FBT",     # Boolean positional args (approved)
+    "G004",    # Logging f-strings (modern Python idiom)
+    "PERF401", # Manual list comp (readability)
 ]
 
 [tool.ruff.format]
@@ -107,9 +111,10 @@ convention = "google"
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = [
-    "S101",    # assert usage in tests
-    "ANN",     # Type annotations not required in tests
-    "SLF001",  # Private member access (testing internals)
+    "S101",    # assert usage
+    "S106",    # hardcoded password (test tokens)
+    "ANN",     # Type annotations
+    "SLF001",  # Private member access
 ]
 
 [tool.mypy]

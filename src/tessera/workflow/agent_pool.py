@@ -98,9 +98,7 @@ class AgentPool:
             return agent
         return None
 
-    def find_best_agent(
-        self, capabilities_needed: list[str], phase: str | None = None
-    ) -> str | None:
+    def find_best_agent(self, capabilities_needed: list[str], phase: str | None = None) -> str | None:
         """
         Find best agent for task based on capabilities and phase affinity.
 

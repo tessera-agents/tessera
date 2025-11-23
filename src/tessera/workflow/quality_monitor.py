@@ -136,9 +136,7 @@ class QualityMonitor:
         # Check for improvement in recent iterations
         if len(self.coverage_history) >= self.max_iterations_without_improvement:
             recent_coverage = self.coverage_history[-self.max_iterations_without_improvement :]
-            improvements = [
-                recent_coverage[i + 1] - recent_coverage[i] for i in range(len(recent_coverage) - 1)
-            ]
+            improvements = [recent_coverage[i + 1] - recent_coverage[i] for i in range(len(recent_coverage) - 1)]
 
             # If no significant improvement
             if all(imp < self.min_coverage_improvement for imp in improvements):
@@ -165,9 +163,7 @@ class QualityMonitor:
             "iterations": len(self.iteration_history),
             "current_coverage": latest.get("coverage"),
             "current_quality_score": latest.get("quality_score"),
-            "total_tasks_completed": sum(
-                it.get("tasks_completed", 0) for it in self.iteration_history
-            ),
+            "total_tasks_completed": sum(it.get("tasks_completed", 0) for it in self.iteration_history),
             "coverage_trend": self._calculate_trend(self.coverage_history),
         }
 

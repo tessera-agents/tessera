@@ -3,7 +3,7 @@ Task queue with dependency management for multi-agent execution.
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 
@@ -159,7 +159,7 @@ class TaskQueue:
         if task_id in self.tasks:
             self.tasks[task_id].status = TaskStatus.IN_PROGRESS
             self.tasks[task_id].agent_name = agent_name
-            self.tasks[task_id].started_at = datetime.now()
+            self.tasks[task_id].started_at = datetime.now(timezone.utc)
 
     def mark_complete(self, task_id: str, result: Any | None = None) -> None:
         """
@@ -171,7 +171,7 @@ class TaskQueue:
         """
         if task_id in self.tasks:
             self.tasks[task_id].status = TaskStatus.COMPLETED
-            self.tasks[task_id].completed_at = datetime.now()
+            self.tasks[task_id].completed_at = datetime.now(timezone.utc)
             self.tasks[task_id].result = result
 
     def mark_failed(self, task_id: str, error: str) -> None:
@@ -185,7 +185,7 @@ class TaskQueue:
         if task_id in self.tasks:
             self.tasks[task_id].status = TaskStatus.FAILED
             self.tasks[task_id].error = error
-            self.tasks[task_id].completed_at = datetime.now()
+            self.tasks[task_id].completed_at = datetime.now(timezone.utc)
             self.tasks[task_id].retries += 1
 
     def get_task(self, task_id: str) -> QueuedTask | None:

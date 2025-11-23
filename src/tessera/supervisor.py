@@ -3,7 +3,7 @@ Supervisor agent implementation.
 """
 
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 from langchain_core.language_models import BaseChatModel
@@ -88,7 +88,7 @@ Respond in JSON format:
         result = self._parse_json_response(response.content)
 
         task = Task(
-            task_id=f"task_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
+            task_id=f"task_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}",
             goal=result.get("goal", objective),
             subtasks=[
                 SubTask(
@@ -121,7 +121,7 @@ Respond in JSON format:
             if subtask.task_id == subtask_id:
                 subtask.assigned_to = agent_name
                 subtask.status = TaskStatus.PENDING
-                task.last_updated = datetime.now()
+                task.last_updated = datetime.now(timezone.utc)
                 break
 
     def update_subtask_status(
@@ -149,7 +149,7 @@ Respond in JSON format:
                 subtask.status = status
                 if result:
                     subtask.result = result
-                task.last_updated = datetime.now()
+                task.last_updated = datetime.now(timezone.utc)
                 break
 
     def review_agent_output(
@@ -266,7 +266,7 @@ Respond in JSON format:
             "action": "interview_request",
             "task_description": task_description,
             "candidates": candidates,
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
     def _parse_json_response(self, content: str) -> dict[str, Any]:

@@ -3,7 +3,7 @@ Interviewer agent implementation.
 """
 
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 from langchain_core.language_models import BaseChatModel
@@ -152,7 +152,7 @@ Please provide a detailed answer.
             transcript={
                 "task_description": task_description,
                 "questions": list(questions),
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             },
         )
 
@@ -299,7 +299,7 @@ Respond in JSON format:
             "selected_candidate": decision.get("selected_candidate"),
             "justification": decision.get("justification"),
             "scores": decision.get("scores", {}),
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
     def _score_responses(

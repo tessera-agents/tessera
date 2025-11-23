@@ -10,7 +10,7 @@ Stores:
 
 import json
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -83,13 +83,9 @@ class MetricsStore:
         # Create indexes
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_task_agent ON task_assignments(agent_name)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_task_status ON task_assignments(status)")
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_task_assigned_at ON task_assignments(assigned_at)"
-        )
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_task_assigned_at ON task_assignments(assigned_at)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_perf_agent ON agent_performance(agent_name)")
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_perf_timestamp ON agent_performance(timestamp)"
-        )
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_perf_timestamp ON agent_performance(timestamp)")
 
         conn.commit()
         conn.close()
@@ -128,7 +124,7 @@ class MetricsStore:
                 task_type,
                 agent_name,
                 json.dumps(agent_config),
-                datetime.now().isoformat(),
+                datetime.now(timezone.utc).isoformat(),
                 "pending",
             ),
         )
@@ -168,11 +164,11 @@ class MetricsStore:
 
         if status == "in_progress" and not self._get_started_at(task_id):
             updates.append("started_at = ?")
-            params.append(datetime.now().isoformat())
+            params.append(datetime.now(timezone.utc).isoformat())
 
         if status in ("completed", "failed"):
             updates.append("completed_at = ?")
-            params.append(datetime.now().isoformat())
+            params.append(datetime.now(timezone.utc).isoformat())
 
         if result_summary is not None:
             updates.append("result_summary = ?")
@@ -214,9 +210,7 @@ class MetricsStore:
         """Get started_at timestamp for a task."""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
-        result = cursor.execute(
-            "SELECT started_at FROM task_assignments WHERE task_id = ?", (task_id,)
-        ).fetchone()
+        result = cursor.execute("SELECT started_at FROM task_assignments WHERE task_id = ?", (task_id,)).fetchone()
         conn.close()
         return result[0] if result and result[0] else None
 
@@ -266,7 +260,7 @@ class MetricsStore:
                 quality_score,
                 reassigned,
                 off_topic,
-                datetime.now().isoformat(),
+                datetime.now(timezone.utc).isoformat(),
             ),
         )
 

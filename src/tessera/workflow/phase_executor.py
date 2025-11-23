@@ -133,17 +133,11 @@ class PhaseExecutor:
             "total_phases": len(self.active_phases),
             "current_phase_index": self.current_phase_index,
             "current_phase": self.get_current_phase().name if self.get_current_phase() else None,
-            "completed_phases": [
-                phase.name for phase in self.active_phases[: self.current_phase_index]
-            ],
-            "remaining_phases": [
-                phase.name for phase in self.active_phases[self.current_phase_index + 1 :]
-            ],
+            "completed_phases": [phase.name for phase in self.active_phases[: self.current_phase_index]],
+            "remaining_phases": [phase.name for phase in self.active_phases[self.current_phase_index + 1 :]],
         }
 
-    def should_create_subtasks(
-        self, sub_phase_results: list[dict[str, Any]]
-    ) -> list[dict[str, Any]]:
+    def should_create_subtasks(self, sub_phase_results: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """
         Extract subtasks that need to be created from sub-phase results.
 

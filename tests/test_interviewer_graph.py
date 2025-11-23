@@ -242,8 +242,7 @@ class TestInterviewerGraph:
 
         # Mock scoring responses
         score_response = (
-            '{"accuracy": 4, "relevance": 5, "completeness": 3, "explainability": 4, '
-            '"efficiency": 3, "safety": 5}'
+            '{"accuracy": 4, "relevance": 5, "completeness": 3, "explainability": 4, ' '"efficiency": 3, "safety": 5}'
         )
 
         llm = Mock()

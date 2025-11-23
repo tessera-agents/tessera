@@ -128,9 +128,7 @@ class XDGYamlSettingsSource(PydanticBaseSettingsSource):
         field_value = self._merged_data.get(field_name)
         return field_value, field_name, False
 
-    def prepare_field_value(
-        self, field_name: str, field: Any, value: Any, value_is_complex: bool
-    ) -> Any:
+    def prepare_field_value(self, field_name: str, field: Any, value: Any, value_is_complex: bool) -> Any:
         """
         Prepare field value before validation.
 

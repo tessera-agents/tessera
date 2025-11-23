@@ -4,7 +4,7 @@ LangGraph-based Interviewer Agent implementation.
 Provides state persistence and checkpointing for interview workflows.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Literal, TypedDict
 
 from langchain_core.language_models import BaseChatModel
@@ -162,7 +162,7 @@ Respond in JSON format:
                     "question_id": q.get("question_id"),
                     "question_text": q.get("text"),
                     "answer": f"Simulated response to: {q.get('text')[:50]}...",
-                    "timestamp": datetime.now().isoformat(),
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
                 }
             )
 

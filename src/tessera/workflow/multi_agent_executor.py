@@ -51,9 +51,7 @@ class MultiAgentExecutor:
         self.task_queue = TaskQueue()
         self.current_phase = "execution"
 
-    async def execute_task_async(
-        self, task_id: str, description: str, agent_name: str
-    ) -> dict[str, Any]:
+    async def execute_task_async(self, task_id: str, description: str, agent_name: str) -> dict[str, Any]:
         """
         Execute a single task asynchronously.
 
@@ -103,9 +101,7 @@ class MultiAgentExecutor:
 
             return {"success": False, "error": str(e), "duration": duration}
 
-    async def execute_tasks_parallel(
-        self, tasks: list[Any], max_concurrent: int
-    ) -> list[dict[str, Any]]:
+    async def execute_tasks_parallel(self, tasks: list[Any], max_concurrent: int) -> list[dict[str, Any]]:
         """
         Execute multiple tasks in parallel with concurrency limit.
 
@@ -173,9 +169,7 @@ class MultiAgentExecutor:
 
             if not ready_tasks:
                 # No tasks ready - check if any in progress
-                in_progress_count = sum(
-                    1 for t in self.task_queue.tasks.values() if t.status == TaskStatus.IN_PROGRESS
-                )
+                in_progress_count = sum(1 for t in self.task_queue.tasks.values() if t.status == TaskStatus.IN_PROGRESS)
 
                 if in_progress_count == 0 and not self.task_queue.is_complete():
                     # Deadlock: no tasks ready, none in progress, not complete
@@ -194,12 +188,8 @@ class MultiAgentExecutor:
         duration = time.time() - start_time
 
         # Step 4: Return results
-        completed_count = sum(
-            1 for t in self.task_queue.tasks.values() if t.status == TaskStatus.COMPLETED
-        )
-        failed_count = sum(
-            1 for t in self.task_queue.tasks.values() if t.status == TaskStatus.FAILED
-        )
+        completed_count = sum(1 for t in self.task_queue.tasks.values() if t.status == TaskStatus.COMPLETED)
+        failed_count = sum(1 for t in self.task_queue.tasks.values() if t.status == TaskStatus.FAILED)
 
         return {
             "objective": objective,
