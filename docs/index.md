@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="../assets/imgs/logos/logo-animated.svg" alt="Tessera Logo" width="400"/>
+</p>
+
 # Tessera
 
 **No-code multi-agent AI orchestration for full project generation.**

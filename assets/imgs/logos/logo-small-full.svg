@@ -10,8 +10,10 @@
         stroke-linejoin="round"
         fill="none"/>
 
-  <!-- Terminal underscore -->
-  <rect x="25" y="29" width="11" height="2" rx="1" ry="1" fill="white"/>
+  <!-- Terminal underscore with blink animation -->
+  <rect x="25" y="29" width="11" height="2" rx="1" ry="1" fill="white">
+    <animate attributeName="opacity" values="1;0;1" dur="1.2s" repeatCount="indefinite"/>
+  </rect>
 
   <!-- TESSERA text with gradient -->
   <defs>
