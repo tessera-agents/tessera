@@ -19,9 +19,7 @@ class TestPhaseExecutor:
         phases = [
             WorkflowPhase(name="simple-phase", required_for_complexity=["simple"]),
             WorkflowPhase(name="complex-phase", required_for_complexity=["complex"]),
-            WorkflowPhase(
-                name="all-phase", required_for_complexity=["simple", "medium", "complex"]
-            ),
+            WorkflowPhase(name="all-phase", required_for_complexity=["simple", "medium", "complex"]),
         ]
 
         executor = PhaseExecutor(phases, complexity="simple")

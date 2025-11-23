@@ -123,9 +123,7 @@ class TestPanelSystem:
 
         assert len(panelists) == 3
 
-    def test_conduct_panel_interview(
-        self, mock_llm_with_response, test_config, sample_ballot_response
-    ):
+    def test_conduct_panel_interview(self, mock_llm_with_response, test_config, sample_ballot_response):
         """Test conducting a panel interview."""
         panel = PanelSystem(config=test_config)
 

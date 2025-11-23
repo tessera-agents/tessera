@@ -69,9 +69,7 @@ class TestMultiChannelSlackClient:
     @patch("tessera.slack.multi_channel.WebClient")
     def test_initialization(self, mock_webclient):
         """Test client initialization."""
-        client = MultiChannelSlackClient(
-            bot_token="xoxb-test", agent_channel="C123", user_channel="C456"
-        )
+        client = MultiChannelSlackClient(bot_token="xoxb-test", agent_channel="C123", user_channel="C456")
 
         assert client.bot_token == "xoxb-test"
         assert client.agent_channel == "C123"
@@ -84,9 +82,7 @@ class TestMultiChannelSlackClient:
         mock_web = MagicMock()
         mock_webclient.return_value = mock_web
 
-        client = MultiChannelSlackClient(
-            bot_token="xoxb-test", agent_channel="C123", user_channel="C456"
-        )
+        client = MultiChannelSlackClient(bot_token="xoxb-test", agent_channel="C123", user_channel="C456")
 
         client.post_agent_message("supervisor", "Test message")
 
@@ -104,13 +100,9 @@ class TestMultiChannelSlackClient:
         mock_web = MagicMock()
         mock_webclient.return_value = mock_web
 
-        client = MultiChannelSlackClient(
-            bot_token="xoxb-test", agent_channel="C123", user_channel="C456"
-        )
+        client = MultiChannelSlackClient(bot_token="xoxb-test", agent_channel="C123", user_channel="C456")
 
-        client.post_user_question(
-            "supervisor", "What database?", suggested_answers=["PostgreSQL", "MySQL"]
-        )
+        client.post_user_question("supervisor", "What database?", suggested_answers=["PostgreSQL", "MySQL"])
 
         # Verify posted to user channel
         mock_web.chat_postMessage.assert_called_once()
@@ -127,9 +119,7 @@ class TestMultiChannelSlackClient:
         mock_web = MagicMock()
         mock_webclient.return_value = mock_web
 
-        client = MultiChannelSlackClient(
-            bot_token="xoxb-test", agent_channel="C123", user_channel="C456"
-        )
+        client = MultiChannelSlackClient(bot_token="xoxb-test", agent_channel="C123", user_channel="C456")
 
         client.post_user_request(
             "python-expert",

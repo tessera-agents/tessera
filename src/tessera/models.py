@@ -2,7 +2,7 @@
 Data models for the autonomy framework.
 """
 
-from datetime import datetime, timezone
+from datetime import datetime
 from enum import Enum
 from typing import Any
 

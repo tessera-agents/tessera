@@ -5,7 +5,7 @@ This module provides a LangGraph StateGraph version of the SupervisorAgent
 with built-in state persistence, checkpointing, and human-in-the-loop support.
 """
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Literal, TypedDict
 
 from langchain_core.language_models import BaseChatModel
@@ -192,7 +192,7 @@ Respond in JSON format:
         result = SupervisorAgent._parse_json_response(None, response.content)
 
         # Create task with microseconds for uniqueness
-        task_id = f"task_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S_%f')}"
+        task_id = f"task_{datetime.now(UTC).strftime('%Y%m%d_%H%M%S_%f')}"
         task = Task(
             task_id=task_id,
             goal=result.get("goal", objective),
@@ -258,7 +258,7 @@ Respond in JSON format:
         agent_response = {
             "agent_name": state["agent_name"],
             "content": result,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
         return {
@@ -383,9 +383,7 @@ Provide a clear, complete response that integrates all the subtask results.
             return "assign"
         return "end"
 
-    def _route_after_assign(
-        self, state: SupervisorState
-    ) -> Literal["execute", "synthesize", "end"]:
+    def _route_after_assign(self, state: SupervisorState) -> Literal["execute", "synthesize", "end"]:
         """Route after assignment."""
         next_action = state.get("next_action", "end")
         if next_action == "execute":
@@ -400,9 +398,7 @@ Provide a clear, complete response that integrates all the subtask results.
             return "review"
         return "end"
 
-    def _route_after_review(
-        self, state: SupervisorState
-    ) -> Literal["assign", "execute", "synthesize", "end"]:
+    def _route_after_review(self, state: SupervisorState) -> Literal["assign", "execute", "synthesize", "end"]:
         """Route after review."""
         next_action = state.get("next_action", "end")
         if next_action in ["assign", "execute", "synthesize"]:

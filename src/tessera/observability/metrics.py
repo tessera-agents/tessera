@@ -10,7 +10,7 @@ Stores:
 
 import json
 import sqlite3
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -124,7 +124,7 @@ class MetricsStore:
                 task_type,
                 agent_name,
                 json.dumps(agent_config),
-                datetime.now(timezone.utc).isoformat(),
+                datetime.now(UTC).isoformat(),
                 "pending",
             ),
         )
@@ -164,11 +164,11 @@ class MetricsStore:
 
         if status == "in_progress" and not self._get_started_at(task_id):
             updates.append("started_at = ?")
-            params.append(datetime.now(timezone.utc).isoformat())
+            params.append(datetime.now(UTC).isoformat())
 
         if status in ("completed", "failed"):
             updates.append("completed_at = ?")
-            params.append(datetime.now(timezone.utc).isoformat())
+            params.append(datetime.now(UTC).isoformat())
 
         if result_summary is not None:
             updates.append("result_summary = ?")
@@ -260,7 +260,7 @@ class MetricsStore:
                 quality_score,
                 reassigned,
                 off_topic,
-                datetime.now(timezone.utc).isoformat(),
+                datetime.now(UTC).isoformat(),
             ),
         )
 

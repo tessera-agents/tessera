@@ -7,7 +7,7 @@ based on token usage.
 
 import re
 import sqlite3
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from tessera.config.xdg import get_metrics_db_path
@@ -166,7 +166,7 @@ class CostCalculator:
             LIMIT 1
         """
 
-        result = cursor.execute(query, (model, provider, provider, datetime.now(timezone.utc).date().isoformat())).fetchone()
+        result = cursor.execute(query, (model, provider, provider, datetime.now(UTC).date().isoformat())).fetchone()
 
         if result:
             conn.close()
@@ -181,7 +181,7 @@ class CostCalculator:
               AND (deprecated_date IS NULL OR deprecated_date > ?)
         """
 
-        patterns = cursor.execute(query, (provider, provider, datetime.now(timezone.utc).date().isoformat())).fetchall()
+        patterns = cursor.execute(query, (provider, provider, datetime.now(UTC).date().isoformat())).fetchall()
 
         for pattern, prompt_price, completion_price in patterns:
             if re.match(pattern, model):
@@ -225,7 +225,7 @@ class CostCalculator:
                 model_pattern,
                 prompt_price_per_1k,
                 completion_price_per_1k,
-                datetime.now(timezone.utc).date().isoformat(),
+                datetime.now(UTC).date().isoformat(),
             ),
         )
 

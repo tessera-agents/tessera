@@ -19,9 +19,7 @@ class TestMultiAgentExecutor:
         mock_supervisor = Mock()
         agent_pool = AgentPool([])
 
-        executor = MultiAgentExecutor(
-            supervisor=mock_supervisor, agent_pool=agent_pool, max_parallel=3
-        )
+        executor = MultiAgentExecutor(supervisor=mock_supervisor, agent_pool=agent_pool, max_parallel=3)
 
         assert executor.supervisor == mock_supervisor
         assert executor.max_parallel == 3

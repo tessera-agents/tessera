@@ -59,9 +59,7 @@ class MultiChannelSlackClient:
         self.web_client = WebClient(token=self.bot_token, ssl=ssl_context)
         self.socket_client = None
         if self.app_token:
-            self.socket_client = SocketModeClient(
-                app_token=self.app_token, web_client=self.web_client
-            )
+            self.socket_client = SocketModeClient(app_token=self.app_token, web_client=self.web_client)
 
         self.identity_manager = identity_manager or AgentIdentityManager()
 
@@ -159,9 +157,7 @@ class MultiChannelSlackClient:
 
         # Add metadata if provided
         if metadata:
-            metadata_text = "\n".join(
-                f"*{k.replace('_', ' ').title()}:* {v}" for k, v in metadata.items()
-            )
+            metadata_text = "\n".join(f"*{k.replace('_', ' ').title()}:* {v}" for k, v in metadata.items())
             blocks.append({"type": "section", "text": {"type": "mrkdwn", "text": metadata_text}})
 
         # Add approval buttons for approval requests
@@ -196,9 +192,7 @@ class MultiChannelSlackClient:
 
         return self.web_client.chat_postMessage(channel=channel, text=message, blocks=blocks)
 
-    def post_status_update(
-        self, agent_name: str, status: str, details: dict[str, Any] | None = None
-    ) -> None:
+    def post_status_update(self, agent_name: str, status: str, details: dict[str, Any] | None = None) -> None:
         """
         Post status update to agent channel.
 

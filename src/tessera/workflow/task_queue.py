@@ -3,7 +3,7 @@ Task queue with dependency management for multi-agent execution.
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 
@@ -138,8 +138,7 @@ class TaskQueue:
 
             # Check if all dependencies are met
             dependencies_met = all(
-                self.tasks.get(dep_id, QueuedTask(task_id="", description="")).status
-                == TaskStatus.COMPLETED
+                self.tasks.get(dep_id, QueuedTask(task_id="", description="")).status == TaskStatus.COMPLETED
                 for dep_id in task.dependencies
             )
 
@@ -159,7 +158,7 @@ class TaskQueue:
         if task_id in self.tasks:
             self.tasks[task_id].status = TaskStatus.IN_PROGRESS
             self.tasks[task_id].agent_name = agent_name
-            self.tasks[task_id].started_at = datetime.now(timezone.utc)
+            self.tasks[task_id].started_at = datetime.now(UTC)
 
     def mark_complete(self, task_id: str, result: Any | None = None) -> None:
         """
@@ -171,7 +170,7 @@ class TaskQueue:
         """
         if task_id in self.tasks:
             self.tasks[task_id].status = TaskStatus.COMPLETED
-            self.tasks[task_id].completed_at = datetime.now(timezone.utc)
+            self.tasks[task_id].completed_at = datetime.now(UTC)
             self.tasks[task_id].result = result
 
     def mark_failed(self, task_id: str, error: str) -> None:
@@ -185,7 +184,7 @@ class TaskQueue:
         if task_id in self.tasks:
             self.tasks[task_id].status = TaskStatus.FAILED
             self.tasks[task_id].error = error
-            self.tasks[task_id].completed_at = datetime.now(timezone.utc)
+            self.tasks[task_id].completed_at = datetime.now(UTC)
             self.tasks[task_id].retries += 1
 
     def get_task(self, task_id: str) -> QueuedTask | None:
@@ -224,8 +223,7 @@ class TaskQueue:
     def is_complete(self) -> bool:
         """Check if all tasks are complete."""
         return all(
-            task.status in (TaskStatus.COMPLETED, TaskStatus.FAILED, TaskStatus.BLOCKED)
-            for task in self.tasks.values()
+            task.status in (TaskStatus.COMPLETED, TaskStatus.FAILED, TaskStatus.BLOCKED) for task in self.tasks.values()
         )
 
     def has_failures(self) -> bool:

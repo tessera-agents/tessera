@@ -200,8 +200,8 @@ def check_test_coverage(project_root: Path = Path()) -> float | None:
     Returns:
         Coverage percentage or None if not available
     """
-    import os # noqa: PLC0415
-    import subprocess # noqa: PLC0415
+    import os
+    import subprocess
 
     # Prevent runaway if already in pytest (detect pytest env var)
     if os.getenv("PYTEST_CURRENT_TEST"):

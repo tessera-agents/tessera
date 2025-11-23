@@ -3,7 +3,7 @@ Panel interview system implementation with round-robin voting.
 """
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from langchain_core.language_models import BaseChatModel
@@ -63,9 +63,7 @@ class PanelistAgent:
         self.system_prompt = system_prompt
         self.scoring_weights = scoring_weights
 
-    def ask_question(
-        self, task_description: str, question_bank: list[dict[str, str]]
-    ) -> dict[str, str]:
+    def ask_question(self, task_description: str, question_bank: list[dict[str, str]]) -> dict[str, str]:
         """
         Ask a question from the question bank, tailored to this panelist's focus.
 
@@ -182,7 +180,7 @@ Respond in JSON format:
         try:
             return json.loads(content)
         except json.JSONDecodeError:
-            import re # noqa: PLC0415
+            import re
 
             json_match = re.search(r"\{.*\}", content, re.DOTALL)
             if json_match:
@@ -326,7 +324,7 @@ class PanelSystem:
         Returns:
             Panel result with votes and decision
         """
-        session_id = f"panel_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}"
+        session_id = f"panel_{datetime.now(UTC).strftime('%Y%m%d_%H%M%S')}"
 
         # Generate questions if not provided
         if not question_bank:
@@ -360,11 +358,7 @@ class PanelSystem:
 
                 # Candidate answers
                 answer_response = candidate_llms[candidate].invoke(
-                    [
-                        HumanMessage(
-                            content=f"Task: {task_description}\n\nQuestion: {question['text']}"
-                        )
-                    ]
+                    [HumanMessage(content=f"Task: {task_description}\n\nQuestion: {question['text']}")]
                 )
                 answer = answer_response.content
 
@@ -389,9 +383,7 @@ class PanelSystem:
             transcript["rounds"].append(candidate_transcript)
 
         # Tally votes
-        vote_counts: dict[str, dict[str, int]] = {
-            candidate: {"HIRE": 0, "PASS": 0} for candidate in candidates
-        }
+        vote_counts: dict[str, dict[str, int]] = {candidate: {"HIRE": 0, "PASS": 0} for candidate in candidates}
 
         for ballot in all_ballots:
             if ballot.vote == Vote.HIRE:
@@ -464,9 +456,7 @@ class PanelSystem:
         Returns:
             Vote summary
         """
-        vote_counts: dict[str, dict[str, int]] = {
-            candidate: {"HIRE": 0, "PASS": 0} for candidate in result.candidates
-        }
+        vote_counts: dict[str, dict[str, int]] = {candidate: {"HIRE": 0, "PASS": 0} for candidate in result.candidates}
 
         for ballot in result.ballots:
             if ballot.vote == Vote.HIRE:

@@ -140,9 +140,7 @@ class SlackHITLCoordinator:
 
         # Format details for display
         if isinstance(details, dict):
-            details_text = "\n".join(
-                f"*{k.replace('_', ' ').title()}:* {v}" for k, v in details.items()
-            )
+            details_text = "\n".join(f"*{k.replace('_', ' ').title()}:* {v}" for k, v in details.items())
         else:
             details_text = str(details)
 
@@ -257,9 +255,7 @@ class SlackHITLCoordinator:
                             action_value = action["value"]
 
                             # Resume graph
-                            self.handle_approval_response(
-                                action_value=action_value, message_ts=message_ts
-                            )
+                            self.handle_approval_response(action_value=action_value, message_ts=message_ts)
 
             except Exception:
                 pass
@@ -267,9 +263,7 @@ class SlackHITLCoordinator:
         return handle_socket_mode_request
 
 
-def create_slack_client(
-    app_token: str | None = None, bot_token: str | None = None
-) -> SocketModeClient:
+def create_slack_client(app_token: str | None = None, bot_token: str | None = None) -> SocketModeClient:
     """
     Create and configure Slack Socket Mode client.
 

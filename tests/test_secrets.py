@@ -101,7 +101,7 @@ class TestSecretManager:
         """Test get_from_1password when op CLI not installed."""
         mock_run.return_value = Mock(returncode=1)
 
-        result = SecretManager.get_from_1password("Test Item", "password")
+        result = SecretManager.get_from_1password("op://Test/Item/password")
 
         assert result is None
 

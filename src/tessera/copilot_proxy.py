@@ -58,7 +58,7 @@ class CopilotProxyManager:
 
         # Try 1Password
         try:
-            from .secrets import SecretManager # noqa: PLC0415
+            from .secrets import SecretManager
 
             token = SecretManager.get_github_token()
             if token:
@@ -208,8 +208,8 @@ class CopilotProxyManager:
         except FileNotFoundError:
             logger.exception("✗ npx not found. Please install Node.js first.")
             return False
-        except Exception as e:
-            logger.exception(f"✗ Failed to start proxy: {e}")
+        except Exception:
+            logger.exception("✗ Failed to start proxy")
             return False
 
     def wait_for_ready(self, timeout: float = 30.0) -> bool:

@@ -3,7 +3,7 @@ Interviewer agent implementation.
 """
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from langchain_core.language_models import BaseChatModel
@@ -46,9 +46,7 @@ class InterviewerAgent:
         self.system_prompt = system_prompt
         self.scoring_weights = self.config.scoring_weights.normalize()
 
-    def design_interview(
-        self, task_description: str, num_questions: int = 6
-    ) -> list[dict[str, str]]:
+    def design_interview(self, task_description: str, num_questions: int = 6) -> list[dict[str, str]]:
         """
         Design interview questions for a task.
 
@@ -137,9 +135,7 @@ Please provide a detailed answer.
         aggregated_score = sum(s.overall_score for s in scores) / len(scores) if scores else 0.0
 
         # Generate recommendation
-        recommendation = self._generate_recommendation(
-            candidate_name, aggregated_score, responses, scores
-        )
+        recommendation = self._generate_recommendation(candidate_name, aggregated_score, responses, scores)
 
         return InterviewResult(
             candidate=candidate_name,
@@ -152,7 +148,7 @@ Please provide a detailed answer.
             transcript={
                 "task_description": task_description,
                 "questions": list(questions),
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             },
         )
 
@@ -206,15 +202,12 @@ Respond in JSON format:
 
         return {
             "rankings": [
-                {"candidate": r.candidate, "score": r.aggregated_score, "rank": r.ranking}
-                for r in sorted_results
+                {"candidate": r.candidate, "score": r.aggregated_score, "rank": r.ranking} for r in sorted_results
             ],
             "selected_candidate": comparison.get("selected_candidate", sorted_results[0].candidate),
             "justification": comparison.get("justification", ""),
             "confidence": comparison.get("confidence", "Medium"),
-            "runner_up": comparison.get(
-                "runner_up", sorted_results[1].candidate if len(sorted_results) > 1 else None
-            ),
+            "runner_up": comparison.get("runner_up", sorted_results[1].candidate if len(sorted_results) > 1 else None),
             "key_differentiators": comparison.get("key_differentiators", []),
         }
 
@@ -263,9 +256,7 @@ Respond in JSON format:
             if candidate not in candidate_llms:
                 continue
 
-            candidate_response = candidate_llms[candidate].invoke(
-                [HumanMessage(content=tiebreaker["question"])]
-            )
+            candidate_response = candidate_llms[candidate].invoke([HumanMessage(content=tiebreaker["question"])])
             responses[candidate] = candidate_response.content
 
         # Evaluate responses
@@ -299,7 +290,7 @@ Respond in JSON format:
             "selected_candidate": decision.get("selected_candidate"),
             "justification": decision.get("justification"),
             "scores": decision.get("scores", {}),
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
     def _score_responses(
@@ -458,7 +449,7 @@ Weaknesses: {", ".join(r.weaknesses) if r.weaknesses else "None noted"}
         try:
             return json.loads(content)
         except json.JSONDecodeError as e:
-            import re # noqa: PLC0415
+            import re
 
             json_match = re.search(r"\{.*\}", content, re.DOTALL)
             if json_match:

@@ -67,9 +67,7 @@ class ProgressDisplay:
         if name in self.task_ids:
             self.progress.update(self.task_ids[name], advance=advance)
 
-    def generate_status_table(
-        self, task_queue: TaskQueue, agent_pool: AgentPool, current_phase: str
-    ) -> Table:
+    def generate_status_table(self, task_queue: TaskQueue, agent_pool: AgentPool, current_phase: str) -> Table:
         """
         Generate status table for display.
 
@@ -101,9 +99,7 @@ class ProgressDisplay:
 
         return table
 
-    def display_live(
-        self, task_queue: TaskQueue, agent_pool: AgentPool, current_phase: str
-    ) -> Live:
+    def display_live(self, task_queue: TaskQueue, agent_pool: AgentPool, current_phase: str) -> Live:
         """
         Create live display context manager.
 

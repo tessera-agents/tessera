@@ -158,9 +158,7 @@ class TestInterviewerAgent:
 
         assert score == 0.0
 
-    def test_compare_candidates(
-        self, mock_llm_with_response, test_config, sample_comparison_response
-    ):
+    def test_compare_candidates(self, mock_llm_with_response, test_config, sample_comparison_response):
         """Test comparing multiple candidates."""
         llm = mock_llm_with_response(sample_comparison_response)
         interviewer = InterviewerAgent(llm=llm, config=test_config)
@@ -199,9 +197,7 @@ class TestInterviewerAgent:
 
         assert "error" in comparison
 
-    def test_compare_candidates_assigns_rankings(
-        self, mock_llm_with_response, test_config, sample_comparison_response
-    ):
+    def test_compare_candidates_assigns_rankings(self, mock_llm_with_response, test_config, sample_comparison_response):
         """Test that compare_candidates assigns rankings to results."""
         llm = mock_llm_with_response(sample_comparison_response)
         interviewer = InterviewerAgent(llm=llm, config=test_config)
@@ -307,9 +303,7 @@ class TestInterviewerAgent:
         assert "85.0" in formatted
         assert "78.0" in formatted
 
-    def test_score_responses(
-        self, mock_llm_with_response, test_config, sample_questions, sample_score_response
-    ):
+    def test_score_responses(self, mock_llm_with_response, test_config, sample_questions, sample_score_response):
         """Test scoring responses."""
         llm = mock_llm_with_response(sample_score_response)
         interviewer = InterviewerAgent(llm=llm, config=test_config)
@@ -338,9 +332,7 @@ class TestInterviewerAgent:
         assert all(s.candidate == "TestCandidate" for s in scores)
         assert all(s.overall_score > 0 for s in scores)
 
-    def test_generate_recommendation(
-        self, mock_llm_with_response, test_config, sample_recommendation_response
-    ):
+    def test_generate_recommendation(self, mock_llm_with_response, test_config, sample_recommendation_response):
         """Test generating recommendation."""
         llm = mock_llm_with_response(sample_recommendation_response)
         interviewer = InterviewerAgent(llm=llm, config=test_config)

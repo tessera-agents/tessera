@@ -92,9 +92,7 @@ class TestQualityMonitor:
 
     def test_should_continue_with_improvement(self):
         """Test should_continue when quality is improving."""
-        monitor = QualityMonitor(
-            min_coverage_improvement=0.05, max_iterations_without_improvement=3
-        )
+        monitor = QualityMonitor(min_coverage_improvement=0.05, max_iterations_without_improvement=3)
 
         # Record improving coverage
         monitor.record_iteration(1, coverage=70.0)
@@ -108,9 +106,7 @@ class TestQualityMonitor:
 
     def test_should_continue_no_improvement(self):
         """Test should_continue when stuck without improvement."""
-        monitor = QualityMonitor(
-            min_coverage_improvement=0.05, max_iterations_without_improvement=3
-        )
+        monitor = QualityMonitor(min_coverage_improvement=0.05, max_iterations_without_improvement=3)
 
         # Record stagnant coverage - all increments below threshold
         monitor.record_iteration(1, coverage=70.0)

@@ -498,9 +498,7 @@ class TestConvenienceFunctions:
         result = start_proxy(github_token="ghu_testToken123", rate_limit=60, use_wait=False)
 
         assert result is True
-        mock_get_manager.assert_called_once_with(
-            github_token="ghu_testToken123", rate_limit=60, use_wait=False
-        )
+        mock_get_manager.assert_called_once_with(github_token="ghu_testToken123", rate_limit=60, use_wait=False)
         mock_manager.start.assert_called_once_with(wait_for_ready=True)
 
     @patch("tessera.copilot_proxy._proxy_instance", None)

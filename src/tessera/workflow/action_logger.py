@@ -5,7 +5,7 @@ Records all actions performed by agents: commands run, files created/modified/de
 """
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -70,7 +70,7 @@ class ActionLogger:
             metadata: Additional action metadata
         """
         action_record = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "action_type": action_type.value,
             "description": description,
             "agent_name": agent_name,

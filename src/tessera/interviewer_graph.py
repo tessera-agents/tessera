@@ -4,7 +4,7 @@ LangGraph-based Interviewer Agent implementation.
 Provides state persistence and checkpointing for interview workflows.
 """
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Literal, TypedDict
 
 from langchain_core.language_models import BaseChatModel
@@ -162,7 +162,7 @@ Respond in JSON format:
                     "question_id": q.get("question_id"),
                     "question_text": q.get("text"),
                     "answer": f"Simulated response to: {q.get('text')[:50]}...",
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "timestamp": datetime.now(UTC).isoformat(),
                 }
             )
 
@@ -226,10 +226,8 @@ Respond in JSON format:
             avg_metrics = {
                 "accuracy": sum(s["metrics"].get("accuracy", 0) for s in scores) / len(scores),
                 "relevance": sum(s["metrics"].get("relevance", 0) for s in scores) / len(scores),
-                "completeness": sum(s["metrics"].get("completeness", 0) for s in scores)
-                / len(scores),
-                "explainability": sum(s["metrics"].get("explainability", 0) for s in scores)
-                / len(scores),
+                "completeness": sum(s["metrics"].get("completeness", 0) for s in scores) / len(scores),
+                "explainability": sum(s["metrics"].get("explainability", 0) for s in scores) / len(scores),
                 "efficiency": sum(s["metrics"].get("efficiency", 0) for s in scores) / len(scores),
                 "safety": sum(s["metrics"].get("safety", 0) for s in scores) / len(scores),
             }

@@ -50,13 +50,9 @@ class TestAsyncMultiAgentExecutor:
         )
 
         agent_pool = AgentPool([])
-        executor = MultiAgentExecutor(
-            supervisor=mock_supervisor, agent_pool=agent_pool, max_parallel=2
-        )
+        executor = MultiAgentExecutor(supervisor=mock_supervisor, agent_pool=agent_pool, max_parallel=2)
 
-        result = await executor.execute_task_async(
-            task_id="task1", description="test task", agent_name="supervisor"
-        )
+        result = await executor.execute_task_async(task_id="task1", description="test task", agent_name="supervisor")
 
         assert result["success"] is True
         assert "result" in result
@@ -70,13 +66,9 @@ class TestAsyncMultiAgentExecutor:
         mock_supervisor.decompose_task = Mock(side_effect=ValueError("Test error"))
 
         agent_pool = AgentPool([])
-        executor = MultiAgentExecutor(
-            supervisor=mock_supervisor, agent_pool=agent_pool, max_parallel=2
-        )
+        executor = MultiAgentExecutor(supervisor=mock_supervisor, agent_pool=agent_pool, max_parallel=2)
 
-        result = await executor.execute_task_async(
-            task_id="task1", description="test task", agent_name="supervisor"
-        )
+        result = await executor.execute_task_async(task_id="task1", description="test task", agent_name="supervisor")
 
         assert result["success"] is False
         assert "error" in result
@@ -99,9 +91,7 @@ class TestAsyncMultiAgentExecutor:
         )
 
         agent_pool = AgentPool([])
-        executor = MultiAgentExecutor(
-            supervisor=mock_supervisor, agent_pool=agent_pool, max_parallel=2
-        )
+        executor = MultiAgentExecutor(supervisor=mock_supervisor, agent_pool=agent_pool, max_parallel=2)
 
         # Create mock tasks
         task1 = Mock(task_id="t1", description="Task 1")
@@ -140,9 +130,7 @@ class TestAsyncMultiAgentExecutor:
         )
 
         agent_pool = AgentPool([])
-        executor = MultiAgentExecutor(
-            supervisor=mock_supervisor, agent_pool=agent_pool, max_parallel=2
-        )
+        executor = MultiAgentExecutor(supervisor=mock_supervisor, agent_pool=agent_pool, max_parallel=2)
 
         result = executor.execute_project("Build a CLI tool")
 
@@ -159,9 +147,7 @@ class TestAsyncMultiAgentExecutor:
         """Test progress reporting."""
         mock_supervisor = Mock()
         agent_pool = AgentPool([])
-        executor = MultiAgentExecutor(
-            supervisor=mock_supervisor, agent_pool=agent_pool, max_parallel=2
-        )
+        executor = MultiAgentExecutor(supervisor=mock_supervisor, agent_pool=agent_pool, max_parallel=2)
 
         # Add some tasks
         executor.task_queue.add_task("task1", "Test task 1", [])

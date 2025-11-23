@@ -1,4 +1,5 @@
 """
+from rich.panel import Panel
 Tessera CLI main entry point.
 
 Usage:
@@ -12,12 +13,12 @@ Usage:
     tessera --help             # Show help
 """
 
-import shutil
 from pathlib import Path
 from typing import Annotated
 
 import typer
 from rich.console import Console
+from rich.panel import Panel
 from rich.prompt import Confirm, Prompt
 
 from tessera.config.schema import TesseraSettings
@@ -62,7 +63,6 @@ def load_config(custom_path: str | None = None) -> TesseraSettings:
         return TesseraSettings()
 
 
-
 @app.command()
 def main(
     task: Annotated[str, typer.Argument(help="Task description. If not provided, starts interactive mode.")] = "",
@@ -83,7 +83,7 @@ def main(
         tessera --dry-run "Deploy application"
         tessera --background "Generate full project"
     """
-    from .commands.main_cmd import execute_main  # noqa: PLC0415
+    from .commands.main_cmd import execute_main
 
     settings = load_config(config_file if config_file else None)
     execute_main(
@@ -98,14 +98,12 @@ def main(
     )
 
 
-
 @app.command()
 def init() -> None:
     """Initialize Tessera configuration with interactive wizard."""
     console.print(
         Panel.fit(
-            "[bold cyan]Tessera Configuration Wizard[/bold cyan]\n"
-            "[dim]Setting up ~/.config/tessera/config.yaml[/dim]",
+            "[bold cyan]Tessera Configuration Wizard[/bold cyan]\n[dim]Setting up ~/.config/tessera/config.yaml[/dim]",
             border_style="cyan",
         )
     )
@@ -160,8 +158,8 @@ def init() -> None:
     dirs = ensure_directories()
 
     # Create minimal config from template
-    import shutil  # noqa: PLC0415
-    from pathlib import Path # noqa: PLC0415
+    import shutil
+    from pathlib import Path
 
     template_path = Path(__file__).parent.parent / "config" / "defaults.yaml"
 
@@ -182,7 +180,7 @@ def init() -> None:
     # Create default supervisor prompt
     supervisor_prompt_file = dirs["config_prompts"] / "supervisor.md"
     if not supervisor_prompt_file.exists():
-        from tessera.legacy_config import SUPERVISOR_PROMPT  # noqa: PLC0415
+        from tessera.legacy_config import SUPERVISOR_PROMPT
 
         supervisor_prompt_file.write_text(SUPERVISOR_PROMPT)
 

@@ -65,9 +65,9 @@ class LLMConfig(BaseModel):
         if not self.models:
             # If using a proxy, fetch and display available models
             if self.base_url:
-                import sys # noqa: PLC0415
+                import sys
 
-                from .model_validator import ModelValidator # noqa: PLC0415
+                from .model_validator import ModelValidator
 
                 # Fetch and display available models from the API
                 available = ModelValidator.fetch_available_models(self.base_url, self.api_key or "dummy")
@@ -95,7 +95,7 @@ class LLMConfig(BaseModel):
             return self
 
         # Import here to avoid circular dependency and loading on every config creation
-        from .premium_models import get_model_multiplier, is_premium_model # noqa: PLC0415
+        from .premium_models import get_model_multiplier, is_premium_model
 
         # Check each configured model
         premium_models = []
@@ -160,7 +160,7 @@ class LLMConfig(BaseModel):
         """Create configuration from environment variables or 1Password."""
         # Import here to avoid circular dependency
         try:
-            from .secrets import SecretManager # noqa: PLC0415
+            from .secrets import SecretManager
 
             use_secrets = True
         except ImportError:

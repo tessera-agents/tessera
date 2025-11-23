@@ -43,9 +43,7 @@ class TestSupervisorInterviewerIntegration:
         interviewer = InterviewerAgent(llm=interviewer_llm, config=test_config)
 
         # Design questions
-        questions_llm = mock_llm_with_response(
-            '{"questions": ' + str(sample_questions).replace("'", '"') + "}"
-        )
+        questions_llm = mock_llm_with_response('{"questions": ' + str(sample_questions).replace("'", '"') + "}")
         interviewer.llm = questions_llm
         questions = interviewer.design_interview(interview_request["task_description"])
 

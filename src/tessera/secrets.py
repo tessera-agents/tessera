@@ -105,9 +105,7 @@ class SecretManager:
             return None
         except subprocess.CalledProcessError as e:
             # Item not found or other error
-            logger.warning(
-                f"Failed to read from 1Password: {e.stderr if e.stderr else 'unknown error'}"
-            )
+            logger.warning(f"Failed to read from 1Password: {e.stderr if e.stderr else 'unknown error'}")
             return None
         except FileNotFoundError:
             # op command not found

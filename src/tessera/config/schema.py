@@ -217,9 +217,7 @@ class CostConfig(BaseModel):
     limits: dict[str, CostLimitConfig] = Field(default_factory=dict)
     pricing_auto_update: bool = Field(default=True, alias="pricing.auto_update")
     pricing_cache_duration_hours: int = Field(default=24, alias="pricing.cache_duration_hours")
-    pricing_manual_overrides: list[CostManualPricing] = Field(
-        default_factory=list, alias="pricing.manual_overrides"
-    )
+    pricing_manual_overrides: list[CostManualPricing] = Field(default_factory=list, alias="pricing.manual_overrides")
 
 
 class ProjectGenerationPhase(BaseModel):
@@ -265,12 +263,8 @@ class ProjectGenerationOutputConfig(BaseModel):
 class ProjectGenerationConfig(BaseModel):
     """Project generation configuration section."""
 
-    interview: ProjectGenerationInterviewConfig = Field(
-        default_factory=ProjectGenerationInterviewConfig
-    )
-    planning: ProjectGenerationPlanningConfig = Field(
-        default_factory=ProjectGenerationPlanningConfig
-    )
+    interview: ProjectGenerationInterviewConfig = Field(default_factory=ProjectGenerationInterviewConfig)
+    planning: ProjectGenerationPlanningConfig = Field(default_factory=ProjectGenerationPlanningConfig)
     phases: list[ProjectGenerationPhase] = Field(default_factory=list)
     output: ProjectGenerationOutputConfig = Field(default_factory=ProjectGenerationOutputConfig)
 

@@ -3,7 +3,6 @@
 import os
 import time
 import uuid
-from typing import TYPE_CHECKING
 
 from rich.console import Console
 from rich.panel import Panel
@@ -17,9 +16,6 @@ from tessera.observability.tracer import get_tracer, set_span_attributes
 from tessera.secrets import SecretManager
 from tessera.supervisor import SupervisorAgent
 from tessera.workflow import PhaseExecutor
-
-if TYPE_CHECKING:
-    import typer
 
 
 def execute_main(
@@ -47,9 +43,7 @@ def execute_main(
     """
     console.print(
         Panel.fit(
-            "[bold cyan]TESSERA[/bold cyan]\n"
-            "Multi-Agent Orchestration Framework\n"
-            "[dim]v0.3.0 - Production Ready[/dim]",
+            "[bold cyan]TESSERA[/bold cyan]\nMulti-Agent Orchestration Framework\n[dim]v0.3.0 - Production Ready[/dim]",
             border_style="cyan",
         )
     )
@@ -71,7 +65,7 @@ def execute_main(
 
         if not task.strip():
             console.print("[red]No task provided.[/red]\n")
-            import typer  # noqa: PLC0415
+            import typer
 
             raise typer.Exit(1)
 
@@ -97,7 +91,7 @@ def execute_main(
     if background:
         console.print("[yellow]Background mode not yet implemented.[/yellow]")
         console.print("Coming in v0.5.0!\n")
-        import typer  # noqa: PLC0415
+        import typer
 
         raise typer.Exit(1)
 
@@ -178,7 +172,7 @@ def execute_main(
                     console.print(f"Please set: export {api_key_name}=your-key-here")
                     console.print(f"Or configure 1Password: OP_{agent_provider.upper()}_ITEM=op://...\n")
                     metrics_store.update_task_status(task_id, "failed", error_message="Missing API key")
-                    import typer  # noqa: PLC0415
+                    import typer
 
                     raise typer.Exit(3)
 
@@ -194,7 +188,7 @@ def execute_main(
 
             # Multi-agent or single-agent
             if use_multi_agent:
-                from tessera.cli.multi_agent_execution import execute_multi_agent  # noqa: PLC0415
+                from tessera.cli.multi_agent_execution import execute_multi_agent
 
                 console.print("[cyan]Using multi-agent execution (v0.3.0)[/cyan]\n")
 
@@ -214,8 +208,7 @@ def execute_main(
                     task_id,
                     "completed",
                     result_summary=(
-                        f"Multi-agent: {execution_result['tasks_completed']}/"
-                        f"{execution_result['tasks_total']} tasks"
+                        f"Multi-agent: {execution_result['tasks_completed']}/{execution_result['tasks_total']} tasks"
                     ),
                     trace_id=str(span.get_span_context().trace_id),
                     llm_calls_count=execution_result.get("tasks_total", 0),
@@ -280,9 +273,7 @@ def execute_main(
                 if current_phase:
                     console.print(f"[dim]Current phase: {current_phase.name}[/dim]")
 
-                    subphase_results = phase_executor.apply_subphases_to_task(
-                        task_id=task_id, task_result=result
-                    )
+                    subphase_results = phase_executor.apply_subphases_to_task(task_id=task_id, task_result=result)
 
                     for sp_result in subphase_results:
                         sp_name = sp_result.get("sub_phase")
@@ -328,15 +319,15 @@ def execute_main(
     except KeyboardInterrupt:
         console.print("\n[yellow]Interrupted by user[/yellow]\n")
         metrics_store.update_task_status(task_id, "failed", error_message="Interrupted by user")  # type: ignore[possibly-undefined]
-        import typer  # noqa: PLC0415
+        import typer
 
         raise typer.Exit(130)
     except Exception as e:
         console.print(f"[red]Error:[/red] {e}\n")
-        import traceback  # noqa: PLC0415
+        import traceback
 
         console.print(f"[dim]{traceback.format_exc()}[/dim]")
         metrics_store.update_task_status(task_id, "failed", error_message=str(e))  # type: ignore[possibly-undefined]
-        import typer  # noqa: PLC0415
+        import typer
 
         raise typer.Exit(1)

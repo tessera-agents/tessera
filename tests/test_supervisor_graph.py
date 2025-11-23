@@ -37,9 +37,7 @@ class TestSupervisorGraph:
 
         assert supervisor.system_prompt == custom_prompt
 
-    def test_decompose_task_via_graph(
-        self, test_config, sample_task_decomposition, sample_review_response
-    ):
+    def test_decompose_task_via_graph(self, test_config, sample_task_decomposition, sample_review_response):
         """Test task decomposition through LangGraph."""
         # Create multi-response mock
         from unittest.mock import Mock
@@ -77,9 +75,7 @@ class TestSupervisorGraph:
         assert result["task"]["goal"] == "Build a web scraping system with database storage"
         assert len(result["task"]["subtasks"]) == 2
 
-    def test_graph_state_persistence(
-        self, test_config, sample_task_decomposition, sample_review_response
-    ):
+    def test_graph_state_persistence(self, test_config, sample_task_decomposition, sample_review_response):
         """Test that state is persisted to checkpoint."""
         # Create multi-response mock
         from unittest.mock import Mock
@@ -121,9 +117,7 @@ class TestSupervisorGraph:
         state = supervisor.get_state(config)
         assert state.values["task_id"] == result1["task_id"]
 
-    def test_graph_resume_from_checkpoint(
-        self, test_config, sample_task_decomposition, sample_review_response
-    ):
+    def test_graph_resume_from_checkpoint(self, test_config, sample_task_decomposition, sample_review_response):
         """Test resuming from a checkpoint."""
         # Create multi-response mock
         from unittest.mock import Mock
@@ -218,9 +212,7 @@ class TestSupervisorGraph:
 
         assert any("task_id" in s for s in all_states)
 
-    def test_graph_handles_multiple_threads(
-        self, test_config, sample_task_decomposition, sample_review_response
-    ):
+    def test_graph_handles_multiple_threads(self, test_config, sample_task_decomposition, sample_review_response):
         """Test handling multiple independent threads."""
         # Create multi-response mock
         from unittest.mock import Mock
@@ -270,9 +262,7 @@ class TestSupervisorGraph:
         state2 = supervisor.get_state(config2)
         assert state1.values["task_id"] != state2.values["task_id"]
 
-    def test_graph_decompose_node_creates_task(
-        self, mock_llm_with_response, test_config, sample_task_decomposition
-    ):
+    def test_graph_decompose_node_creates_task(self, mock_llm_with_response, test_config, sample_task_decomposition):
         """Test decompose node creates proper task structure."""
         llm = mock_llm_with_response(sample_task_decomposition)
         supervisor = SupervisorGraph(llm=llm, config=test_config)
@@ -365,9 +355,7 @@ class TestSupervisorGraph:
         assert "content" in result["agent_response"]
         assert result["next_action"] == "review"
 
-    def test_graph_routing_after_decompose(
-        self, mock_llm_with_response, test_config, sample_task_decomposition
-    ):
+    def test_graph_routing_after_decompose(self, mock_llm_with_response, test_config, sample_task_decomposition):
         """Test routing logic after decomposition."""
         llm = mock_llm_with_response(sample_task_decomposition)
         supervisor = SupervisorGraph(llm=llm, config=test_config)
@@ -380,9 +368,7 @@ class TestSupervisorGraph:
         state_without_task = {"task": None}
         assert supervisor._route_after_decompose(state_without_task) == "end"
 
-    def test_graph_full_execution_flow(
-        self, test_config, sample_task_decomposition, sample_review_response
-    ):
+    def test_graph_full_execution_flow(self, test_config, sample_task_decomposition, sample_review_response):
         """Test full execution flow through the graph."""
         # Need to mock multiple responses for different stages
         from unittest.mock import Mock

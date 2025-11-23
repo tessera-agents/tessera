@@ -87,13 +87,9 @@ class TestMetricsStore:
         store = MetricsStore()
         task_id = f"test-{uuid.uuid4().hex[:8]}"
 
-        store.record_task_assignment(
-            task_id=task_id, task_description="Test", agent_name="agent1", agent_config={}
-        )
+        store.record_task_assignment(task_id=task_id, task_description="Test", agent_name="agent1", agent_config={})
 
-        store.update_task_status(
-            task_id=task_id, status="completed", total_tokens=1000, total_cost_usd=0.05
-        )
+        store.update_task_status(task_id=task_id, status="completed", total_tokens=1000, total_cost_usd=0.05)
 
         # Verify update succeeded
         assert True
@@ -155,9 +151,7 @@ class TestTokenUsageCallback:
 
         for _ in range(3):
             result = MagicMock(spec=LLMResult)
-            result.llm_output = {
-                "token_usage": {"prompt_tokens": 100, "completion_tokens": 50, "total_tokens": 150}
-            }
+            result.llm_output = {"token_usage": {"prompt_tokens": 100, "completion_tokens": 50, "total_tokens": 150}}
             callback.on_llm_end(result)
 
         usage = callback.get_usage()

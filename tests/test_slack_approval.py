@@ -82,9 +82,7 @@ class TestSlackApprovalCoordinator:
 
         mock_slack_client = Mock()
         mock_slack_client.web_client = Mock()
-        mock_slack_client.web_client.chat_postMessage = Mock(
-            return_value={"ts": "1234567890.123456"}
-        )
+        mock_slack_client.web_client.chat_postMessage = Mock(return_value={"ts": "1234567890.123456"})
 
         coordinator = SlackApprovalCoordinator(
             graph=mock_graph, slack_client=mock_slack_client, default_channel="C12345"
@@ -114,18 +112,14 @@ class TestSlackApprovalCoordinator:
         coordinator = SlackApprovalCoordinator(graph=mock_graph, slack_client=mock_slack_client)
 
         with pytest.raises(ValueError, match="Slack channel required"):
-            coordinator.invoke_with_slack_approval(
-                input_data={"objective": "test"}, thread_id="test-thread"
-            )
+            coordinator.invoke_with_slack_approval(input_data={"objective": "test"}, thread_id="test-thread")
 
     def test_send_approval_request_formats_message(self):
         """Test approval request message formatting."""
         mock_graph = Mock()
         mock_slack_client = Mock()
         mock_slack_client.web_client = Mock()
-        mock_slack_client.web_client.chat_postMessage = Mock(
-            return_value={"ts": "1234567890.123456"}
-        )
+        mock_slack_client.web_client.chat_postMessage = Mock(return_value={"ts": "1234567890.123456"})
 
         coordinator = SlackApprovalCoordinator(graph=mock_graph, slack_client=mock_slack_client)
 
@@ -174,9 +168,7 @@ class TestSlackApprovalCoordinator:
             "channel": "C12345",
         }
 
-        result = coordinator.handle_approval_response(
-            action_value="approve", message_ts="1234567890.123456"
-        )
+        result = coordinator.handle_approval_response(action_value="approve", message_ts="1234567890.123456")
 
         assert result["status"] == "completed"
 
@@ -209,9 +201,7 @@ class TestSlackApprovalCoordinator:
             "channel": "C12345",
         }
 
-        result = coordinator.handle_approval_response(
-            action_value="reject", message_ts="1234567890.123456"
-        )
+        result = coordinator.handle_approval_response(action_value="reject", message_ts="1234567890.123456")
 
         assert result["status"] == "rejected"
 

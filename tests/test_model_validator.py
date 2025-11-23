@@ -177,9 +177,7 @@ class TestModelValidatorValidateModels:
         """Test that non-strict mode returns False when no models configured."""
         mock_fetch.return_value = ["gpt-4", "gpt-3.5-turbo"]
 
-        config = LLMConfig(
-            provider="openai", api_key="test-key", models=[], base_url="http://localhost:3000/v1"
-        )
+        config = LLMConfig(provider="openai", api_key="test-key", models=[], base_url="http://localhost:3000/v1")
 
         result = ModelValidator.validate_models(config, strict=False)
 
