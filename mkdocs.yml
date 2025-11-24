@@ -9,16 +9,18 @@ edit_uri: edit/main/docs/
 
 theme:
   name: material
+  logo: assets/imgs/logos/logo-small-t.svg
+  favicon: assets/imgs/logos/favicon.png
   palette:
     - scheme: default
-      primary: cyan
-      accent: blue
+      primary: deep purple
+      accent: cyan
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
     - scheme: slate
-      primary: cyan
-      accent: blue
+      primary: deep purple
+      accent: cyan
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
@@ -57,5 +59,10 @@ nav:
     - Quick Start: getting-started/quickstart.md
   - User Guide:
     - Configuration: user-guide/configuration.md
+    - Agents: user-guide/agents.md
+    - Multi-Agent Execution: user-guide/multi-agent.md
+    - Observability: user-guide/observability.md
+    - Tools: user-guide/tools.md
   - Reference:
     - CLI Commands: reference/cli.md
+  - Troubleshooting: troubleshooting.md

@@ -2,9 +2,8 @@
 LLM provider abstraction using LiteLLM for unified multi-provider support.
 """
 
-from typing import Optional
-from langchain_litellm import ChatLiteLLM
 from langchain_core.language_models import BaseChatModel
+from langchain_litellm import ChatLiteLLM
 
 from .config import LLMConfig
 
@@ -18,7 +17,7 @@ class LLMProvider:
         return create_llm(config)
 
 
-def create_llm(config: Optional[LLMConfig] = None) -> BaseChatModel:
+def create_llm(config: LLMConfig | None = None) -> BaseChatModel:
     """
     Create LLM instance using LiteLLM for unified provider support.
 

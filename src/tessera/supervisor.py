@@ -3,14 +3,15 @@ Supervisor agent implementation.
 """
 
 import json
-from datetime import datetime
-from typing import Any, Optional
-from langchain_core.messages import HumanMessage, SystemMessage
+from datetime import UTC, datetime
+from typing import Any
+
 from langchain_core.language_models import BaseChatModel
+from langchain_core.messages import HumanMessage, SystemMessage
 
 from .config import SUPERVISOR_PROMPT, FrameworkConfig
-from .models import Task, SubTask, TaskStatus, AgentResponse
 from .llm import create_llm
+from .models import AgentResponse, SubTask, Task, TaskStatus
 
 
 class SupervisorAgent:
@@ -23,10 +24,10 @@ class SupervisorAgent:
 
     def __init__(
         self,
-        llm: Optional[BaseChatModel] = None,
-        config: Optional[FrameworkConfig] = None,
+        llm: BaseChatModel | None = None,
+        config: FrameworkConfig | None = None,
         system_prompt: str = SUPERVISOR_PROMPT,
-    ):
+    ) -> None:
         """
         Initialize the supervisor agent.
 
@@ -40,7 +41,7 @@ class SupervisorAgent:
         self.system_prompt = system_prompt
         self.tasks: dict[str, Task] = {}
 
-    def decompose_task(self, objective: str, callbacks: Optional[list] = None) -> Task:
+    def decompose_task(self, objective: str, callbacks: list | None = None) -> Task:
         """
         Decompose a complex objective into subtasks.
 
@@ -87,7 +88,7 @@ Respond in JSON format:
         result = self._parse_json_response(response.content)
 
         task = Task(
-            task_id=f"task_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
+            task_id=f"task_{datetime.now(UTC).strftime('%Y%m%d_%H%M%S')}",
             goal=result.get("goal", objective),
             subtasks=[
                 SubTask(
@@ -120,7 +121,7 @@ Respond in JSON format:
             if subtask.task_id == subtask_id:
                 subtask.assigned_to = agent_name
                 subtask.status = TaskStatus.PENDING
-                task.last_updated = datetime.now()
+                task.last_updated = datetime.now(UTC)
                 break
 
     def update_subtask_status(
@@ -128,7 +129,7 @@ Respond in JSON format:
         task_id: str,
         subtask_id: str,
         status: TaskStatus,
-        result: Optional[str] = None,
+        result: str | None = None,
     ) -> None:
         """
         Update the status of a subtask.
@@ -148,7 +149,7 @@ Respond in JSON format:
                 subtask.status = status
                 if result:
                     subtask.result = result
-                task.last_updated = datetime.now()
+                task.last_updated = datetime.now(UTC)
                 break
 
     def review_agent_output(
@@ -265,7 +266,7 @@ Respond in JSON format:
             "action": "interview_request",
             "task_description": task_description,
             "candidates": candidates,
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
     def _parse_json_response(self, content: str) -> dict[str, Any]:
@@ -291,7 +292,7 @@ Respond in JSON format:
             json_match = re.search(r"\{.*\}", content, re.DOTALL)
             if json_match:
                 return json.loads(json_match.group())
-            raise ValueError(f"Failed to parse JSON response: {e}")
+            raise ValueError(f"Failed to parse JSON response: {e}") from e
 
     def synthesize_results(self, task_id: str) -> str:
         """

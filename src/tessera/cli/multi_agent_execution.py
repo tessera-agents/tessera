@@ -4,16 +4,16 @@ Multi-agent execution logic for CLI.
 Separated from main.py for clarity.
 """
 
-from typing import Any, Dict
+from typing import Any
+
 from rich.console import Console
-from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn
 
-from ..workflow import MultiAgentExecutor, AgentPool
-from ..observability import MetricsStore, CostCalculator
-from ..config.schema import TesseraSettings
+from tessera.config.schema import TesseraSettings
+from tessera.observability import CostCalculator, MetricsStore
+from tessera.workflow import AgentPool, MultiAgentExecutor
 
 
-def execute_multi_agent(
+def execute_multi_agent(  # noqa: PLR0913
     task_description: str,
     settings: TesseraSettings,
     supervisor: Any,
@@ -21,7 +21,7 @@ def execute_multi_agent(
     metrics_store: MetricsStore,
     cost_calc: CostCalculator,
     console: Console,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Execute task using multi-agent coordination.
 
@@ -37,7 +37,9 @@ def execute_multi_agent(
     Returns:
         Execution result dictionary
     """
-    console.print(f"[cyan]Multi-agent execution:[/cyan] {len(settings.agents.definitions)} agents, max {max_parallel} parallel\n")
+    console.print(
+        f"[cyan]Multi-agent execution:[/cyan] {len(settings.agents.definitions)} agents, max {max_parallel} parallel\n"
+    )
 
     # Create agent pool from config
     agent_pool = AgentPool(settings.agents.definitions)
@@ -53,7 +55,7 @@ def execute_multi_agent(
     # Show agent pool status
     pool_status = agent_pool.get_pool_status()
     console.print(f"[dim]Agent pool: {pool_status['total_agents']} agents ready[/dim]")
-    for agent_name in agent_pool.agents.keys():
+    for agent_name in agent_pool.agents:
         agent_config = agent_pool.agents[agent_name].config
         console.print(f"[dim]  • {agent_name} ({agent_config.model})[/dim]")
     console.print()
@@ -65,7 +67,7 @@ def execute_multi_agent(
 
     # Display results
     console.print("[green]✓ Multi-agent execution complete![/green]\n")
-    console.print(f"[cyan]Summary:[/cyan]")
+    console.print("[cyan]Summary:[/cyan]")
     console.print(f"  Tasks: {result['tasks_completed']}/{result['tasks_total']}")
     console.print(f"  Failed: {result['tasks_failed']}")
     console.print(f"  Iterations: {result['iterations']}")

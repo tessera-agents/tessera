@@ -2,10 +2,10 @@
 Task queue with dependency management for multi-agent execution.
 """
 
-from typing import Dict, List, Optional, Set
-from enum import Enum
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime
+from enum import Enum
+from typing import Any
 
 
 class TaskStatus(Enum):
@@ -25,14 +25,14 @@ class QueuedTask:
 
     task_id: str
     description: str
-    agent_name: Optional[str] = None  # Assigned agent
+    agent_name: str | None = None  # Assigned agent
     status: TaskStatus = TaskStatus.PENDING
-    dependencies: List[str] = field(default_factory=list)  # Task IDs this depends on
+    dependencies: list[str] = field(default_factory=list)  # Task IDs this depends on
     created_at: datetime = field(default_factory=datetime.now)
-    started_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
-    result: Optional[any] = None
-    error: Optional[str] = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
+    result: Any | None = None
+    error: str | None = None
     retries: int = 0
     max_retries: int = 3
 
@@ -48,17 +48,17 @@ class TaskQueue:
     - Parallel execution support
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize empty task queue."""
-        self.tasks: Dict[str, QueuedTask] = {}
-        self.execution_order: List[str] = []
+        self.tasks: dict[str, QueuedTask] = {}
+        self.execution_order: list[str] = []
 
     def add_task(
         self,
         task_id: str,
         description: str,
-        dependencies: Optional[List[str]] = None,
-        agent_name: Optional[str] = None,
+        dependencies: list[str] | None = None,
+        agent_name: str | None = None,
     ) -> None:
         """
         Add task to queue.
@@ -87,10 +87,10 @@ class TaskQueue:
         are satisfied, etc.
         """
         # Simple topological sort
-        visited: Set[str] = set()
-        order: List[str] = []
+        visited: set[str] = set()
+        order: list[str] = []
 
-        def visit(task_id: str):
+        def visit(task_id: str) -> None:
             if task_id in visited:
                 return
             visited.add(task_id)
@@ -111,7 +111,7 @@ class TaskQueue:
 
         self.execution_order = order
 
-    def get_ready_tasks(self, exclude_in_progress: bool = True) -> List[QueuedTask]:
+    def get_ready_tasks(self, exclude_in_progress: bool = True) -> list[QueuedTask]:
         """
         Get tasks that are ready to execute.
 
@@ -138,8 +138,7 @@ class TaskQueue:
 
             # Check if all dependencies are met
             dependencies_met = all(
-                self.tasks.get(dep_id, QueuedTask(task_id="", description="")).status
-                == TaskStatus.COMPLETED
+                self.tasks.get(dep_id, QueuedTask(task_id="", description="")).status == TaskStatus.COMPLETED
                 for dep_id in task.dependencies
             )
 
@@ -159,9 +158,9 @@ class TaskQueue:
         if task_id in self.tasks:
             self.tasks[task_id].status = TaskStatus.IN_PROGRESS
             self.tasks[task_id].agent_name = agent_name
-            self.tasks[task_id].started_at = datetime.now()
+            self.tasks[task_id].started_at = datetime.now(UTC)
 
-    def mark_complete(self, task_id: str, result: Optional[any] = None) -> None:
+    def mark_complete(self, task_id: str, result: Any | None = None) -> None:
         """
         Mark task as completed.
 
@@ -171,7 +170,7 @@ class TaskQueue:
         """
         if task_id in self.tasks:
             self.tasks[task_id].status = TaskStatus.COMPLETED
-            self.tasks[task_id].completed_at = datetime.now()
+            self.tasks[task_id].completed_at = datetime.now(UTC)
             self.tasks[task_id].result = result
 
     def mark_failed(self, task_id: str, error: str) -> None:
@@ -185,17 +184,18 @@ class TaskQueue:
         if task_id in self.tasks:
             self.tasks[task_id].status = TaskStatus.FAILED
             self.tasks[task_id].error = error
+            self.tasks[task_id].completed_at = datetime.now(UTC)
             self.tasks[task_id].retries += 1
 
-    def get_task(self, task_id: str) -> Optional[QueuedTask]:
+    def get_task(self, task_id: str) -> QueuedTask | None:
         """Get task by ID."""
         return self.tasks.get(task_id)
 
-    def get_all_tasks(self) -> List[QueuedTask]:
+    def get_all_tasks(self) -> list[QueuedTask]:
         """Get all tasks in execution order."""
         return [self.tasks[task_id] for task_id in self.execution_order if task_id in self.tasks]
 
-    def get_status_summary(self) -> Dict[str, int]:
+    def get_status_summary(self) -> dict[str, int]:
         """
         Get summary of task statuses.
 
@@ -223,8 +223,7 @@ class TaskQueue:
     def is_complete(self) -> bool:
         """Check if all tasks are complete."""
         return all(
-            task.status in (TaskStatus.COMPLETED, TaskStatus.FAILED, TaskStatus.BLOCKED)
-            for task in self.tasks.values()
+            task.status in (TaskStatus.COMPLETED, TaskStatus.FAILED, TaskStatus.BLOCKED) for task in self.tasks.values()
         )
 
     def has_failures(self) -> bool:

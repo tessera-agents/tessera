@@ -5,14 +5,13 @@ Maintains a pricing table for different models and calculates costs
 based on token usage.
 """
 
-import sqlite3
 import re
-from datetime import datetime
-from typing import Optional, Dict
+import sqlite3
+from datetime import UTC, datetime
 from pathlib import Path
 
-from ..config.xdg import get_metrics_db_path
-from ..logging_config import get_logger
+from tessera.config.xdg import get_metrics_db_path
+from tessera.logging_config import get_logger
 
 logger = get_logger(__name__)
 
@@ -25,7 +24,7 @@ class CostCalculator:
     Supports pattern matching for model variations (e.g., gpt-4-* matches gpt-4-0613).
     """
 
-    def __init__(self, db_path: Optional[Path] = None):
+    def __init__(self, db_path: Path | None = None) -> None:
         """
         Initialize cost calculator.
 
@@ -111,9 +110,7 @@ class CostCalculator:
                 (provider, model, pattern, prompt_price, completion_price, date),
             )
 
-    def calculate(
-        self, model: str, prompt_tokens: int, completion_tokens: int, provider: Optional[str] = None
-    ) -> float:
+    def calculate(self, model: str, prompt_tokens: int, completion_tokens: int, provider: str | None = None) -> float:
         """
         Calculate cost in USD.
 
@@ -144,7 +141,7 @@ class CostCalculator:
 
         return round(prompt_cost + completion_cost, 6)
 
-    def _get_pricing(self, model: str, provider: Optional[str]) -> Optional[Dict[str, float]]:
+    def _get_pricing(self, model: str, provider: str | None) -> dict[str, float] | None:
         """
         Fetch pricing from database with pattern matching.
 
@@ -169,7 +166,7 @@ class CostCalculator:
             LIMIT 1
         """
 
-        result = cursor.execute(query, (model, provider, provider, datetime.now().date().isoformat())).fetchone()
+        result = cursor.execute(query, (model, provider, provider, datetime.now(UTC).date().isoformat())).fetchone()
 
         if result:
             conn.close()
@@ -184,7 +181,7 @@ class CostCalculator:
               AND (deprecated_date IS NULL OR deprecated_date > ?)
         """
 
-        patterns = cursor.execute(query, (provider, provider, datetime.now().date().isoformat())).fetchall()
+        patterns = cursor.execute(query, (provider, provider, datetime.now(UTC).date().isoformat())).fetchall()
 
         for pattern, prompt_price, completion_price in patterns:
             if re.match(pattern, model):
@@ -200,7 +197,7 @@ class CostCalculator:
         model_name: str,
         prompt_price_per_1k: float,
         completion_price_per_1k: float,
-        model_pattern: Optional[str] = None,
+        model_pattern: str | None = None,
     ) -> None:
         """
         Add or update model pricing.
@@ -228,7 +225,7 @@ class CostCalculator:
                 model_pattern,
                 prompt_price_per_1k,
                 completion_price_per_1k,
-                datetime.now().date().isoformat(),
+                datetime.now(UTC).date().isoformat(),
             ),
         )
 

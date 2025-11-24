@@ -4,7 +4,8 @@ Data models for the autonomy framework.
 
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
+
 from pydantic import BaseModel, Field
 
 
@@ -23,12 +24,12 @@ class SubTask(BaseModel):
 
     task_id: str
     description: str
-    assigned_to: Optional[str] = None
+    assigned_to: str | None = None
     status: TaskStatus = TaskStatus.PENDING
     acceptance_criteria: list[str] = Field(default_factory=list)
-    due_by: Optional[datetime] = None
+    due_by: datetime | None = None
     dependencies: list[str] = Field(default_factory=list)
-    result: Optional[str] = None
+    result: str | None = None
 
 
 class Task(BaseModel):
@@ -90,8 +91,8 @@ class InterviewResult(BaseModel):
     questions: list[QuestionResponse] = Field(default_factory=list)
     scores: list[Score] = Field(default_factory=list)
     aggregated_score: float = 0.0
-    ranking: Optional[int] = None
-    recommendation: Optional[str] = None
+    ranking: int | None = None
+    recommendation: str | None = None
     weaknesses: list[str] = Field(default_factory=list)
     guardrails: list[str] = Field(default_factory=list)
     transcript: dict[str, Any] = Field(default_factory=dict)
@@ -101,7 +102,7 @@ class Vote(str, Enum):
     """Vote options for panel decisions."""
 
     HIRE = "hire"
-    PASS = "pass"
+    PASS = "pass"  # noqa: S105
 
 
 class Ballot(BaseModel):
@@ -124,7 +125,7 @@ class PanelResult(BaseModel):
     panelists: list[str]
     ballots: list[Ballot] = Field(default_factory=list)
     final_ranking: list[tuple[str, float]] = Field(default_factory=list)
-    decision: Optional[str] = None
+    decision: str | None = None
     confidence: str = "medium"  # low, medium, high
     tie_breaker_used: bool = False
     transcript: dict[str, Any] = Field(default_factory=dict)
@@ -138,6 +139,6 @@ class AgentConfig(BaseModel):
     role: str
     model: str = "gpt-4-turbo-preview"
     temperature: float = 0.7
-    max_tokens: Optional[int] = None
+    max_tokens: int | None = None
     system_prompt: str
     metadata: dict[str, Any] = Field(default_factory=dict)

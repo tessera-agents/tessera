@@ -4,15 +4,16 @@ Configuration management for the autonomy framework.
 
 import os
 from pathlib import Path
-from typing import List, Literal, Optional
-from pydantic import BaseModel, Field, model_validator
+from typing import Literal
+
 from dotenv import load_dotenv
+from pydantic import BaseModel, Field, model_validator
 
 # Load environment variables
 load_dotenv()
 
 
-def parse_model_list(env_value: Optional[str], default: List[str]) -> List[str]:
+def parse_model_list(env_value: str | None, default: list[str]) -> list[str]:
     """
     Parse comma-separated model list from environment variable.
 
@@ -27,7 +28,7 @@ def parse_model_list(env_value: Optional[str], default: List[str]) -> List[str]:
         return default
 
     # Split by comma and strip whitespace
-    models = [m.strip() for m in env_value.split(',') if m.strip()]
+    models = [m.strip() for m in env_value.split(",") if m.strip()]
     return models if models else default
 
 
@@ -35,28 +36,28 @@ class LLMConfig(BaseModel):
     """Configuration for LLM providers."""
 
     provider: Literal["openai", "anthropic", "azure", "vertex_ai", "ollama"] = "openai"
-    api_key: Optional[str] = None
+    api_key: str | None = None
 
     # Model configuration - models list is the source of truth
     # NO DEFAULTS - user must explicitly configure models
-    models: List[str] = Field(default_factory=list)
+    models: list[str] = Field(default_factory=list)
 
     temperature: float = 0.7
-    max_tokens: Optional[int] = None
+    max_tokens: int | None = None
 
     # Retry configuration
     max_retries: int = 3  # Number of retries on rate limit/network errors
-    timeout: Optional[float] = None  # Request timeout in seconds
+    timeout: float | None = None  # Request timeout in seconds
 
     # Premium model protection (Copilot Individual: 300/month limit)
     allow_premium_models: bool = False  # Must explicitly opt-in to use premium models
 
     # OpenAI-specific (including Copilot proxy)
-    base_url: Optional[str] = None  # For Copilot proxy: http://localhost:3000/v1
+    base_url: str | None = None  # For Copilot proxy: http://localhost:3000/v1
 
     # Azure-specific
-    azure_endpoint: Optional[str] = None
-    azure_deployment: Optional[str] = None
+    azure_endpoint: str | None = None
+    azure_deployment: str | None = None
 
     @property
     def model(self) -> str:
@@ -64,36 +65,18 @@ class LLMConfig(BaseModel):
         if not self.models:
             # If using a proxy, fetch and display available models
             if self.base_url:
-                from .model_validator import ModelValidator
                 import sys
 
-                print("\n" + "=" * 80)
-                print("ERROR: No models configured!")
-                print("=" * 80)
-                print("\nPlease configure models in your .env file using:")
-                print(f"  {self.provider.upper()}_MODELS=model1,model2,model3")
-                print("\nExample:")
-                print(f"  {self.provider.upper()}_MODELS=gpt-4,gpt-3.5-turbo,o1-preview")
-                print("\n" + "=" * 80)
+                from .model_validator import ModelValidator
 
                 # Fetch and display available models from the API
-                available = ModelValidator.fetch_available_models(
-                    self.base_url,
-                    self.api_key or "dummy"
-                )
+                available = ModelValidator.fetch_available_models(self.base_url, self.api_key or "dummy")
 
                 if available:
-                    print("\nAvailable models from API:")
-                    print("=" * 80)
-                    for i, model_name in enumerate(available, 1):
-                        print(f"{i:2}. {model_name}")
-                    print("=" * 80)
-                    print(f"\nTo use these models, add to your .env file:")
-                    print(f"{self.provider.upper()}_MODELS={','.join(available[:3])}")
-                    print()
+                    for _i, _model_name in enumerate(available, 1):
+                        pass
                 else:
-                    print("\nCould not fetch available models from the API.")
-                    print("Make sure the proxy/API server is running.\n")
+                    pass
 
                 sys.exit(1)
             else:
@@ -104,15 +87,15 @@ class LLMConfig(BaseModel):
                 )
         return self.models[0]
 
-    @model_validator(mode='after')
-    def validate_premium_models(self) -> 'LLMConfig':
+    @model_validator(mode="after")
+    def validate_premium_models(self) -> "LLMConfig":
         """Validate that premium models are only used when explicitly allowed."""
         # Only validate for Copilot proxy (when base_url is set)
         if not self.base_url or self.allow_premium_models:
             return self
 
         # Import here to avoid circular dependency and loading on every config creation
-        from .premium_models import is_premium_model, get_model_multiplier
+        from .premium_models import get_model_multiplier, is_premium_model
 
         # Check each configured model
         premium_models = []
@@ -129,42 +112,44 @@ class LLMConfig(BaseModel):
                 "=" * 80,
                 "\nYou are attempting to use premium models that consume your limited",
                 "monthly quota (300 premium requests/month on Copilot Individual):",
-                ""
+                "",
             ]
 
             for model, multiplier in premium_models:
                 if multiplier == 0:
                     continue
-                elif multiplier == 1.0:
+                if multiplier == 1.0:
                     error_msg.append(f"  • {model} (1× multiplier)")
                 elif multiplier < 1.0:
                     error_msg.append(f"  • {model} ({multiplier}× multiplier)")
                 else:
                     error_msg.append(f"  • {model} ({int(multiplier)}× multiplier - EXPENSIVE!)")
 
-            error_msg.extend([
-                "",
-                "To use premium models, you must explicitly opt-in by setting:",
-                "  allow_premium_models=True",
-                "",
-                "Example:",
-                "  config = LLMConfig(",
-                "      models=['claude-3.5-sonnet'],",
-                "      allow_premium_models=True  # Explicit opt-in",
-                "  )",
-                "",
-                "Or in your .env file:",
-                "  ALLOW_PREMIUM_MODELS=true",
-                "",
-                "FREE models available (unlimited on Copilot Individual):",
-                "  • gpt-5-mini",
-                "  • gpt-4.1",
-                "  • gpt-4o",
-                "",
-                "For pricing details, see:",
-                "  https://docs.github.com/en/copilot/concepts/billing/copilot-requests",
-                "=" * 80,
-            ])
+            error_msg.extend(
+                [
+                    "",
+                    "To use premium models, you must explicitly opt-in by setting:",
+                    "  allow_premium_models=True",
+                    "",
+                    "Example:",
+                    "  config = LLMConfig(",
+                    "      models=['claude-3.5-sonnet'],",
+                    "      allow_premium_models=True  # Explicit opt-in",
+                    "  )",
+                    "",
+                    "Or in your .env file:",
+                    "  ALLOW_PREMIUM_MODELS=true",
+                    "",
+                    "FREE models available (unlimited on Copilot Individual):",
+                    "  • gpt-5-mini",
+                    "  • gpt-4.1",
+                    "  • gpt-4o",
+                    "",
+                    "For pricing details, see:",
+                    "  https://docs.github.com/en/copilot/concepts/billing/copilot-requests",
+                    "=" * 80,
+                ]
+            )
 
             raise ValueError("\n".join(error_msg))
 
@@ -186,10 +171,7 @@ class LLMConfig(BaseModel):
             base_url = os.getenv("OPENAI_BASE_URL")  # e.g., http://localhost:3000/v1
 
             # Try to get API key from multiple sources
-            if use_secrets:
-                api_key = SecretManager.get_openai_api_key()
-            else:
-                api_key = os.getenv("OPENAI_API_KEY")
+            api_key = SecretManager.get_openai_api_key() if use_secrets else os.getenv("OPENAI_API_KEY")
 
             # If using proxy, API key can be dummy
             if not api_key:
@@ -207,7 +189,11 @@ class LLMConfig(BaseModel):
                 models = parse_model_list(models_str, default=[])
 
             # Check if premium models are allowed
-            allow_premium = os.getenv("ALLOW_PREMIUM_MODELS", "false").lower() in ("true", "1", "yes")
+            allow_premium = os.getenv("ALLOW_PREMIUM_MODELS", "false").lower() in (
+                "true",
+                "1",
+                "yes",
+            )
 
             return cls(
                 provider="openai",
@@ -215,13 +201,11 @@ class LLMConfig(BaseModel):
                 models=models,
                 temperature=float(os.getenv("DEFAULT_TEMPERATURE", "0.7")),
                 max_retries=int(os.getenv("MAX_RETRIES", "3")),
-                timeout=(
-                    float(os.getenv("REQUEST_TIMEOUT")) if os.getenv("REQUEST_TIMEOUT") else None
-                ),
+                timeout=(float(os.getenv("REQUEST_TIMEOUT")) if os.getenv("REQUEST_TIMEOUT") else None),
                 allow_premium_models=allow_premium,
                 base_url=base_url,
             )
-        elif provider == "anthropic":
+        if provider == "anthropic":
             # Parse model configuration
             # Priority: ANTHROPIC_MODELS (comma-separated list) > ANTHROPIC_MODEL (single)
             # NO DEFAULTS - empty list if not configured
@@ -239,11 +223,9 @@ class LLMConfig(BaseModel):
                 models=models,
                 temperature=float(os.getenv("DEFAULT_TEMPERATURE", "0.7")),
                 max_retries=int(os.getenv("MAX_RETRIES", "3")),
-                timeout=(
-                    float(os.getenv("REQUEST_TIMEOUT")) if os.getenv("REQUEST_TIMEOUT") else None
-                ),
+                timeout=(float(os.getenv("REQUEST_TIMEOUT")) if os.getenv("REQUEST_TIMEOUT") else None),
             )
-        elif provider == "azure":
+        if provider == "azure":
             return cls(
                 provider="azure",
                 api_key=os.getenv("AZURE_OPENAI_API_KEY"),
@@ -251,12 +233,9 @@ class LLMConfig(BaseModel):
                 azure_deployment=os.getenv("AZURE_OPENAI_DEPLOYMENT"),
                 temperature=float(os.getenv("DEFAULT_TEMPERATURE", "0.7")),
                 max_retries=int(os.getenv("MAX_RETRIES", "3")),
-                timeout=(
-                    float(os.getenv("REQUEST_TIMEOUT")) if os.getenv("REQUEST_TIMEOUT") else None
-                ),
+                timeout=(float(os.getenv("REQUEST_TIMEOUT")) if os.getenv("REQUEST_TIMEOUT") else None),
             )
-        else:
-            raise ValueError(f"Unsupported provider: {provider}")
+        raise ValueError(f"Unsupported provider: {provider}")
 
 
 class ScoringWeights(BaseModel):
@@ -271,14 +250,7 @@ class ScoringWeights(BaseModel):
 
     def normalize(self) -> "ScoringWeights":
         """Ensure weights sum to 1.0."""
-        total = (
-            self.accuracy
-            + self.relevance
-            + self.completeness
-            + self.explainability
-            + self.efficiency
-            + self.safety
-        )
+        total = self.accuracy + self.relevance + self.completeness + self.explainability + self.efficiency + self.safety
         if total == 0:
             return self
         return ScoringWeights(
@@ -336,8 +308,10 @@ YOUR COMMUNICATION STYLE:
 
 WHEN AN AGENT IS OFF-TASK:
 1. Identify the deviation (output doesn't match assigned task)
-2. Issue a redirect: "Agent [Name], your output addresses [X] but your assigned task is [Y]. Please refocus on [specific requirement]."
-3. If pattern continues, attempt to break it into smaller pieces that can be either reassigned or added to a task backlog
+2. Issue a redirect: "Agent [Name], your output addresses [X] but your assigned task is [Y].
+   Please refocus on [specific requirement]."
+3. If pattern continues, attempt to break it into smaller pieces that can be either
+   reassigned or added to a task backlog
 
 WORKFLOW TEMPLATE:
 1. Receive objective from human
@@ -353,7 +327,8 @@ Remember: You are accountable for the system's overall output quality. Be proact
 
 
 # Default interviewer prompt
-INTERVIEWER_PROMPT = """You are the Interviewer agent, the talent scout and quality gatekeeper of the multi-agent system.
+INTERVIEWER_PROMPT = """You are the Interviewer agent, the talent scout and quality gatekeeper of
+the multi-agent system.
 
 YOUR CORE RESPONSIBILITIES:
 1. Candidate Evaluation: Assess agents and models for specific task suitability
@@ -367,7 +342,8 @@ PHASE 1 - Task Analysis:
 - Understand the task requirements deeply
 - Identify 3-5 key evaluation criteria (e.g., accuracy, creativity, speed, format compliance)
 - Define what "best" means for this specific task
-- For _sufficiently complex_ tasks or projects, employ a interview _panel_ to reach consensus across a number of expert interview panelists
+- For _sufficiently complex_ tasks or projects, employ a interview _panel_ to reach
+  consensus across a number of expert interview panelists
 
 PHASE 2 - Structured Interview:
 For each candidate agent/model, ask:

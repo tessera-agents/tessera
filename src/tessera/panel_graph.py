@@ -4,55 +4,52 @@ LangGraph-based Panel Interview System implementation.
 Provides state persistence and checkpointing for panel-based evaluations.
 """
 
-from typing import TypedDict, Optional, Literal, Any
-from datetime import datetime
-from langgraph.graph import StateGraph, END
-from langchain_core.language_models import BaseChatModel
+from typing import Literal, TypedDict
+
+from langgraph.graph import END, StateGraph
 
 from .config import FrameworkConfig
-from .models import Vote
-from .llm import create_llm
 from .graph_base import get_checkpointer
 from .panel import (
-    PanelSystem,
-    TECHNICAL_EVALUATOR_PROMPT,
     CREATIVE_EVALUATOR_PROMPT,
     EFFICIENCY_EVALUATOR_PROMPT,
-    USER_CENTRIC_EVALUATOR_PROMPT,
     RISK_EVALUATOR_PROMPT,
+    TECHNICAL_EVALUATOR_PROMPT,
+    USER_CENTRIC_EVALUATOR_PROMPT,
 )
 
 
 class PanelState(TypedDict):
     """State schema for PanelGraph."""
+
     # Input
     task_description: str
     candidates: list[str]
-    thread_id: Optional[str]
+    thread_id: str | None
 
     # Panel setup
-    num_panelists: Optional[int]
-    panelists: Optional[list[dict]]
+    num_panelists: int | None
+    panelists: list[dict] | None
 
     # Interview process
-    question_bank: Optional[list[dict]]
-    qa_transcript: Optional[dict]
+    question_bank: list[dict] | None
+    qa_transcript: dict | None
 
     # Voting
-    ballots: Optional[list[dict]]
-    vote_counts: Optional[dict]
-    winner: Optional[str]
+    ballots: list[dict] | None
+    vote_counts: dict | None
+    winner: str | None
 
     # Tie handling
-    tie_detected: Optional[bool]
-    tie_breaker_result: Optional[dict]
+    tie_detected: bool | None
+    tie_breaker_result: dict | None
 
     # Final output
-    final_ranking: Optional[list[tuple]]
-    decision: Optional[str]
+    final_ranking: list[tuple] | None
+    decision: str | None
 
     # Control flow
-    next_action: Optional[Literal["setup", "qa", "vote", "tiebreak", "finalize", "end"]]
+    next_action: Literal["setup", "qa", "vote", "tiebreak", "finalize", "end"] | None
 
 
 class PanelGraph:
@@ -79,8 +76,8 @@ class PanelGraph:
 
     def __init__(
         self,
-        config: Optional[FrameworkConfig] = None,
-    ):
+        config: FrameworkConfig | None = None,
+    ) -> None:
         """
         Initialize the panel graph.
 
@@ -118,7 +115,7 @@ class PanelGraph:
             {
                 "finalize": "finalize",
                 "end": END,
-            }
+            },
         )
 
         workflow.add_edge("finalize", END)
@@ -131,17 +128,32 @@ class PanelGraph:
         """Setup panel with diverse evaluators."""
         num_panelists = state.get("num_panelists") or 5
 
-        if num_panelists < 3:
-            num_panelists = 3
+        num_panelists = max(num_panelists, 3)
         if num_panelists % 2 == 0:
             num_panelists += 1  # Make it odd
 
         # Define panelist roles
         roles = [
-            {"name": "technical", "prompt": TECHNICAL_EVALUATOR_PROMPT, "weights": {"accuracy": 0.4}},
-            {"name": "creative", "prompt": CREATIVE_EVALUATOR_PROMPT, "weights": {"relevance": 0.3}},
-            {"name": "efficiency", "prompt": EFFICIENCY_EVALUATOR_PROMPT, "weights": {"efficiency": 0.3}},
-            {"name": "user_centric", "prompt": USER_CENTRIC_EVALUATOR_PROMPT, "weights": {"explainability": 0.3}},
+            {
+                "name": "technical",
+                "prompt": TECHNICAL_EVALUATOR_PROMPT,
+                "weights": {"accuracy": 0.4},
+            },
+            {
+                "name": "creative",
+                "prompt": CREATIVE_EVALUATOR_PROMPT,
+                "weights": {"relevance": 0.3},
+            },
+            {
+                "name": "efficiency",
+                "prompt": EFFICIENCY_EVALUATOR_PROMPT,
+                "weights": {"efficiency": 0.3},
+            },
+            {
+                "name": "user_centric",
+                "prompt": USER_CENTRIC_EVALUATOR_PROMPT,
+                "weights": {"explainability": 0.3},
+            },
             {"name": "risk", "prompt": RISK_EVALUATOR_PROMPT, "weights": {"safety": 0.4}},
         ]
 
@@ -162,8 +174,16 @@ class PanelGraph:
         # In real implementation, would use LLM
         questions = [
             {"id": "Q1", "text": f"How would you approach: {task_description}?", "type": "sample"},
-            {"id": "Q2", "text": f"What are the main challenges in: {task_description}?", "type": "edge-case"},
-            {"id": "Q3", "text": f"How would you ensure quality for: {task_description}?", "type": "meta"},
+            {
+                "id": "Q2",
+                "text": f"What are the main challenges in: {task_description}?",
+                "type": "edge-case",
+            },
+            {
+                "id": "Q3",
+                "text": f"How would you ensure quality for: {task_description}?",
+                "type": "meta",
+            },
         ]
 
         return {
@@ -187,19 +207,21 @@ class PanelGraph:
 
         # Simulate voting (in real implementation, would evaluate candidates)
         ballots = []
-        vote_counts = {candidate: 0 for candidate in candidates}
+        vote_counts = dict.fromkeys(candidates, 0)
 
         # Simplified voting: first panelist votes for first candidate, etc.
         for i, panelist in enumerate(panelists):
             candidate_index = i % len(candidates)
             voted_candidate = candidates[candidate_index]
 
-            ballots.append({
-                "panelist": panelist["name"],
-                "vote": voted_candidate,
-                "rationale": f"Voted for {voted_candidate} based on {panelist['name']} criteria",
-                "confidence": 0.8,
-            })
+            ballots.append(
+                {
+                    "panelist": panelist["name"],
+                    "vote": voted_candidate,
+                    "rationale": f"Voted for {voted_candidate} based on {panelist['name']} criteria",
+                    "confidence": 0.8,
+                }
+            )
 
             vote_counts[voted_candidate] += 1
 
@@ -267,7 +289,7 @@ class PanelGraph:
             return "finalize"
         return "end"
 
-    def invoke(self, input_data: Optional[dict], config: Optional[dict] = None) -> dict:
+    def invoke(self, input_data: dict | None, config: dict | None = None) -> dict:
         """
         Invoke the panel graph.
 
@@ -280,7 +302,7 @@ class PanelGraph:
         """
         return self.app.invoke(input_data, config=config)
 
-    def stream(self, input_data: dict, config: Optional[dict] = None):
+    def stream(self, input_data: dict, config: dict | None = None) -> object:
         """
         Stream panel graph execution.
 

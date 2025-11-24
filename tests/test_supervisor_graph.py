@@ -1,10 +1,9 @@
 """Unit tests for SupervisorGraph (LangGraph version)."""
 
 import pytest
-import tempfile
-from pathlib import Path
+
+from tessera.graph_base import clear_checkpoint_db, get_thread_config
 from tessera.supervisor_graph import SupervisorGraph
-from tessera.graph_base import get_thread_config, clear_checkpoint_db, reset_checkpointer
 
 
 @pytest.mark.unit
@@ -38,18 +37,17 @@ class TestSupervisorGraph:
 
         assert supervisor.system_prompt == custom_prompt
 
-    def test_decompose_task_via_graph(
-        self, test_config, sample_task_decomposition, sample_review_response
-    ):
+    def test_decompose_task_via_graph(self, test_config, sample_task_decomposition, sample_review_response):
         """Test task decomposition through LangGraph."""
         # Create multi-response mock
-        from langchain_core.messages import AIMessage
         from unittest.mock import Mock
+
+        from langchain_core.messages import AIMessage
 
         responses = [
             sample_task_decomposition,  # decompose
-            sample_review_response,      # review subtask 1
-            sample_review_response,      # review subtask 2
+            sample_review_response,  # review subtask 1
+            sample_review_response,  # review subtask 2
             "Final synthesized output",  # synthesize
         ]
         call_count = [0]
@@ -77,13 +75,12 @@ class TestSupervisorGraph:
         assert result["task"]["goal"] == "Build a web scraping system with database storage"
         assert len(result["task"]["subtasks"]) == 2
 
-    def test_graph_state_persistence(
-        self, test_config, sample_task_decomposition, sample_review_response
-    ):
+    def test_graph_state_persistence(self, test_config, sample_task_decomposition, sample_review_response):
         """Test that state is persisted to checkpoint."""
         # Create multi-response mock
-        from langchain_core.messages import AIMessage
         from unittest.mock import Mock
+
+        from langchain_core.messages import AIMessage
 
         responses = [
             sample_task_decomposition,
@@ -120,13 +117,12 @@ class TestSupervisorGraph:
         state = supervisor.get_state(config)
         assert state.values["task_id"] == result1["task_id"]
 
-    def test_graph_resume_from_checkpoint(
-        self, test_config, sample_task_decomposition, sample_review_response
-    ):
+    def test_graph_resume_from_checkpoint(self, test_config, sample_task_decomposition, sample_review_response):
         """Test resuming from a checkpoint."""
         # Create multi-response mock
-        from langchain_core.messages import AIMessage
         from unittest.mock import Mock
+
+        from langchain_core.messages import AIMessage
 
         responses = [
             sample_task_decomposition,
@@ -166,13 +162,12 @@ class TestSupervisorGraph:
         state = supervisor2.get_state(config)
         assert state.values["task_id"] == task_id
 
-    def test_graph_streaming(
-        self, test_config, sample_task_decomposition, sample_review_response
-    ):
+    def test_graph_streaming(self, test_config, sample_task_decomposition, sample_review_response):
         """Test streaming graph execution."""
         # Create multi-response mock
-        from langchain_core.messages import AIMessage
         from unittest.mock import Mock
+
+        from langchain_core.messages import AIMessage
 
         responses = [
             sample_task_decomposition,
@@ -211,19 +206,18 @@ class TestSupervisorGraph:
         # Extract all state values
         all_states = []
         for state_update in states:
-            for node_name, state_data in state_update.items():
+            for state_data in state_update.values():
                 if isinstance(state_data, dict):
                     all_states.append(state_data)
 
         assert any("task_id" in s for s in all_states)
 
-    def test_graph_handles_multiple_threads(
-        self, test_config, sample_task_decomposition, sample_review_response
-    ):
+    def test_graph_handles_multiple_threads(self, test_config, sample_task_decomposition, sample_review_response):
         """Test handling multiple independent threads."""
         # Create multi-response mock
-        from langchain_core.messages import AIMessage
         from unittest.mock import Mock
+
+        from langchain_core.messages import AIMessage
 
         responses = [
             sample_task_decomposition,
@@ -268,9 +262,7 @@ class TestSupervisorGraph:
         state2 = supervisor.get_state(config2)
         assert state1.values["task_id"] != state2.values["task_id"]
 
-    def test_graph_decompose_node_creates_task(
-        self, mock_llm_with_response, test_config, sample_task_decomposition
-    ):
+    def test_graph_decompose_node_creates_task(self, mock_llm_with_response, test_config, sample_task_decomposition):
         """Test decompose node creates proper task structure."""
         llm = mock_llm_with_response(sample_task_decomposition)
         supervisor = SupervisorGraph(llm=llm, config=test_config)
@@ -363,38 +355,30 @@ class TestSupervisorGraph:
         assert "content" in result["agent_response"]
         assert result["next_action"] == "review"
 
-    def test_graph_routing_after_decompose(
-        self, mock_llm_with_response, test_config, sample_task_decomposition
-    ):
+    def test_graph_routing_after_decompose(self, mock_llm_with_response, test_config, sample_task_decomposition):
         """Test routing logic after decomposition."""
         llm = mock_llm_with_response(sample_task_decomposition)
         supervisor = SupervisorGraph(llm=llm, config=test_config)
 
         # State with task -> should route to assign
-        state_with_task = {
-            "task": {
-                "subtasks": [{"task_id": "st1"}]
-            }
-        }
+        state_with_task = {"task": {"subtasks": [{"task_id": "st1"}]}}
         assert supervisor._route_after_decompose(state_with_task) == "assign"
 
         # State without task -> should route to end
         state_without_task = {"task": None}
         assert supervisor._route_after_decompose(state_without_task) == "end"
 
-    def test_graph_full_execution_flow(
-        self, test_config, sample_task_decomposition,
-        sample_review_response
-    ):
+    def test_graph_full_execution_flow(self, test_config, sample_task_decomposition, sample_review_response):
         """Test full execution flow through the graph."""
         # Need to mock multiple responses for different stages
-        from langchain_core.messages import AIMessage
         from unittest.mock import Mock
+
+        from langchain_core.messages import AIMessage
 
         responses = [
             sample_task_decomposition,  # decompose
-            sample_review_response,      # review subtask 1
-            sample_review_response,      # review subtask 2
+            sample_review_response,  # review subtask 1
+            sample_review_response,  # review subtask 2
             "Final synthesized output",  # synthesize
         ]
 

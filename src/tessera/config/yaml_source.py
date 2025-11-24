@@ -4,20 +4,21 @@ Custom Pydantic Settings source for loading YAML configuration files.
 Supports XDG Base Directory specification with hierarchical config merging.
 """
 
-from pathlib import Path
-from typing import Any, Dict, Tuple, Type, List
-import yaml
 import os
+from pathlib import Path
+from typing import Any
 
+import yaml
 from pydantic_settings import BaseSettings, PydanticBaseSettingsSource
 
+from tessera.logging_config import get_logger
+
 from .xdg import get_tessera_config_dir
-from ..logging_config import get_logger
 
 logger = get_logger(__name__)
 
 
-def get_config_paths(app_name: str = "tessera") -> List[Path]:
+def get_config_paths(app_name: str = "tessera") -> list[Path]:
     """
     Get configuration file paths following XDG Base Directory spec.
 
@@ -70,7 +71,7 @@ class XDGYamlSettingsSource(PydanticBaseSettingsSource):
     Later files override earlier files with deep merging for nested dicts.
     """
 
-    def __init__(self, settings_cls: Type[BaseSettings], app_name: str = "tessera"):
+    def __init__(self, settings_cls: type[BaseSettings], app_name: str = "tessera") -> None:
         """
         Initialize YAML settings source.
 
@@ -80,7 +81,7 @@ class XDGYamlSettingsSource(PydanticBaseSettingsSource):
         """
         super().__init__(settings_cls)
         self.app_name = app_name
-        self._merged_data: Dict[str, Any] = {}
+        self._merged_data: dict[str, Any] = {}
 
         # Get all config paths (reverse for merging - system first)
         config_paths = list(reversed(get_config_paths(app_name)))
@@ -88,15 +89,15 @@ class XDGYamlSettingsSource(PydanticBaseSettingsSource):
         # Merge configs: later files override earlier
         for config_path in config_paths:
             try:
-                with open(config_path, "r") as f:
+                with Path(config_path).open() as f:
                     data = yaml.safe_load(f) or {}
                     self._deep_merge(self._merged_data, data)
-            except Exception as e:
+            except (OSError, yaml.YAMLError) as e:
                 # Log but don't fail on config read errors
                 logger.warning(f"Failed to load {config_path}: {e}")
 
     @staticmethod
-    def _deep_merge(base: Dict, update: Dict) -> Dict:
+    def _deep_merge(base: dict, update: dict) -> dict:
         """
         Deep merge update dict into base dict.
 
@@ -108,17 +109,13 @@ class XDGYamlSettingsSource(PydanticBaseSettingsSource):
             Base dictionary with updates applied
         """
         for key, value in update.items():
-            if (
-                key in base
-                and isinstance(base[key], dict)
-                and isinstance(value, dict)
-            ):
+            if key in base and isinstance(base[key], dict) and isinstance(value, dict):
                 XDGYamlSettingsSource._deep_merge(base[key], value)
             else:
                 base[key] = value
         return base
 
-    def get_field_value(self, field_name: str) -> Tuple[Any, str, bool]:
+    def get_field_value(self, field_name: str) -> tuple[Any, str, bool]:
         """
         Get field value from merged YAML data.
 
@@ -131,9 +128,7 @@ class XDGYamlSettingsSource(PydanticBaseSettingsSource):
         field_value = self._merged_data.get(field_name)
         return field_value, field_name, False
 
-    def prepare_field_value(
-        self, field_name: str, field: Any, value: Any, value_is_complex: bool
-    ) -> Any:
+    def prepare_field_value(self, field_name: str, field: Any, value: Any, value_is_complex: bool) -> Any:
         """
         Prepare field value before validation.
 
@@ -148,7 +143,7 @@ class XDGYamlSettingsSource(PydanticBaseSettingsSource):
         """
         return value
 
-    def __call__(self) -> Dict[str, Any]:
+    def __call__(self) -> dict[str, Any]:
         """
         Return all settings from merged YAML.
 

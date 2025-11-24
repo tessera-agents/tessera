@@ -4,7 +4,8 @@ LangChain callback handlers for capturing LLM metrics.
 Extracts token usage, costs, and other metrics from LLM responses.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any
+
 from langchain_core.callbacks import BaseCallbackHandler
 from langchain_core.outputs import LLMResult
 
@@ -16,7 +17,7 @@ class TokenUsageCallback(BaseCallbackHandler):
     Stores the latest token usage which can be retrieved after execution.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the callback handler."""
         self.total_tokens = 0
         self.prompt_tokens = 0
@@ -49,7 +50,7 @@ class TokenUsageCallback(BaseCallbackHandler):
         if response.llm_output and "model_name" in response.llm_output:
             self.model_name = response.llm_output["model_name"]
 
-    def get_usage(self) -> Dict[str, Any]:
+    def get_usage(self) -> dict[str, Any]:
         """
         Get accumulated token usage.
 

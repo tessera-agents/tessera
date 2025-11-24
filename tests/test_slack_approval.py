@@ -1,10 +1,12 @@
 """Unit tests for Slack approval integration."""
 
-import pytest
 import os
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
+
+import pytest
+
+from tessera.graph_base import clear_checkpoint_db
 from tessera.slack_approval import SlackApprovalCoordinator, create_slack_client
-from tessera.graph_base import get_thread_config, clear_checkpoint_db
 
 
 @pytest.mark.unit
@@ -39,9 +41,7 @@ class TestSlackApprovalCoordinator:
         mock_slack_client = Mock()
 
         with patch.dict(os.environ, {"SLACK_APPROVAL_CHANNEL": "C99999"}):
-            coordinator = SlackApprovalCoordinator(
-                graph=mock_graph, slack_client=mock_slack_client
-            )
+            coordinator = SlackApprovalCoordinator(graph=mock_graph, slack_client=mock_slack_client)
 
             assert coordinator.default_channel == "C99999"
 
@@ -82,15 +82,13 @@ class TestSlackApprovalCoordinator:
 
         mock_slack_client = Mock()
         mock_slack_client.web_client = Mock()
-        mock_slack_client.web_client.chat_postMessage = Mock(
-            return_value={"ts": "1234567890.123456"}
-        )
+        mock_slack_client.web_client.chat_postMessage = Mock(return_value={"ts": "1234567890.123456"})
 
         coordinator = SlackApprovalCoordinator(
             graph=mock_graph, slack_client=mock_slack_client, default_channel="C12345"
         )
 
-        result = coordinator.invoke_with_slack_approval(
+        coordinator.invoke_with_slack_approval(
             input_data={"objective": "test"},
             thread_id="test-thread",
             slack_channel="C12345",
@@ -111,36 +109,26 @@ class TestSlackApprovalCoordinator:
         mock_graph = Mock()
         mock_slack_client = Mock()
 
-        coordinator = SlackApprovalCoordinator(
-            graph=mock_graph, slack_client=mock_slack_client
-        )
+        coordinator = SlackApprovalCoordinator(graph=mock_graph, slack_client=mock_slack_client)
 
         with pytest.raises(ValueError, match="Slack channel required"):
-            coordinator.invoke_with_slack_approval(
-                input_data={"objective": "test"}, thread_id="test-thread"
-            )
+            coordinator.invoke_with_slack_approval(input_data={"objective": "test"}, thread_id="test-thread")
 
     def test_send_approval_request_formats_message(self):
         """Test approval request message formatting."""
         mock_graph = Mock()
         mock_slack_client = Mock()
         mock_slack_client.web_client = Mock()
-        mock_slack_client.web_client.chat_postMessage = Mock(
-            return_value={"ts": "1234567890.123456"}
-        )
+        mock_slack_client.web_client.chat_postMessage = Mock(return_value={"ts": "1234567890.123456"})
 
-        coordinator = SlackApprovalCoordinator(
-            graph=mock_graph, slack_client=mock_slack_client
-        )
+        coordinator = SlackApprovalCoordinator(graph=mock_graph, slack_client=mock_slack_client)
 
         interrupt_data = {
             "question": "Approve database migration?",
             "details": {"table": "users", "operation": "add_column"},
         }
 
-        msg_ts = coordinator._send_approval_request(
-            channel="C12345", interrupt_data=interrupt_data
-        )
+        msg_ts = coordinator._send_approval_request(channel="C12345", interrupt_data=interrupt_data)
 
         assert msg_ts == "1234567890.123456"
 
@@ -171,9 +159,7 @@ class TestSlackApprovalCoordinator:
         mock_slack_client.web_client = Mock()
         mock_slack_client.web_client.chat_update = Mock()
 
-        coordinator = SlackApprovalCoordinator(
-            graph=mock_graph, slack_client=mock_slack_client
-        )
+        coordinator = SlackApprovalCoordinator(graph=mock_graph, slack_client=mock_slack_client)
 
         # Setup pending interrupt
         coordinator.pending_interrupts["1234567890.123456"] = {
@@ -182,9 +168,7 @@ class TestSlackApprovalCoordinator:
             "channel": "C12345",
         }
 
-        result = coordinator.handle_approval_response(
-            action_value="approve", message_ts="1234567890.123456"
-        )
+        result = coordinator.handle_approval_response(action_value="approve", message_ts="1234567890.123456")
 
         assert result["status"] == "completed"
 
@@ -208,9 +192,7 @@ class TestSlackApprovalCoordinator:
         mock_slack_client.web_client = Mock()
         mock_slack_client.web_client.chat_update = Mock()
 
-        coordinator = SlackApprovalCoordinator(
-            graph=mock_graph, slack_client=mock_slack_client
-        )
+        coordinator = SlackApprovalCoordinator(graph=mock_graph, slack_client=mock_slack_client)
 
         # Setup pending interrupt
         coordinator.pending_interrupts["1234567890.123456"] = {
@@ -219,9 +201,7 @@ class TestSlackApprovalCoordinator:
             "channel": "C12345",
         }
 
-        result = coordinator.handle_approval_response(
-            action_value="reject", message_ts="1234567890.123456"
-        )
+        result = coordinator.handle_approval_response(action_value="reject", message_ts="1234567890.123456")
 
         assert result["status"] == "rejected"
 
@@ -235,13 +215,9 @@ class TestSlackApprovalCoordinator:
         mock_graph = Mock()
         mock_slack_client = Mock()
 
-        coordinator = SlackApprovalCoordinator(
-            graph=mock_graph, slack_client=mock_slack_client
-        )
+        coordinator = SlackApprovalCoordinator(graph=mock_graph, slack_client=mock_slack_client)
 
-        result = coordinator.handle_approval_response(
-            action_value="approve", message_ts="unknown"
-        )
+        result = coordinator.handle_approval_response(action_value="approve", message_ts="unknown")
 
         assert result is None
         mock_graph.invoke.assert_not_called()
@@ -251,9 +227,7 @@ class TestSlackApprovalCoordinator:
         mock_graph = Mock()
         mock_slack_client = Mock()
 
-        coordinator = SlackApprovalCoordinator(
-            graph=mock_graph, slack_client=mock_slack_client
-        )
+        coordinator = SlackApprovalCoordinator(graph=mock_graph, slack_client=mock_slack_client)
 
         handler = coordinator.create_event_handler()
 
@@ -264,9 +238,7 @@ class TestSlackApprovalCoordinator:
         mock_graph = Mock()
         mock_slack_client = Mock()
 
-        coordinator = SlackApprovalCoordinator(
-            graph=mock_graph, slack_client=mock_slack_client
-        )
+        coordinator = SlackApprovalCoordinator(graph=mock_graph, slack_client=mock_slack_client)
 
         handler = coordinator.create_event_handler()
 
@@ -292,9 +264,7 @@ class TestSlackApprovalCoordinator:
         mock_slack_client.web_client = Mock()
         mock_slack_client.web_client.chat_update = Mock()
 
-        coordinator = SlackApprovalCoordinator(
-            graph=mock_graph, slack_client=mock_slack_client
-        )
+        coordinator = SlackApprovalCoordinator(graph=mock_graph, slack_client=mock_slack_client)
 
         # Setup pending interrupt
         coordinator.pending_interrupts["1234567890.123456"] = {
@@ -332,25 +302,25 @@ class TestCreateSlackClient:
         """Test creating client with explicit tokens."""
         with patch("tessera.slack_approval.SocketModeClient") as mock_socket_client:
             with patch("tessera.slack_approval.WebClient") as mock_web_client:
-                create_slack_client(
-                    app_token="xapp-test", bot_token="xoxb-test"
-                )
+                create_slack_client(app_token="xapp-test", bot_token="xoxb-test")
 
                 mock_web_client.assert_called_once_with(token="xoxb-test")
                 mock_socket_client.assert_called_once()
 
     def test_create_client_with_env_vars(self):
         """Test creating client from environment variables."""
-        with patch.dict(
-            os.environ,
-            {"SLACK_APP_TOKEN": "xapp-env", "SLACK_BOT_TOKEN": "xoxb-env"},
+        with (
+            patch.dict(
+                os.environ,
+                {"SLACK_APP_TOKEN": "xapp-env", "SLACK_BOT_TOKEN": "xoxb-env"},
+            ),
+            patch("tessera.slack_approval.SocketModeClient") as mock_socket_client,
         ):
-            with patch("tessera.slack_approval.SocketModeClient") as mock_socket_client:
-                with patch("tessera.slack_approval.WebClient") as mock_web_client:
-                    create_slack_client()
+            with patch("tessera.slack_approval.WebClient") as mock_web_client:
+                create_slack_client()
 
-                    mock_web_client.assert_called_once_with(token="xoxb-env")
-                    mock_socket_client.assert_called_once()
+                mock_web_client.assert_called_once_with(token="xoxb-env")
+                mock_socket_client.assert_called_once()
 
     def test_create_client_missing_app_token(self):
         """Test error when app token missing."""

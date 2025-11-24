@@ -7,19 +7,18 @@ for all LangGraph-based agents.
 
 import sqlite3
 from pathlib import Path
-from typing import Optional
-from langgraph.checkpoint.sqlite import SqliteSaver
 
+from langgraph.checkpoint.sqlite import SqliteSaver
 
 # Default checkpoint database location
 CHECKPOINT_DB = Path(".cache/langgraph_checkpoints.db")
 
 # Global checkpointer instance and connection
-_checkpointer: Optional[SqliteSaver] = None
-_conn: Optional[sqlite3.Connection] = None
+_checkpointer: SqliteSaver | None = None
+_conn: sqlite3.Connection | None = None
 
 
-def get_checkpointer(db_path: Optional[Path] = None) -> SqliteSaver:
+def get_checkpointer(db_path: Path | None = None) -> SqliteSaver:
     """
     Get the global SQLite checkpointer instance.
 
@@ -53,7 +52,7 @@ def get_checkpointer(db_path: Optional[Path] = None) -> SqliteSaver:
     return _checkpointer
 
 
-def reset_checkpointer():
+def reset_checkpointer() -> None:
     """
     Reset the global checkpointer instance.
 
@@ -97,7 +96,7 @@ def get_thread_config(thread_id: str) -> dict:
     }
 
 
-def clear_checkpoint_db(db_path: Optional[Path] = None):
+def clear_checkpoint_db(db_path: Path | None = None) -> None:
     """
     Delete the checkpoint database file.
 

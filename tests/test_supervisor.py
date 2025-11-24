@@ -1,11 +1,9 @@
 """Unit tests for Supervisor agent."""
 
 import pytest
-import json
-from datetime import datetime
-from langchain_core.messages import AIMessage
-from tessera.supervisor import SupervisorAgent
+
 from tessera.models import AgentResponse, TaskStatus
+from tessera.supervisor import SupervisorAgent
 
 
 @pytest.mark.unit
@@ -106,7 +104,9 @@ class TestSupervisorAgent:
                 TaskStatus.COMPLETED,
             )
 
-    def test_review_agent_output(self, mock_llm_with_response, test_config, sample_task_decomposition, sample_review_response):
+    def test_review_agent_output(
+        self, mock_llm_with_response, test_config, sample_task_decomposition, sample_review_response
+    ):
         """Test reviewing agent output."""
         # First decompose a task
         decomp_llm = mock_llm_with_response(sample_task_decomposition)
@@ -231,7 +231,9 @@ class TestSupervisorAgent:
         assert len(result) > 0
         assert "synthesis" in result.lower() or "Final" in result
 
-    def test_synthesize_results_no_completed_subtasks(self, mock_llm_with_response, test_config, sample_task_decomposition):
+    def test_synthesize_results_no_completed_subtasks(
+        self, mock_llm_with_response, test_config, sample_task_decomposition
+    ):
         """Test synthesizing when no subtasks are completed."""
         llm = mock_llm_with_response(sample_task_decomposition)
         supervisor = SupervisorAgent(llm=llm, config=test_config)

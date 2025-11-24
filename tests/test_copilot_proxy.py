@@ -1,16 +1,17 @@
 """Unit tests for Copilot proxy management."""
 
-import pytest
 import subprocess
-import time
+from unittest.mock import Mock, patch
+
+import pytest
 import requests
-from unittest.mock import Mock, patch, MagicMock
+
 from tessera.copilot_proxy import (
     CopilotProxyManager,
+    get_proxy_manager,
+    is_proxy_running,
     start_proxy,
     stop_proxy,
-    is_proxy_running,
-    get_proxy_manager,
 )
 
 
@@ -70,6 +71,7 @@ class TestCopilotProxyManager:
         assert manager.is_installed() is True
         mock_run.assert_called_once_with(
             ["npx", "copilot-api@latest", "--version"],
+            check=False,
             capture_output=True,
             text=True,
             timeout=5,
@@ -108,6 +110,7 @@ class TestCopilotProxyManager:
         assert manager.install() is True
         mock_run.assert_called_once_with(
             ["npm", "install", "-g", "copilot-api@latest"],
+            check=False,
             capture_output=True,
             text=True,
             timeout=120,
@@ -284,7 +287,7 @@ class TestCopilotProxyManager:
     @patch.dict("os.environ", {}, clear=False)
     def test_start_popen_generic_exception(self, mock_popen):
         """Test starting with generic exception."""
-        mock_popen.side_effect = Exception("Something went wrong")
+        mock_popen.side_effect = OSError("Something went wrong")
 
         manager = CopilotProxyManager(github_token="ghu_FAKE_TEST_ONLY")
         result = manager.start(wait_for_ready=False)
@@ -381,7 +384,7 @@ class TestCopilotProxyManager:
         mock_process = Mock()
         mock_process.wait.side_effect = [
             subprocess.TimeoutExpired("cmd", 5),  # First wait times out
-            None  # Second wait after kill succeeds
+            None,  # Second wait after kill succeeds
         ]
         manager.process = mock_process
         manager._started = True
@@ -397,7 +400,7 @@ class TestCopilotProxyManager:
         """Test stop handles exceptions gracefully."""
         manager = CopilotProxyManager(github_token="test-token")
         mock_process = Mock()
-        mock_process.terminate.side_effect = Exception("Something went wrong")
+        mock_process.terminate.side_effect = OSError("Something went wrong")
         manager.process = mock_process
         manager._started = True
 
@@ -495,11 +498,7 @@ class TestConvenienceFunctions:
         result = start_proxy(github_token="ghu_testToken123", rate_limit=60, use_wait=False)
 
         assert result is True
-        mock_get_manager.assert_called_once_with(
-            github_token="ghu_testToken123",
-            rate_limit=60,
-            use_wait=False
-        )
+        mock_get_manager.assert_called_once_with(github_token="ghu_testToken123", rate_limit=60, use_wait=False)
         mock_manager.start.assert_called_once_with(wait_for_ready=True)
 
     @patch("tessera.copilot_proxy._proxy_instance", None)
@@ -543,11 +542,7 @@ class TestConvenienceFunctions:
 
         assert result == mock_instance
         mock_manager_class.assert_called_once_with(
-            github_token="ghu_testToken123",
-            rate_limit=45,
-            use_wait=True,
-            port=None,
-            verbose=True
+            github_token="ghu_testToken123", rate_limit=45, use_wait=True, port=None, verbose=True
         )
 
     def test_get_proxy_manager_returns_existing(self):

@@ -7,15 +7,15 @@ Handles three types of sub-phases:
 3. subtask - Creates new task assigned to agent
 """
 
-from typing import Dict, Any, List, Optional
-from pathlib import Path
 import glob
+from pathlib import Path
+from typing import Any
 
 
 class SubPhaseHandler:
     """Handles execution and validation of sub-phases."""
 
-    def __init__(self, project_root: Path = Path(".")):
+    def __init__(self, project_root: Path = Path()) -> None:
         """
         Initialize sub-phase handler.
 
@@ -24,9 +24,7 @@ class SubPhaseHandler:
         """
         self.project_root = project_root
 
-    def handle_deliverable(
-        self, sub_phase: Dict[str, Any], task_result: Any
-    ) -> Dict[str, Any]:
+    def handle_deliverable(self, sub_phase: dict[str, Any], task_result: Any) -> dict[str, Any]:
         """
         Validate deliverable sub-phase.
 
@@ -45,7 +43,8 @@ class SubPhaseHandler:
 
         for pattern in required_outputs:
             # Expand glob pattern
-            matches = list(glob.glob(str(self.project_root / pattern), recursive=True))
+            # Use glob for pattern matching (Path.glob doesn't support ** in middle of path)
+            matches = list(glob.glob(str(self.project_root / pattern), recursive=True))  # noqa: PTH207
 
             if not matches:
                 missing_files.append(pattern)
@@ -61,9 +60,7 @@ class SubPhaseHandler:
             "missing_files": missing_files,
         }
 
-    def handle_checklist(
-        self, sub_phase: Dict[str, Any], task_result: Any
-    ) -> Dict[str, Any]:
+    def handle_checklist(self, sub_phase: dict[str, Any], task_result: Any) -> dict[str, Any]:
         """
         Execute checklist sub-phase.
 
@@ -88,9 +85,7 @@ class SubPhaseHandler:
             "answers": {},  # v0.2: will populate with agent answers
         }
 
-    def handle_subtask(
-        self, sub_phase: Dict[str, Any], parent_task_id: str
-    ) -> Dict[str, Any]:
+    def handle_subtask(self, sub_phase: dict[str, Any], parent_task_id: str) -> dict[str, Any]:
         """
         Create subtask from sub-phase.
 
@@ -112,8 +107,8 @@ class SubPhaseHandler:
         }
 
     def execute_all_subphases(
-        self, sub_phases: List[Dict[str, Any]], task_id: str, task_result: Any
-    ) -> List[Dict[str, Any]]:
+        self, sub_phases: list[dict[str, Any]], task_id: str, task_result: Any
+    ) -> list[dict[str, Any]]:
         """
         Execute all sub-phases for a task.
 

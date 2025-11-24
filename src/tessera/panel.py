@@ -3,21 +3,24 @@ Panel interview system implementation with round-robin voting.
 """
 
 import json
-from datetime import datetime
-from typing import Any, Optional
-from langchain_core.messages import HumanMessage, SystemMessage
+from datetime import UTC, datetime
+from typing import Any
+
 from langchain_core.language_models import BaseChatModel
+from langchain_core.messages import HumanMessage, SystemMessage
 
 from .config import FrameworkConfig
-from .models import (
-    PanelResult,
-    Ballot,
-    Vote,
-    ScoreMetrics,
-)
-from .llm import create_llm
 from .interviewer import InterviewerAgent
+from .llm import create_llm
+from .models import (
+    Ballot,
+    PanelResult,
+    ScoreMetrics,
+    Vote,
+)
 
+# Panel configuration constants
+MIN_PANELISTS = 3
 
 # Panelist role prompts
 TECHNICAL_EVALUATOR_PROMPT = """You are a Technical Evaluator in an agent evaluation panel.
@@ -46,7 +49,7 @@ class PanelistAgent:
         llm: BaseChatModel,
         system_prompt: str,
         scoring_weights: dict[str, float],
-    ):
+    ) -> None:
         """
         Initialize a panelist.
 
@@ -63,9 +66,7 @@ class PanelistAgent:
         self.system_prompt = system_prompt
         self.scoring_weights = scoring_weights
 
-    def ask_question(
-        self, task_description: str, question_bank: list[dict[str, str]]
-    ) -> dict[str, str]:
+    def ask_question(self, task_description: str, question_bank: list[dict[str, str]]) -> dict[str, str]:
         """
         Ask a question from the question bank, tailored to this panelist's focus.
 
@@ -181,13 +182,13 @@ Respond in JSON format:
 
         try:
             return json.loads(content)
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as e:
             import re
 
             json_match = re.search(r"\{.*\}", content, re.DOTALL)
             if json_match:
                 return json.loads(json_match.group())
-            raise ValueError("Failed to parse JSON response")
+            raise ValueError("Failed to parse JSON response") from e
 
 
 class PanelSystem:
@@ -200,9 +201,9 @@ class PanelSystem:
 
     def __init__(
         self,
-        config: Optional[FrameworkConfig] = None,
-        interviewer: Optional[InterviewerAgent] = None,
-    ):
+        config: FrameworkConfig | None = None,
+        interviewer: InterviewerAgent | None = None,
+    ) -> None:
         """
         Initialize the panel system.
 
@@ -224,8 +225,8 @@ class PanelSystem:
         Returns:
             List of panelist agents
         """
-        if num_panelists < 3:
-            raise ValueError("Need at least 3 panelists")
+        if num_panelists < MIN_PANELISTS:
+            raise ValueError(f"Need at least {MIN_PANELISTS} panelists")
         if num_panelists % 2 == 0:
             raise ValueError("Number of panelists should be odd to avoid ties")
 
@@ -307,12 +308,12 @@ class PanelSystem:
 
         return self.panelists
 
-    def conduct_panel_interview(
+    def conduct_panel_interview(  # noqa: C901, PLR0912
         self,
         task_description: str,
         candidates: list[str],
         candidate_llms: dict[str, BaseChatModel],
-        question_bank: Optional[list[dict[str, str]]] = None,
+        question_bank: list[dict[str, str]] | None = None,
     ) -> PanelResult:
         """
         Conduct a full panel interview with round-robin evaluation.
@@ -326,7 +327,7 @@ class PanelSystem:
         Returns:
             Panel result with votes and decision
         """
-        session_id = f"panel_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        session_id = f"panel_{datetime.now(UTC).strftime('%Y%m%d_%H%M%S')}"
 
         # Generate questions if not provided
         if not question_bank:
@@ -354,17 +355,13 @@ class PanelSystem:
             }
 
             # Each panelist asks a question in round-robin
-            for i, panelist in enumerate(self.panelists):
+            for _i, panelist in enumerate(self.panelists):
                 # Select question for this panelist
                 question = panelist.ask_question(task_description, question_bank)
 
                 # Candidate answers
                 answer_response = candidate_llms[candidate].invoke(
-                    [
-                        HumanMessage(
-                            content=f"Task: {task_description}\n\nQuestion: {question['text']}"
-                        )
-                    ]
+                    [HumanMessage(content=f"Task: {task_description}\n\nQuestion: {question['text']}")]
                 )
                 answer = answer_response.content
 
@@ -389,9 +386,7 @@ class PanelSystem:
             transcript["rounds"].append(candidate_transcript)
 
         # Tally votes
-        vote_counts: dict[str, dict[str, int]] = {
-            candidate: {"HIRE": 0, "PASS": 0} for candidate in candidates
-        }
+        vote_counts: dict[str, dict[str, int]] = {candidate: {"HIRE": 0, "PASS": 0} for candidate in candidates}
 
         for ballot in all_ballots:
             if ballot.vote == Vote.HIRE:
@@ -464,9 +459,7 @@ class PanelSystem:
         Returns:
             Vote summary
         """
-        vote_counts: dict[str, dict[str, int]] = {
-            candidate: {"HIRE": 0, "PASS": 0} for candidate in result.candidates
-        }
+        vote_counts: dict[str, dict[str, int]] = {candidate: {"HIRE": 0, "PASS": 0} for candidate in result.candidates}
 
         for ballot in result.ballots:
             if ballot.vote == Vote.HIRE:

@@ -4,7 +4,8 @@ Sub-phase model definitions for workflow phases.
 Sub-phases are standard operating procedures applied to all tasks within a phase.
 """
 
-from typing import List, Literal
+from typing import Literal
+
 from pydantic import BaseModel, Field
 
 
@@ -20,7 +21,7 @@ class SubPhaseDeliverable(BaseModel):
     type: Literal["deliverable"] = "deliverable"
     description: str = ""
     required: bool = True
-    outputs: List[str] = Field(default_factory=list)  # Glob patterns: "*.svg", "docs/adr/*.md"
+    outputs: list[str] = Field(default_factory=list)  # Glob patterns: "*.svg", "docs/adr/*.md"
 
 
 class SubPhaseChecklist(BaseModel):
@@ -35,7 +36,7 @@ class SubPhaseChecklist(BaseModel):
     type: Literal["checklist"] = "checklist"
     description: str = ""
     required: bool = True
-    questions: List[str] = Field(default_factory=list)
+    questions: list[str] = Field(default_factory=list)
 
 
 class SubPhaseSubtask(BaseModel):
@@ -51,7 +52,7 @@ class SubPhaseSubtask(BaseModel):
     description: str = ""
     required: bool = True
     agent: str  # Which agent handles this subtask
-    depends_on: List[str] = Field(default_factory=list)  # Other sub-phase names
+    depends_on: list[str] = Field(default_factory=list)  # Other sub-phase names
 
 
 # Union type for all sub-phases

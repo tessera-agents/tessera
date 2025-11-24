@@ -4,19 +4,14 @@ Unified configuration schema for Tessera.
 All configuration is defined in a single config.yaml file with multiple sections.
 """
 
-from typing import List, Optional, Dict, Any, Literal, Type, Union
 from pathlib import Path
-from pydantic import BaseModel, Field, field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from typing import Any, Literal
 
-from .yaml_source import XDGYamlSettingsSource
+from pydantic import BaseModel, Field
+from pydantic_settings import BaseSettings, PydanticBaseSettingsSource, SettingsConfigDict
+
 from .xdg import get_tessera_config_dir
-from .subphase_models import (
-    SubPhaseDeliverable,
-    SubPhaseChecklist,
-    SubPhaseSubtask,
-)
-
+from .yaml_source import XDGYamlSettingsSource
 
 # ==============================================================================
 # NESTED CONFIG MODELS (use BaseModel, not BaseSettings)
@@ -56,7 +51,7 @@ class ObservabilityConfig(BaseModel):
     """Observability configuration."""
 
     local: ObservabilityLocalConfig = Field(default_factory=ObservabilityLocalConfig)
-    backends: List[ObservabilityBackendConfig] = Field(default_factory=list)
+    backends: list[ObservabilityBackendConfig] = Field(default_factory=list)
 
 
 class AgentDefaultsConfig(BaseModel):
@@ -71,39 +66,39 @@ class AgentDefaultsConfig(BaseModel):
 class AgentToolsConfig(BaseModel):
     """Tool access configuration for an agent."""
 
-    strategy: Optional[Literal["allowlist", "blocklist", "category", "risk-based"]] = None
-    max_risk_level: Optional[Literal["safe", "low", "medium", "high", "critical"]] = None
-    allow: List[str] = Field(default_factory=list)
-    deny: List[str] = Field(default_factory=list)
-    allow_categories: List[str] = Field(default_factory=list)
-    deny_categories: List[str] = Field(default_factory=list)
+    strategy: Literal["allowlist", "blocklist", "category", "risk-based"] | None = None
+    max_risk_level: Literal["safe", "low", "medium", "high", "critical"] | None = None
+    allow: list[str] = Field(default_factory=list)
+    deny: list[str] = Field(default_factory=list)
+    allow_categories: list[str] = Field(default_factory=list)
+    deny_categories: list[str] = Field(default_factory=list)
 
 
 class AgentDefinition(BaseModel):
     """Individual agent configuration."""
 
     name: str
-    role: Optional[str] = None  # orchestrator, worker
+    role: str | None = None  # orchestrator, worker
     model: str
     provider: str = "openai"
-    system_prompt: Optional[str] = None  # Inline prompt
-    system_prompt_file: Optional[str] = None  # Path to markdown file
-    temperature: Optional[float] = Field(default=None, ge=0.0, le=2.0)
-    context_size: Optional[int] = Field(default=None, gt=0)
-    api_url: Optional[str] = None
-    api_key: Optional[str] = None
-    timeout: Optional[int] = Field(default=None, gt=0)
-    max_retries: Optional[int] = Field(default=None, ge=0)
-    capabilities: List[str] = Field(default_factory=list)
-    phase_affinity: List[str] = Field(default_factory=list)  # Which SDLC phases
-    tools: Optional[AgentToolsConfig] = None
+    system_prompt: str | None = None  # Inline prompt
+    system_prompt_file: str | None = None  # Path to markdown file
+    temperature: float | None = Field(default=None, ge=0.0, le=2.0)
+    context_size: int | None = Field(default=None, gt=0)
+    api_url: str | None = None
+    api_key: str | None = None
+    timeout: int | None = Field(default=None, gt=0)
+    max_retries: int | None = Field(default=None, ge=0)
+    capabilities: list[str] = Field(default_factory=list)
+    phase_affinity: list[str] = Field(default_factory=list)  # Which SDLC phases
+    tools: AgentToolsConfig | None = None
 
 
 class AgentsConfig(BaseModel):
     """Agents configuration section."""
 
     defaults: AgentDefaultsConfig = Field(default_factory=AgentDefaultsConfig)
-    definitions: List[AgentDefinition] = Field(default_factory=list)
+    definitions: list[AgentDefinition] = Field(default_factory=list)
 
 
 class ToolsGlobalConfig(BaseModel):
@@ -111,8 +106,8 @@ class ToolsGlobalConfig(BaseModel):
 
     strategy: Literal["allowlist", "blocklist", "category", "risk-based"] = "risk-based"
     max_risk_level: Literal["safe", "low", "medium", "high", "critical"] = "high"
-    allow: List[str] = Field(default_factory=list)
-    deny: List[str] = Field(default_factory=list)
+    allow: list[str] = Field(default_factory=list)
+    deny: list[str] = Field(default_factory=list)
 
 
 class ToolApprovalConfig(BaseModel):
@@ -126,7 +121,7 @@ class ToolBuiltinConfig(BaseModel):
 
     enabled: bool = True
     approval_required: Any = Field(default=False)  # Can be bool or list
-    safe_paths: List[str] = Field(default_factory=list)
+    safe_paths: list[str] = Field(default_factory=list)
 
 
 class PluginDefinition(BaseModel):
@@ -137,7 +132,7 @@ class PluginDefinition(BaseModel):
     enabled: bool = True
     risk_level: Literal["safe", "low", "medium", "high", "critical"] = "medium"
     approval_required: Any = False  # Can be bool or list
-    config: Dict[str, Any] = Field(default_factory=dict)
+    config: dict[str, Any] = Field(default_factory=dict)
 
 
 class MCPServerConfig(BaseModel):
@@ -146,30 +141,28 @@ class MCPServerConfig(BaseModel):
     name: str
     enabled: bool = True
     type: Literal["stdio", "sse"] = "stdio"
-    command: Optional[str] = None
-    args: List[str] = Field(default_factory=list)
-    url: Optional[str] = None  # For SSE type
-    env: Dict[str, str] = Field(default_factory=dict)
-    api_key: Optional[str] = None
+    command: str | None = None
+    args: list[str] = Field(default_factory=list)
+    url: str | None = None  # For SSE type
+    env: dict[str, str] = Field(default_factory=dict)
+    api_key: str | None = None
     risk_level: Literal["safe", "low", "medium", "high", "critical"] = "medium"
 
 
 class ToolsPluginsConfig(BaseModel):
     """Plugin tools configuration."""
 
-    discovery: List[str] = Field(default_factory=list)
-    definitions: List[PluginDefinition] = Field(default_factory=list)
+    discovery: list[str] = Field(default_factory=list)
+    definitions: list[PluginDefinition] = Field(default_factory=list)
 
 
 class ToolsConfig(BaseModel):
     """Tools configuration section."""
 
-    global_config: ToolsGlobalConfig = Field(
-        default_factory=ToolsGlobalConfig, alias="global"
-    )
-    builtin: Dict[str, ToolBuiltinConfig] = Field(default_factory=dict)
+    global_config: ToolsGlobalConfig = Field(default_factory=ToolsGlobalConfig, alias="global")
+    builtin: dict[str, ToolBuiltinConfig] = Field(default_factory=dict)
     plugins: ToolsPluginsConfig = Field(default_factory=ToolsPluginsConfig)
-    mcp: List[MCPServerConfig] = Field(default_factory=list)
+    mcp: list[MCPServerConfig] = Field(default_factory=list)
 
 
 class CommunicationChannelConfig(BaseModel):
@@ -178,15 +171,15 @@ class CommunicationChannelConfig(BaseModel):
     name: str
     type: Literal["slack", "discord", "email"] = "slack"
     enabled: bool = True
-    config: Dict[str, Any] = Field(default_factory=dict)
+    config: dict[str, Any] = Field(default_factory=dict)
 
 
 class CommunicationRoutingRule(BaseModel):
     """Communication routing rule."""
 
-    risk_level: Optional[str] = None
-    agent: Optional[str] = None
-    tool: Optional[str] = None
+    risk_level: str | None = None
+    agent: str | None = None
+    tool: str | None = None
     channel: str
 
 
@@ -194,18 +187,18 @@ class CommunicationsConfig(BaseModel):
     """Communications configuration section."""
 
     default: str = ""
-    channels: List[CommunicationChannelConfig] = Field(default_factory=list)
-    routing: List[CommunicationRoutingRule] = Field(default_factory=list)
+    channels: list[CommunicationChannelConfig] = Field(default_factory=list)
+    routing: list[CommunicationRoutingRule] = Field(default_factory=list)
 
 
 class CostLimitConfig(BaseModel):
     """Cost limit configuration."""
 
-    daily_usd: Optional[float] = None
-    monthly_usd: Optional[float] = None
-    default_usd: Optional[float] = None
-    max_usd: Optional[float] = None
-    task_limit_usd: Optional[float] = None
+    daily_usd: float | None = None
+    monthly_usd: float | None = None
+    default_usd: float | None = None
+    max_usd: float | None = None
+    task_limit_usd: float | None = None
     enforcement: Literal["soft", "hard"] = "soft"
 
 
@@ -221,25 +214,23 @@ class CostManualPricing(BaseModel):
 class CostConfig(BaseModel):
     """Cost management configuration section."""
 
-    limits: Dict[str, CostLimitConfig] = Field(default_factory=dict)
+    limits: dict[str, CostLimitConfig] = Field(default_factory=dict)
     pricing_auto_update: bool = Field(default=True, alias="pricing.auto_update")
     pricing_cache_duration_hours: int = Field(default=24, alias="pricing.cache_duration_hours")
-    pricing_manual_overrides: List[CostManualPricing] = Field(
-        default_factory=list, alias="pricing.manual_overrides"
-    )
+    pricing_manual_overrides: list[CostManualPricing] = Field(default_factory=list, alias="pricing.manual_overrides")
 
 
 class ProjectGenerationPhase(BaseModel):
     """SDLC phase definition."""
 
     name: str
-    agents: List[str]
+    agents: list[str]
     required: bool = True
     parallel: bool = False
     approval_required: bool = False
-    deliverables: List[str] = Field(default_factory=list)
-    min_coverage: Optional[int] = None
-    tools: List[str] = Field(default_factory=list)
+    deliverables: list[str] = Field(default_factory=list)
+    min_coverage: int | None = None
+    tools: list[str] = Field(default_factory=list)
 
 
 class ProjectGenerationInterviewConfig(BaseModel):
@@ -266,24 +257,16 @@ class ProjectGenerationOutputConfig(BaseModel):
     project_root: str = "./generated_project"
     create_git_repo: bool = True
     initial_commit: bool = True
-    structure: List[str] = Field(
-        default_factory=lambda: ["src/", "tests/", "docs/", "README.md"]
-    )
+    structure: list[str] = Field(default_factory=lambda: ["src/", "tests/", "docs/", "README.md"])
 
 
 class ProjectGenerationConfig(BaseModel):
     """Project generation configuration section."""
 
-    interview: ProjectGenerationInterviewConfig = Field(
-        default_factory=ProjectGenerationInterviewConfig
-    )
-    planning: ProjectGenerationPlanningConfig = Field(
-        default_factory=ProjectGenerationPlanningConfig
-    )
-    phases: List[ProjectGenerationPhase] = Field(default_factory=list)
-    output: ProjectGenerationOutputConfig = Field(
-        default_factory=ProjectGenerationOutputConfig
-    )
+    interview: ProjectGenerationInterviewConfig = Field(default_factory=ProjectGenerationInterviewConfig)
+    planning: ProjectGenerationPlanningConfig = Field(default_factory=ProjectGenerationPlanningConfig)
+    phases: list[ProjectGenerationPhase] = Field(default_factory=list)
+    output: ProjectGenerationOutputConfig = Field(default_factory=ProjectGenerationOutputConfig)
 
 
 # ==============================================================================
@@ -302,21 +285,21 @@ class WorkflowPhase(BaseModel):
     name: str
     description: str = ""
     required: bool = True
-    required_for_complexity: List[Literal["simple", "medium", "complex"]] = Field(
+    required_for_complexity: list[Literal["simple", "medium", "complex"]] = Field(
         default_factory=lambda: ["simple", "medium", "complex"]
     )
 
     # Hints for supervisor about what tasks to create
-    typical_tasks: List[str] = Field(default_factory=list)
+    typical_tasks: list[str] = Field(default_factory=list)
 
     # Agents commonly used in this phase
-    agents: List[str] = Field(default_factory=list)
+    agents: list[str] = Field(default_factory=list)
 
     # Sub-phases: SOPs applied to ALL tasks in this phase
-    sub_phases: List[Dict[str, Any]] = Field(default_factory=list)
+    sub_phases: list[dict[str, Any]] = Field(default_factory=list)
 
     # Dependencies on other phases
-    depends_on: List[str] = Field(default_factory=list)
+    depends_on: list[str] = Field(default_factory=list)
 
 
 class IterationConfig(BaseModel):
@@ -333,7 +316,7 @@ class QualityMonitoringConfig(BaseModel):
 
     enabled: bool = True
     check_after_each_task: bool = True
-    metrics: List[str] = Field(
+    metrics: list[str] = Field(
         default_factory=lambda: [
             "tests_passing",
             "coverage_percentage",
@@ -346,7 +329,7 @@ class WorkflowConfig(BaseModel):
     """Workflow configuration with phases and sub-phases."""
 
     # Project-level phases
-    phases: List[WorkflowPhase] = Field(default_factory=list)
+    phases: list[WorkflowPhase] = Field(default_factory=list)
 
     # Iteration control
     iteration: IterationConfig = Field(default_factory=IterationConfig)
@@ -395,19 +378,17 @@ class TesseraSettings(BaseSettings):
     workflow: WorkflowConfig = Field(default_factory=WorkflowConfig)
 
     # Legacy project generation config (backward compatibility)
-    project_generation: ProjectGenerationConfig = Field(
-        default_factory=ProjectGenerationConfig
-    )
+    project_generation: ProjectGenerationConfig = Field(default_factory=ProjectGenerationConfig)
 
     @classmethod
     def settings_customise_sources(
         cls,
-        settings_cls: Type[BaseSettings],
-        init_settings,
-        env_settings,
-        dotenv_settings,
-        file_secret_settings,
-    ):
+        settings_cls: type[BaseSettings],
+        init_settings: PydanticBaseSettingsSource,
+        env_settings: PydanticBaseSettingsSource,
+        dotenv_settings: PydanticBaseSettingsSource,
+        file_secret_settings: PydanticBaseSettingsSource,
+    ) -> tuple[PydanticBaseSettingsSource, ...]:
         """
         Customize settings sources to include YAML config files.
 
@@ -431,7 +412,7 @@ class TesseraSettings(BaseSettings):
         """Get configuration directory path."""
         return get_tessera_config_dir()
 
-    def get_agent(self, name: str) -> Optional[AgentDefinition]:
+    def get_agent(self, name: str) -> AgentDefinition | None:
         """
         Get agent definition by name.
 
@@ -446,7 +427,7 @@ class TesseraSettings(BaseSettings):
                 return agent
         return None
 
-    def get_communication_channel(self, name: str) -> Optional[CommunicationChannelConfig]:
+    def get_communication_channel(self, name: str) -> CommunicationChannelConfig | None:
         """
         Get communication channel by name.
 

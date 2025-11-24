@@ -1,14 +1,16 @@
 """Unit tests for secret management."""
 
-import pytest
 import subprocess
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
+
+import pytest
+
 from tessera.secrets import (
     SecretManager,
+    check_secrets_available,
+    get_anthropic_api_key,
     get_github_token,
     get_openai_api_key,
-    get_anthropic_api_key,
-    check_secrets_available,
 )
 
 
@@ -39,7 +41,7 @@ class TestSecretManager:
         """Test getting GitHub token with custom op:// reference."""
         mock_1pass.return_value = "custom-token"
 
-        token = SecretManager.get_github_token()
+        SecretManager.get_github_token()
 
         mock_1pass.assert_called_once_with("op://Work/CustomItem/secret")
 
@@ -99,7 +101,7 @@ class TestSecretManager:
         """Test get_from_1password when op CLI not installed."""
         mock_run.return_value = Mock(returncode=1)
 
-        result = SecretManager.get_from_1password("Test Item", "password")
+        result = SecretManager.get_from_1password("op://Test/Item/password")
 
         assert result is None
 
@@ -180,7 +182,7 @@ class TestSecretManager:
         assert result is None
 
     @patch("subprocess.run")
-    def test_get_from_1password_op_not_installed(self, mock_run):
+    def test_get_from_1password_op_command_not_found(self, mock_run):
         """Test get_from_1password when op command not found."""
         SecretManager.get_from_1password.cache_clear()
 
@@ -197,7 +199,7 @@ class TestSecretManager:
 
         mock_run.side_effect = [
             Mock(returncode=0),  # which op
-            Exception("Unknown error"),
+            RuntimeError("Unknown error"),
         ]
 
         result = SecretManager.get_from_1password("op://Private/test/password")
@@ -227,7 +229,11 @@ class TestSecretManager:
 
         assert result is True
         mock_run.assert_called_once_with(
-            ["op", "account", "list"], capture_output=True, text=True, timeout=2
+            ["op", "account", "list"],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=2,
         )
 
     @patch("subprocess.run")
@@ -242,7 +248,7 @@ class TestSecretManager:
     @patch("subprocess.run")
     def test_check_1password_available_exception(self, mock_run):
         """Test check_1password_available with exception."""
-        mock_run.side_effect = Exception("Error")
+        mock_run.side_effect = OSError("Error")
 
         result = SecretManager.check_1password_available()
 

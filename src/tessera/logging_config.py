@@ -6,10 +6,9 @@ Provides a simple interface for setting up structured logging across the codebas
 
 import logging
 import sys
-from typing import Optional
 
 
-def setup_logging(level: Optional[str] = None) -> None:
+def setup_logging(level: str | None = None) -> None:
     """
     Configure logging for Tessera.
 
@@ -21,8 +20,7 @@ def setup_logging(level: Optional[str] = None) -> None:
 
     # Create formatter
     formatter = logging.Formatter(
-        fmt='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
+        fmt="%(asctime)s - %(name)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
     )
 
     # Configure root logger

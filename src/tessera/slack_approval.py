@@ -5,20 +5,21 @@ Provides privacy-preserving approval workflows without requiring webhooks.
 Uses native Slack SDK with Socket Mode for local, self-hosted operation.
 """
 
-import os
 import json
-from typing import Dict, Optional, Callable, Any
-from slack_sdk.web import WebClient
+import os
+from collections.abc import Callable
+from typing import Any
+
+from langgraph.types import Command
 from slack_sdk.socket_mode import SocketModeClient
 from slack_sdk.socket_mode.request import SocketModeRequest
 from slack_sdk.socket_mode.response import SocketModeResponse
-from langgraph.types import Command
+from slack_sdk.web import WebClient
 
+from .graph_base import get_thread_config
 from .logging_config import get_logger
 
 logger = get_logger(__name__)
-
-from .graph_base import get_thread_config
 
 
 class SlackApprovalCoordinator:
@@ -68,8 +69,8 @@ class SlackApprovalCoordinator:
         self,
         graph: Any,
         slack_client: SocketModeClient,
-        default_channel: Optional[str] = None,
-    ):
+        default_channel: str | None = None,
+    ) -> None:
         """
         Initialize Slack approval coordinator.
 
@@ -80,16 +81,14 @@ class SlackApprovalCoordinator:
         """
         self.graph = graph
         self.slack_client = slack_client
-        self.default_channel = default_channel or os.environ.get(
-            "SLACK_APPROVAL_CHANNEL"
-        )
-        self.pending_interrupts: Dict[str, dict] = {}  # message_ts -> interrupt_data
+        self.default_channel = default_channel or os.environ.get("SLACK_APPROVAL_CHANNEL")
+        self.pending_interrupts: dict[str, dict] = {}  # message_ts -> interrupt_data
 
     def invoke_with_slack_approval(
         self,
         input_data: dict,
         thread_id: str,
-        slack_channel: Optional[str] = None,
+        slack_channel: str | None = None,
     ) -> dict:
         """
         Invoke graph with Slack approval handling.
@@ -118,9 +117,7 @@ class SlackApprovalCoordinator:
             interrupt_data = result["__interrupt__"]
 
             # Send approval request to Slack
-            msg_ts = self._send_approval_request(
-                channel=channel, interrupt_data=interrupt_data
-            )
+            msg_ts = self._send_approval_request(channel=channel, interrupt_data=interrupt_data)
 
             # Store pending interrupt
             self.pending_interrupts[msg_ts] = {
@@ -147,9 +144,7 @@ class SlackApprovalCoordinator:
 
         # Format details for display
         if isinstance(details, dict):
-            details_text = "\n".join(
-                f"*{k.replace('_', ' ').title()}:* {v}" for k, v in details.items()
-            )
+            details_text = "\n".join(f"*{k.replace('_', ' ').title()}:* {v}" for k, v in details.items())
         else:
             details_text = str(details)
 
@@ -197,9 +192,7 @@ class SlackApprovalCoordinator:
 
         return response["ts"]
 
-    def handle_approval_response(
-        self, action_value: str, message_ts: str
-    ) -> Optional[dict]:
+    def handle_approval_response(self, action_value: str, message_ts: str) -> dict | None:
         """
         Resume graph after user responds in Slack.
 
@@ -246,9 +239,7 @@ class SlackApprovalCoordinator:
             Event handler function to register with SocketModeClient
         """
 
-        def handle_socket_mode_request(
-            client: SocketModeClient, req: SocketModeRequest
-        ):
+        def handle_socket_mode_request(client: SocketModeClient, req: SocketModeRequest) -> None:
             """Handle Socket Mode events."""
             # Always acknowledge
             response = SocketModeResponse(envelope_id=req.envelope_id)
@@ -268,19 +259,15 @@ class SlackApprovalCoordinator:
                             action_value = action["value"]
 
                             # Resume graph
-                            self.handle_approval_response(
-                                action_value=action_value, message_ts=message_ts
-                            )
+                            self.handle_approval_response(action_value=action_value, message_ts=message_ts)
 
-            except Exception as e:
-                logger.error(f"Error processing Slack event: {e}")
+            except Exception:
+                logger.exception("Error processing Slack event")
 
         return handle_socket_mode_request
 
 
-def create_slack_client(
-    app_token: Optional[str] = None, bot_token: Optional[str] = None
-) -> SocketModeClient:
+def create_slack_client(app_token: str | None = None, bot_token: str | None = None) -> SocketModeClient:
     """
     Create and configure Slack Socket Mode client.
 
@@ -308,6 +295,4 @@ def create_slack_client(
         )
 
     web_client = WebClient(token=bot_token)
-    socket_client = SocketModeClient(app_token=app_token, web_client=web_client)
-
-    return socket_client
+    return SocketModeClient(app_token=app_token, web_client=web_client)

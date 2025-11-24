@@ -3,19 +3,20 @@ Interviewer agent implementation.
 """
 
 import json
-from datetime import datetime
-from typing import Any, Optional
-from langchain_core.messages import HumanMessage, SystemMessage
+from datetime import UTC, datetime
+from typing import Any
+
 from langchain_core.language_models import BaseChatModel
+from langchain_core.messages import HumanMessage, SystemMessage
 
 from .config import INTERVIEWER_PROMPT, FrameworkConfig
+from .llm import create_llm
 from .models import (
     InterviewResult,
     QuestionResponse,
     Score,
     ScoreMetrics,
 )
-from .llm import create_llm
 
 
 class InterviewerAgent:
@@ -28,10 +29,10 @@ class InterviewerAgent:
 
     def __init__(
         self,
-        llm: Optional[BaseChatModel] = None,
-        config: Optional[FrameworkConfig] = None,
+        llm: BaseChatModel | None = None,
+        config: FrameworkConfig | None = None,
         system_prompt: str = INTERVIEWER_PROMPT,
-    ):
+    ) -> None:
         """
         Initialize the interviewer agent.
 
@@ -45,9 +46,7 @@ class InterviewerAgent:
         self.system_prompt = system_prompt
         self.scoring_weights = self.config.scoring_weights.normalize()
 
-    def design_interview(
-        self, task_description: str, num_questions: int = 6
-    ) -> list[dict[str, str]]:
+    def design_interview(self, task_description: str, num_questions: int = 6) -> list[dict[str, str]]:
         """
         Design interview questions for a task.
 
@@ -136,9 +135,7 @@ Please provide a detailed answer.
         aggregated_score = sum(s.overall_score for s in scores) / len(scores) if scores else 0.0
 
         # Generate recommendation
-        recommendation = self._generate_recommendation(
-            candidate_name, aggregated_score, responses, scores
-        )
+        recommendation = self._generate_recommendation(candidate_name, aggregated_score, responses, scores)
 
         return InterviewResult(
             candidate=candidate_name,
@@ -150,8 +147,8 @@ Please provide a detailed answer.
             guardrails=recommendation.get("guardrails", []),
             transcript={
                 "task_description": task_description,
-                "questions": [q for q in questions],
-                "timestamp": datetime.now().isoformat(),
+                "questions": list(questions),
+                "timestamp": datetime.now(UTC).isoformat(),
             },
         )
 
@@ -205,15 +202,12 @@ Respond in JSON format:
 
         return {
             "rankings": [
-                {"candidate": r.candidate, "score": r.aggregated_score, "rank": r.ranking}
-                for r in sorted_results
+                {"candidate": r.candidate, "score": r.aggregated_score, "rank": r.ranking} for r in sorted_results
             ],
             "selected_candidate": comparison.get("selected_candidate", sorted_results[0].candidate),
             "justification": comparison.get("justification", ""),
             "confidence": comparison.get("confidence", "Medium"),
-            "runner_up": comparison.get(
-                "runner_up", sorted_results[1].candidate if len(sorted_results) > 1 else None
-            ),
+            "runner_up": comparison.get("runner_up", sorted_results[1].candidate if len(sorted_results) > 1 else None),
             "key_differentiators": comparison.get("key_differentiators", []),
         }
 
@@ -262,9 +256,7 @@ Respond in JSON format:
             if candidate not in candidate_llms:
                 continue
 
-            candidate_response = candidate_llms[candidate].invoke(
-                [HumanMessage(content=tiebreaker["question"])]
-            )
+            candidate_response = candidate_llms[candidate].invoke([HumanMessage(content=tiebreaker["question"])])
             responses[candidate] = candidate_response.content
 
         # Evaluate responses
@@ -298,7 +290,7 @@ Respond in JSON format:
             "selected_candidate": decision.get("selected_candidate"),
             "justification": decision.get("justification"),
             "scores": decision.get("scores", {}),
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
     def _score_responses(
@@ -311,7 +303,7 @@ Respond in JSON format:
         """Score candidate responses."""
         scores: list[Score] = []
 
-        for q, r in zip(questions, responses):
+        for q, r in zip(questions, responses, strict=False):
             score_prompt = f"""
 Task: {task_description}
 
@@ -430,16 +422,15 @@ Respond in JSON format:
 
     def _format_results_for_comparison(self, results: list[InterviewResult]) -> str:
         """Format interview results for comparison."""
-        formatted = []
-        for r in results:
-            formatted.append(
-                f"""
+        formatted = [
+            f"""
 Candidate: {r.candidate}
 Aggregated Score: {r.aggregated_score}/100
 Recommendation: {r.recommendation}
 Weaknesses: {", ".join(r.weaknesses) if r.weaknesses else "None noted"}
 """
-            )
+            for r in results
+        ]
         return "\n".join(formatted)
 
     def _parse_json_response(self, content: str) -> dict[str, Any]:
@@ -462,4 +453,4 @@ Weaknesses: {", ".join(r.weaknesses) if r.weaknesses else "None noted"}
             json_match = re.search(r"\{.*\}", content, re.DOTALL)
             if json_match:
                 return json.loads(json_match.group())
-            raise ValueError(f"Failed to parse JSON response: {e}")
+            raise ValueError(f"Failed to parse JSON response: {e}") from e

@@ -4,10 +4,11 @@ Phase execution logic for Tessera workflow.
 Manages phase transitions, applies sub-phases to tasks, and tracks progress.
 """
 
-from typing import List, Dict, Any, Optional
 from pathlib import Path
+from typing import Any
 
-from ..config.schema import WorkflowPhase
+from tessera.config.schema import WorkflowPhase
+
 from .subphase_handler import SubPhaseHandler
 
 
@@ -24,10 +25,10 @@ class PhaseExecutor:
 
     def __init__(
         self,
-        phases: List[WorkflowPhase],
+        phases: list[WorkflowPhase],
         complexity: str = "medium",
-        project_root: Path = Path("."),
-    ):
+        project_root: Path = Path(),
+    ) -> None:
         """
         Initialize phase executor.
 
@@ -45,21 +46,17 @@ class PhaseExecutor:
         self.active_phases = self._filter_phases_by_complexity()
         self.current_phase_index = 0
 
-    def _filter_phases_by_complexity(self) -> List[WorkflowPhase]:
+    def _filter_phases_by_complexity(self) -> list[WorkflowPhase]:
         """Filter phases based on task complexity."""
-        return [
-            phase
-            for phase in self.phases
-            if self.complexity in phase.required_for_complexity
-        ]
+        return [phase for phase in self.phases if self.complexity in phase.required_for_complexity]
 
-    def get_current_phase(self) -> Optional[WorkflowPhase]:
+    def get_current_phase(self) -> WorkflowPhase | None:
         """Get the current phase."""
         if self.current_phase_index < len(self.active_phases):
             return self.active_phases[self.current_phase_index]
         return None
 
-    def get_phase_by_name(self, name: str) -> Optional[WorkflowPhase]:
+    def get_phase_by_name(self, name: str) -> WorkflowPhase | None:
         """Get phase by name."""
         for phase in self.active_phases:
             if phase.name == name:
@@ -76,7 +73,7 @@ class PhaseExecutor:
         self.current_phase_index += 1
         return self.current_phase_index < len(self.active_phases)
 
-    def get_phase_context(self, phase_name: Optional[str] = None) -> Dict[str, Any]:
+    def get_phase_context(self, phase_name: str | None = None) -> dict[str, Any]:
         """
         Get context for supervisor about current phase.
 
@@ -88,10 +85,7 @@ class PhaseExecutor:
         Returns:
             Phase context dict with hints and sub-phases
         """
-        if phase_name:
-            phase = self.get_phase_by_name(phase_name)
-        else:
-            phase = self.get_current_phase()
+        phase = self.get_phase_by_name(phase_name) if phase_name else self.get_current_phase()
 
         if not phase:
             return {}
@@ -106,8 +100,8 @@ class PhaseExecutor:
         }
 
     def apply_subphases_to_task(
-        self, task_id: str, task_result: Any, phase_name: Optional[str] = None
-    ) -> List[Dict[str, Any]]:
+        self, task_id: str, task_result: Any, phase_name: str | None = None
+    ) -> list[dict[str, Any]]:
         """
         Apply all sub-phases for current phase to a completed task.
 
@@ -128,7 +122,7 @@ class PhaseExecutor:
             sub_phases=phase.sub_phases, task_id=task_id, task_result=task_result
         )
 
-    def get_phase_summary(self) -> Dict[str, Any]:
+    def get_phase_summary(self) -> dict[str, Any]:
         """
         Get summary of all phases and current progress.
 
@@ -139,15 +133,11 @@ class PhaseExecutor:
             "total_phases": len(self.active_phases),
             "current_phase_index": self.current_phase_index,
             "current_phase": self.get_current_phase().name if self.get_current_phase() else None,
-            "completed_phases": [
-                phase.name for phase in self.active_phases[: self.current_phase_index]
-            ],
-            "remaining_phases": [
-                phase.name for phase in self.active_phases[self.current_phase_index + 1 :]
-            ],
+            "completed_phases": [phase.name for phase in self.active_phases[: self.current_phase_index]],
+            "remaining_phases": [phase.name for phase in self.active_phases[self.current_phase_index + 1 :]],
         }
 
-    def should_create_subtasks(self, sub_phase_results: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def should_create_subtasks(self, sub_phase_results: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """
         Extract subtasks that need to be created from sub-phase results.
 
@@ -157,15 +147,49 @@ class PhaseExecutor:
         Returns:
             List of subtask definitions to create
         """
-        subtasks = []
+        return [result for result in sub_phase_results if result.get("type") == "subtask" and result.get("created")]
 
-        for result in sub_phase_results:
-            if result.get("type") == "subtask" and result.get("created"):
-                subtasks.append(result)
+    def execute_phase(self, tasks: list[Any], phase_name: str | None = None) -> dict[str, Any]:
+        """
+        Execute a complete phase by applying sub-phases to all tasks.
 
-        return subtasks
+        Args:
+            tasks: List of tasks to execute in this phase
+            phase_name: Optional phase name (uses current if None)
 
-    def format_subphase_instructions(self, phase_name: Optional[str] = None) -> str:
+        Returns:
+            Phase execution results
+        """
+        phase = self.get_phase_by_name(phase_name) if phase_name else self.get_current_phase()
+
+        if not phase:
+            return {"status": "no_phase", "results": []}
+
+        results = []
+        for task in tasks:
+            # Apply sub-phases to this task
+            subphase_results = self.apply_subphases_to_task(
+                task_id=getattr(task, "task_id", str(id(task))),
+                task_result=task,
+                phase_name=phase.name,
+            )
+
+            results.append(
+                {
+                    "task": task,
+                    "subphase_results": subphase_results,
+                    "subtasks_created": self.should_create_subtasks(subphase_results),
+                }
+            )
+
+        return {
+            "phase": phase.name,
+            "tasks_processed": len(tasks),
+            "results": results,
+            "status": "completed",
+        }
+
+    def format_subphase_instructions(self, phase_name: str | None = None) -> str:
         """
         Format sub-phase instructions for agent prompt.
 
@@ -197,14 +221,11 @@ class PhaseExecutor:
 
             elif sp_type == "checklist":
                 instructions.append(f"✓ {sp_name}: Validate the following:")
-                for question in sp.get("questions", []):
-                    instructions.append(f"  - {question}")
+                instructions.extend(f"  - {question}" for question in sp.get("questions", []))
 
             elif sp_type == "subtask":
                 agent = sp.get("agent", "unknown")
-                instructions.append(
-                    f"✓ {sp_name}: Will create subtask for {agent}"
-                )
+                instructions.append(f"✓ {sp_name}: Will create subtask for {agent}")
                 if sp_desc:
                     instructions.append(f"  ({sp_desc})")
 

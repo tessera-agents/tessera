@@ -8,13 +8,13 @@ Stores:
 - Session state
 """
 
-import sqlite3
 import json
-from datetime import datetime
-from typing import Optional, Dict, Any, List
+import sqlite3
+from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
-from ..config.xdg import get_metrics_db_path
+from tessera.config.xdg import get_metrics_db_path
 
 
 class MetricsStore:
@@ -24,7 +24,7 @@ class MetricsStore:
     Tracks task assignments, agent performance, and costs.
     """
 
-    def __init__(self, db_path: Optional[Path] = None):
+    def __init__(self, db_path: Path | None = None) -> None:
         """
         Initialize metrics store.
 
@@ -81,21 +81,11 @@ class MetricsStore:
         """)
 
         # Create indexes
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_task_agent ON task_assignments(agent_name)"
-        )
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_task_status ON task_assignments(status)"
-        )
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_task_assigned_at ON task_assignments(assigned_at)"
-        )
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_perf_agent ON agent_performance(agent_name)"
-        )
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_perf_timestamp ON agent_performance(timestamp)"
-        )
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_task_agent ON task_assignments(agent_name)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_task_status ON task_assignments(status)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_task_assigned_at ON task_assignments(assigned_at)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_perf_agent ON agent_performance(agent_name)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_perf_timestamp ON agent_performance(timestamp)")
 
         conn.commit()
         conn.close()
@@ -105,8 +95,8 @@ class MetricsStore:
         task_id: str,
         task_description: str,
         agent_name: str,
-        agent_config: Dict[str, Any],
-        task_type: Optional[str] = None,
+        agent_config: dict[str, Any],
+        task_type: str | None = None,
     ) -> None:
         """
         Record a new task assignment.
@@ -134,7 +124,7 @@ class MetricsStore:
                 task_type,
                 agent_name,
                 json.dumps(agent_config),
-                datetime.now().isoformat(),
+                datetime.now(UTC).isoformat(),
                 "pending",
             ),
         )
@@ -142,16 +132,16 @@ class MetricsStore:
         conn.commit()
         conn.close()
 
-    def update_task_status(
+    def update_task_status(  # noqa: PLR0913
         self,
         task_id: str,
         status: str,
-        result_summary: Optional[str] = None,
-        error_message: Optional[str] = None,
-        llm_calls_count: Optional[int] = None,
-        total_tokens: Optional[int] = None,
-        total_cost_usd: Optional[float] = None,
-        trace_id: Optional[str] = None,
+        result_summary: str | None = None,
+        error_message: str | None = None,
+        llm_calls_count: int | None = None,
+        total_tokens: int | None = None,
+        total_cost_usd: float | None = None,
+        trace_id: str | None = None,
     ) -> None:
         """
         Update task status and metrics.
@@ -174,11 +164,11 @@ class MetricsStore:
 
         if status == "in_progress" and not self._get_started_at(task_id):
             updates.append("started_at = ?")
-            params.append(datetime.now().isoformat())
+            params.append(datetime.now(UTC).isoformat())
 
         if status in ("completed", "failed"):
             updates.append("completed_at = ?")
-            params.append(datetime.now().isoformat())
+            params.append(datetime.now(UTC).isoformat())
 
         if result_summary is not None:
             updates.append("result_summary = ?")
@@ -216,25 +206,23 @@ class MetricsStore:
         conn.commit()
         conn.close()
 
-    def _get_started_at(self, task_id: str) -> Optional[datetime]:
+    def _get_started_at(self, task_id: str) -> datetime | None:
         """Get started_at timestamp for a task."""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
-        result = cursor.execute(
-            "SELECT started_at FROM task_assignments WHERE task_id = ?", (task_id,)
-        ).fetchone()
+        result = cursor.execute("SELECT started_at FROM task_assignments WHERE task_id = ?", (task_id,)).fetchone()
         conn.close()
         return result[0] if result and result[0] else None
 
-    def record_agent_performance(
+    def record_agent_performance(  # noqa: PLR0913
         self,
         agent_name: str,
         task_id: str,
         success: bool,
-        duration_seconds: Optional[int] = None,
-        cost_usd: Optional[float] = None,
-        phase: Optional[str] = None,
-        quality_score: Optional[float] = None,
+        duration_seconds: int | None = None,
+        cost_usd: float | None = None,
+        phase: str | None = None,
+        quality_score: float | None = None,
         reassigned: bool = False,
         off_topic: bool = False,
     ) -> None:
@@ -272,14 +260,14 @@ class MetricsStore:
                 quality_score,
                 reassigned,
                 off_topic,
-                datetime.now().isoformat(),
+                datetime.now(UTC).isoformat(),
             ),
         )
 
         conn.commit()
         conn.close()
 
-    def get_agent_stats(self, agent_name: str, days: Optional[int] = None) -> Dict[str, Any]:
+    def get_agent_stats(self, agent_name: str, days: int | None = None) -> dict[str, Any]:
         """
         Get performance statistics for an agent.
 
@@ -294,7 +282,7 @@ class MetricsStore:
         cursor = conn.cursor()
 
         date_filter = ""
-        params: List[Any] = [agent_name]
+        params: list[Any] = [agent_name]
 
         if days:
             date_filter = "AND timestamp > datetime('now', ?)"

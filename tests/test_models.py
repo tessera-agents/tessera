@@ -1,20 +1,22 @@
 """Unit tests for data models."""
 
-import pytest
 from datetime import datetime
+
+import pytest
+
 from tessera.models import (
-    Task,
-    SubTask,
-    TaskStatus,
-    AgentResponse,
-    QuestionResponse,
-    ScoreMetrics,
-    Score,
-    InterviewResult,
-    Vote,
-    Ballot,
-    PanelResult,
     AgentConfig,
+    AgentResponse,
+    Ballot,
+    InterviewResult,
+    PanelResult,
+    QuestionResponse,
+    Score,
+    ScoreMetrics,
+    SubTask,
+    Task,
+    TaskStatus,
+    Vote,
 )
 
 
@@ -293,9 +295,7 @@ class TestModelSerialization:
         task = Task(
             task_id="test_1",
             goal="Test goal",
-            subtasks=[
-                SubTask(task_id="sub_1", description="Subtask 1")
-            ],
+            subtasks=[SubTask(task_id="sub_1", description="Subtask 1")],
         )
 
         task_dict = task.model_dump()

@@ -2,11 +2,11 @@
 Unit tests for enhanced Slack integration.
 """
 
+from unittest.mock import MagicMock, Mock, patch
+
 import pytest
-from unittest.mock import Mock, MagicMock, patch
 
 from tessera.slack import AgentIdentityManager, MultiChannelSlackClient
-from tessera.slack.agent_identity import AgentIdentity
 
 
 @pytest.mark.unit
@@ -66,31 +66,23 @@ class TestAgentIdentityManager:
 class TestMultiChannelSlackClient:
     """Test multi-channel Slack client."""
 
-    @patch('tessera.slack.multi_channel.WebClient')
+    @patch("tessera.slack.multi_channel.WebClient")
     def test_initialization(self, mock_webclient):
         """Test client initialization."""
-        client = MultiChannelSlackClient(
-            bot_token="xoxb-test",
-            agent_channel="C123",
-            user_channel="C456"
-        )
+        client = MultiChannelSlackClient(bot_token="xoxb-test", agent_channel="C123", user_channel="C456")
 
         assert client.bot_token == "xoxb-test"
         assert client.agent_channel == "C123"
         assert client.user_channel == "C456"
         mock_webclient.assert_called_once()
 
-    @patch('tessera.slack.multi_channel.WebClient')
+    @patch("tessera.slack.multi_channel.WebClient")
     def test_post_agent_message(self, mock_webclient):
         """Test posting message to agent channel."""
         mock_web = MagicMock()
         mock_webclient.return_value = mock_web
 
-        client = MultiChannelSlackClient(
-            bot_token="xoxb-test",
-            agent_channel="C123",
-            user_channel="C456"
-        )
+        client = MultiChannelSlackClient(bot_token="xoxb-test", agent_channel="C123", user_channel="C456")
 
         client.post_agent_message("supervisor", "Test message")
 
@@ -102,23 +94,15 @@ class TestMultiChannelSlackClient:
         assert call_kwargs["text"] == "Test message"
         assert "Tessera" in call_kwargs["username"]
 
-    @patch('tessera.slack.multi_channel.WebClient')
+    @patch("tessera.slack.multi_channel.WebClient")
     def test_post_user_question(self, mock_webclient):
         """Test posting question to user channel."""
         mock_web = MagicMock()
         mock_webclient.return_value = mock_web
 
-        client = MultiChannelSlackClient(
-            bot_token="xoxb-test",
-            agent_channel="C123",
-            user_channel="C456"
-        )
+        client = MultiChannelSlackClient(bot_token="xoxb-test", agent_channel="C123", user_channel="C456")
 
-        client.post_user_question(
-            "supervisor",
-            "What database?",
-            suggested_answers=["PostgreSQL", "MySQL"]
-        )
+        client.post_user_question("supervisor", "What database?", suggested_answers=["PostgreSQL", "MySQL"])
 
         # Verify posted to user channel
         mock_web.chat_postMessage.assert_called_once()
@@ -129,23 +113,19 @@ class TestMultiChannelSlackClient:
         # Should have buttons for suggested answers
         assert any("PostgreSQL" in str(block) for block in call_kwargs["blocks"])
 
-    @patch('tessera.slack.multi_channel.WebClient')
+    @patch("tessera.slack.multi_channel.WebClient")
     def test_post_user_request_approval(self, mock_webclient):
         """Test approval request with buttons."""
         mock_web = MagicMock()
         mock_webclient.return_value = mock_web
 
-        client = MultiChannelSlackClient(
-            bot_token="xoxb-test",
-            agent_channel="C123",
-            user_channel="C456"
-        )
+        client = MultiChannelSlackClient(bot_token="xoxb-test", agent_channel="C123", user_channel="C456")
 
         client.post_user_request(
             "python-expert",
             "Deploy to production?",
             request_type="approval",
-            metadata={"cost": "$5.00"}
+            metadata={"cost": "$5.00"},
         )
 
         # Verify approval buttons present

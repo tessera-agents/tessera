@@ -1,8 +1,9 @@
 """Unit tests for InterviewerGraph (LangGraph version)."""
 
 import pytest
+
+from tessera.graph_base import clear_checkpoint_db, get_thread_config
 from tessera.interviewer_graph import InterviewerGraph
-from tessera.graph_base import get_thread_config, clear_checkpoint_db
 
 
 @pytest.mark.unit
@@ -38,17 +39,26 @@ class TestInterviewerGraph:
 
     def test_design_questions_via_graph(self, test_config):
         """Test question design through LangGraph."""
-        from langchain_core.messages import AIMessage
         from unittest.mock import Mock
+
+        from langchain_core.messages import AIMessage
 
         # Mock responses for all stages
         responses = [
-            '''{"questions": [
-                {"question_id": "Q1", "text": "How would you implement caching?", "type": "sample", "evaluation_focus": "technical"},
-                {"question_id": "Q2", "text": "Handle cache invalidation?", "type": "edge-case", "evaluation_focus": "robustness"}
-            ]}''',  # design
-            '''{"accuracy": 4, "relevance": 5, "completeness": 3, "explainability": 4, "efficiency": 3, "safety": 5}''',  # score Q1
-            '''{"accuracy": 3, "relevance": 4, "completeness": 4, "explainability": 3, "efficiency": 4, "safety": 4}''',  # score Q2
+            (
+                '{"questions": ['
+                '{"question_id": "Q1", "text": "How would you implement caching?", '
+                '"type": "sample", "evaluation_focus": "technical"},'
+                '{"question_id": "Q2", "text": "Handle cache invalidation?", '
+                '"type": "edge-case", "evaluation_focus": "robustness"}'
+                "]}"
+            ),  # design
+            (
+                '{"accuracy": 4, "relevance": 5, "completeness": 3, "explainability": 4, "efficiency": 3, "safety": 5}'
+            ),  # score Q1
+            (
+                '{"accuracy": 3, "relevance": 4, "completeness": 4, "explainability": 3, "efficiency": 4, "safety": 4}'
+            ),  # score Q2
         ]
         call_count = [0]
 
@@ -78,12 +88,13 @@ class TestInterviewerGraph:
 
     def test_graph_state_persistence(self, test_config):
         """Test that state is persisted to checkpoint."""
-        from langchain_core.messages import AIMessage
         from unittest.mock import Mock
 
+        from langchain_core.messages import AIMessage
+
         responses = [
-            '''{"questions": [{"question_id": "Q1", "text": "Test?", "type": "sample", "evaluation_focus": "test"}]}''',
-            '''{"accuracy": 4, "relevance": 4, "completeness": 4, "explainability": 4, "efficiency": 4, "safety": 4}''',
+            """{"questions": [{"question_id": "Q1", "text": "Test?", "type": "sample", "evaluation_focus": "test"}]}""",
+            """{"accuracy": 4, "relevance": 4, "completeness": 4, "explainability": 4, "efficiency": 4, "safety": 4}""",
         ]
         call_count = [0]
 
@@ -117,12 +128,13 @@ class TestInterviewerGraph:
 
     def test_interviewer_graph_streaming(self, test_config):
         """Test streaming graph execution."""
-        from langchain_core.messages import AIMessage
         from unittest.mock import Mock
 
+        from langchain_core.messages import AIMessage
+
         responses = [
-            '''{"questions": [{"question_id": "Q1", "text": "Test?", "type": "sample", "evaluation_focus": "test"}]}''',
-            '''{"accuracy": 4, "relevance": 4, "completeness": 4, "explainability": 4, "efficiency": 4, "safety": 4}''',
+            """{"questions": [{"question_id": "Q1", "text": "Test?", "type": "sample", "evaluation_focus": "test"}]}""",
+            """{"accuracy": 4, "relevance": 4, "completeness": 4, "explainability": 4, "efficiency": 4, "safety": 4}""",
         ]
         call_count = [0]
 
@@ -154,7 +166,7 @@ class TestInterviewerGraph:
         # Extract all states
         all_states = []
         for state_update in states:
-            for node_name, state_data in state_update.items():
+            for state_data in state_update.values():
                 if isinstance(state_data, dict):
                     all_states.append(state_data)
 
@@ -162,12 +174,13 @@ class TestInterviewerGraph:
 
     def test_design_node_creates_questions(self, test_config):
         """Test design node creates proper question structure."""
-        from langchain_core.messages import AIMessage
         from unittest.mock import Mock
 
-        response_content = '''{"questions": [
+        from langchain_core.messages import AIMessage
+
+        response_content = """{"questions": [
             {"question_id": "Q1", "text": "Test question", "type": "sample", "evaluation_focus": "testing"}
-        ]}'''
+        ]}"""
 
         llm = Mock()
         llm.invoke = Mock(return_value=AIMessage(content=response_content))
@@ -221,11 +234,14 @@ class TestInterviewerGraph:
 
     def test_score_node_calculates_scores(self, test_config):
         """Test score node calculates weighted scores."""
-        from langchain_core.messages import AIMessage
         from unittest.mock import Mock
 
+        from langchain_core.messages import AIMessage
+
         # Mock scoring responses
-        score_response = '''{"accuracy": 4, "relevance": 5, "completeness": 3, "explainability": 4, "efficiency": 3, "safety": 5}'''
+        score_response = (
+            '{"accuracy": 4, "relevance": 5, "completeness": 3, "explainability": 4, "efficiency": 3, "safety": 5}'
+        )
 
         llm = Mock()
         llm.invoke = Mock(return_value=AIMessage(content=score_response))
