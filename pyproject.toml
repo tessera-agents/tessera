@@ -89,54 +89,36 @@ cache-dir = ".cache/ruff"
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
-    "D",       # pydocstyle - add selectively with per-file config
-    "COM812",  # Trailing comma (conflicts with formatter)
-    "ISC001",  # Implicit string concatenation (conflicts with formatter)
-    "ANN401",  # Any type (unavoidable in dynamic LLM/graph code)
-    "EM101",   # Exception string literals (approved - readability)
-    "EM102",   # Exception f-string literals (approved - readability)
-    "TRY003",  # Raise vanilla args (same as EM, approved)
-    "FBT",     # Boolean positional args (approved)
-    "G004",    # Logging f-strings (modern Python idiom)
-    "PERF401", # Manual list comp (readability)
-    "PLR2004", # Magic values (context-dependent, will refactor in v0.6.0)
-    "PLC0415", # Lazy imports (performance, circular import prevention)
-    "TID252",  # Relative imports (internal code style)
-    "DTZ",     # Datetime timezone (local-only app)
-    "BLE001",  # Blind except (pragmatic in CLI)
-    "B904",    # Raise without from (not always needed)
-    "PTH123",  # open vs Path.open (both fine)
-    "PT011",   # pytest.raises broad (pragmatic)
-    "SIM117",  # Multiple with (readability)
-    "RUF043",  # pytest pattern (acceptable)
-    "PGH003",  # Blanket type ignore (will add codes in v0.6.0)
-    "B023",    # Loop variable (careful usage)
-    "C901",    # Complexity (main() naturally complex)
-    "PLR0911", # Too many returns
-    "PLR0912", # Too many branches
-    "PLR0913", # Too many arguments
-    "PLR0915", # Too many statements
+    "D",       # pydocstyle
+    "COM812",  # Trailing comma (formatter conflict)
+    "ISC001",  # Implicit concat (formatter conflict)
+    "ANN401",  # Any type (dynamic code)
+    "EM101",   # Exception messages (approved)
+    "EM102",   # Exception f-strings (approved)
+    "TRY003",  # Raise vanilla (same as EM)
+    "FBT",     # Boolean args (approved)
+    "G004",    # Logging f-strings (approved)
+    "PLC0415", # Lazy imports (approved)
+    "TID252",  # Relative imports (approved)
     "ARG001",  # Unused arg (interface)
     "ARG002",  # Unused method arg (interface)
     "PLW0603", # Global statement (singletons)
-    "TRY300",  # try-else (not always clearer)
-    "TRY301",  # raise in try (acceptable)
-    "S105",    # Hardcoded password string (false positives)
-    "S108",    # Hardcoded temp file (intentional)
-    "S603",    # subprocess without shell (validated)
-    "S607",    # Partial executable path (in PATH)
-    "S608",    # SQL injection (parameterized queries)
-    "S110",    # try-except-pass (intentional)
-    "SLF001",  # Private member access (internal APIs)
-    "RUF001",  # Ambiguous unicode (× for multiplication is intentional)
-    "RUF012",  # Mutable class default (class constants)
-    "ERA001",  # Commented code (documentation examples)
-    "B007",    # Unused loop var (intentional in display loops)
-    "PLW0602", # Global without assignment (global read-only)
-    "PLW2901", # Redefined loop name (intentional strip/normalize)
-    "SIM102",  # Nested if (readability)
-    "SIM103",  # Needless bool (explicit is better)
-    "TRY401",  # Verbose logging (already exception context)
+    "TRY300",  # try-else
+    "TRY301",  # raise in try
+    "S603",    # subprocess
+    "S607",    # Partial path
+    "S608",    # SQL
+    "SLF001",  # Private member
+    "RUF001",  # Ambiguous unicode
+    "RUF012",  # Mutable class
+    "ERA001",  # Commented code
+    "PLW0602", # Global read-only
+    "PLW2901", # Redefined loop
+    "TRY401",  # Verbose logging
+    "SIM102",  # Nested if
+    "SIM103",  # Needless bool
+    "PLR0911", # Too many returns
+    "E402",    # Import not at top
 ]
 
 [tool.ruff.format]

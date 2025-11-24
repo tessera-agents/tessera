@@ -132,7 +132,7 @@ class MetricsStore:
         conn.commit()
         conn.close()
 
-    def update_task_status(
+    def update_task_status(  # noqa: PLR0913
         self,
         task_id: str,
         status: str,
@@ -214,7 +214,7 @@ class MetricsStore:
         conn.close()
         return result[0] if result and result[0] else None
 
-    def record_agent_performance(
+    def record_agent_performance(  # noqa: PLR0913
         self,
         agent_name: str,
         task_id: str,

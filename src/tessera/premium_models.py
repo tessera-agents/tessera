@@ -28,6 +28,9 @@ CACHE_TTL_HOURS = 24  # Refresh every 24 hours
 # GitHub Copilot documentation URL
 DOCS_URL = "https://docs.github.com/en/copilot/concepts/billing/copilot-requests"
 
+# HTTP status code constants
+HTTP_OK = 200
+
 
 class PremiumModelInfo:
     """Information about premium models and their multipliers."""
@@ -45,7 +48,7 @@ class PremiumModelInfo:
             return False
 
         try:
-            with open(CACHE_FILE) as f:
+            with Path(CACHE_FILE).open() as f:
                 data = json.load(f)
 
             # Check if cache is still fresh
@@ -73,7 +76,7 @@ class PremiumModelInfo:
             "content_hash": self._content_hash,
         }
 
-        with open(CACHE_FILE, "w") as f:
+        with Path(CACHE_FILE).open("w") as f:
             json.dump(data, f, indent=2)
 
     def fetch_from_docs(self) -> bool:
@@ -86,7 +89,7 @@ class PremiumModelInfo:
         try:
             # Fetch the documentation page
             response = requests.get(DOCS_URL, timeout=10)
-            if response.status_code != 200:
+            if response.status_code != HTTP_OK:
                 return False
 
             html = response.text
@@ -164,7 +167,7 @@ class PremiumModelInfo:
             self._save_cache()
             return True
 
-        except Exception as e:
+        except (requests.exceptions.RequestException, ValueError, json.JSONDecodeError) as e:
             logger.warning(f"Failed to fetch premium model info: {e}")
             return False
 
@@ -221,11 +224,9 @@ class PremiumModelInfo:
 
     def ensure_loaded(self) -> None:
         """Ensure premium model data is loaded, fetching if necessary."""
-        if not self._premium_models and not self._free_models:
-            # Try to load from cache first
-            if not self._load_cache():
-                # Cache miss or stale, fetch from docs
-                self.fetch_from_docs()
+        if not self._premium_models and not self._free_models and not self._load_cache():
+            # Cache miss or stale, fetch from docs
+            self.fetch_from_docs()
 
     def is_premium(self, model_id: str) -> bool:
         """

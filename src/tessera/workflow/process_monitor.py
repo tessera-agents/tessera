@@ -13,6 +13,10 @@ from tessera.logging_config import get_logger
 
 logger = get_logger(__name__)
 
+# Process monitoring thresholds
+CPU_THRESHOLD_PERCENT = 90
+MEMORY_THRESHOLD_MB = 1024
+
 
 class ProcessMonitor:
     """
@@ -94,7 +98,7 @@ class ProcessMonitor:
                 # Check memory (>1GB might indicate leak)
                 memory_mb = process.memory_info().rss / (1024 * 1024)
 
-                if cpu_percent > 90 or memory_mb > 1024:
+                if cpu_percent > CPU_THRESHOLD_PERCENT or memory_mb > MEMORY_THRESHOLD_MB:
                     runaways.append(
                         {
                             "pid": pid,
@@ -170,7 +174,7 @@ class ProcessMonitor:
         for pid in list(self.tracked_processes.keys()):
             try:
                 self.kill_process(pid, force=False)
-            except Exception as e:
+            except (OSError, psutil.Error) as e:
                 logger.warning(f"Error cleaning up process {pid}: {e}")
 
     def get_status_summary(self) -> dict[str, Any]:

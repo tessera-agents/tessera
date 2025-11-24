@@ -257,7 +257,7 @@ class SlackHITLCoordinator:
                             # Resume graph
                             self.handle_approval_response(action_value=action_value, message_ts=message_ts)
 
-            except Exception:
+            except (ValueError, KeyError, RuntimeError):
                 pass
 
         return handle_socket_mode_request

@@ -8,6 +8,12 @@ import requests
 
 from .config import LLMConfig
 
+# HTTP status code constants
+HTTP_OK = 200
+
+# Model list threshold
+MIN_MODELS_TO_DISPLAY = 3
+
 
 class ModelValidator:
     """Validate configured models against provider's available models."""
@@ -36,7 +42,7 @@ class ModelValidator:
 
             response = requests.get(models_url, headers=headers, timeout=timeout)
 
-            if response.status_code == 200:
+            if response.status_code == HTTP_OK:
                 data = response.json()
                 # OpenAI-compatible response format
                 if "data" in data:
@@ -48,11 +54,11 @@ class ModelValidator:
             return None
         except requests.exceptions.ConnectionError:
             return None
-        except Exception:
+        except (requests.exceptions.RequestException, ValueError, KeyError):
             return None
 
     @staticmethod
-    def validate_models(config: LLMConfig, strict: bool = True) -> bool:
+    def validate_models(config: LLMConfig, strict: bool = True) -> bool:  # noqa: C901, PLR0912
         """
         Validate that configured models are available.
 
@@ -72,7 +78,7 @@ class ModelValidator:
             # Fetch and display available models
             available = ModelValidator.fetch_available_models(config.base_url, config.api_key)
             if available:
-                for _i, model in enumerate(available, 1):
+                for _i, _model in enumerate(available, 1):
                     pass
 
             if strict:
@@ -99,7 +105,7 @@ class ModelValidator:
                 invalid_models.append(model)
 
         if invalid_models:
-            for _i, model in enumerate(available_models, 1):
+            for _i, _model in enumerate(available_models, 1):
                 pass
 
             if strict:
@@ -123,7 +129,7 @@ class ModelValidator:
         if models:
             for _i, _model in enumerate(models, 1):
                 pass
-            if len(models) > 3:
+            if len(models) > MIN_MODELS_TO_DISPLAY:
                 pass
         else:
             pass

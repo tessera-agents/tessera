@@ -110,7 +110,7 @@ class SecretManager:
         except FileNotFoundError:
             # op command not found
             return None
-        except Exception as e:
+        except (OSError, RuntimeError) as e:
             logger.warning(f"Error reading from 1Password: {e}")
             return None
 
@@ -175,7 +175,7 @@ class SecretManager:
                 timeout=2,
             )
             return result.returncode == 0
-        except Exception:
+        except (subprocess.CalledProcessError, FileNotFoundError, OSError):
             return False
 
     @staticmethod

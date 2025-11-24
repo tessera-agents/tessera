@@ -16,6 +16,9 @@ from .logging_config import get_logger
 
 logger = get_logger(__name__)
 
+# HTTP status code constants
+HTTP_OK = 200
+
 
 class CopilotProxyManager:
     """Manages copilot-api proxy server as a subprocess."""
@@ -112,7 +115,7 @@ class CopilotProxyManager:
             logger.exception("✗ npm not found. Please install Node.js first.")
             return False
 
-    def start(self, wait_for_ready: bool = True, timeout: float = 30.0) -> bool:
+    def start(self, wait_for_ready: bool = True, timeout: float = 30.0) -> bool:  # noqa: C901
         """
         Start the copilot-api proxy server.
 
@@ -229,7 +232,7 @@ class CopilotProxyManager:
         while time.time() - start_time < timeout:
             try:
                 response = requests.get(health_url, timeout=1.0)
-                if response.status_code == 200:
+                if response.status_code == HTTP_OK:
                     return True
             except requests.exceptions.RequestException:
                 pass
@@ -267,7 +270,7 @@ class CopilotProxyManager:
                 self.process.wait()
                 logger.info("✓ Proxy forcefully stopped")
 
-        except Exception as e:
+        except (OSError, subprocess.TimeoutExpired) as e:
             logger.warning(f"Error stopping proxy: {e}")
 
         finally:
@@ -288,7 +291,7 @@ class CopilotProxyManager:
         try:
             port = self.port if self.port is not None else 4141
             response = requests.get(f"http://localhost:{port}/health", timeout=2.0)
-            return response.status_code == 200
+            return response.status_code == HTTP_OK
         except requests.exceptions.RequestException:
             return False
 

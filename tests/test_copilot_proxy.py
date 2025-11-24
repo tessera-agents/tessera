@@ -287,7 +287,7 @@ class TestCopilotProxyManager:
     @patch.dict("os.environ", {}, clear=False)
     def test_start_popen_generic_exception(self, mock_popen):
         """Test starting with generic exception."""
-        mock_popen.side_effect = Exception("Something went wrong")
+        mock_popen.side_effect = OSError("Something went wrong")
 
         manager = CopilotProxyManager(github_token="ghu_FAKE_TEST_ONLY")
         result = manager.start(wait_for_ready=False)
@@ -400,7 +400,7 @@ class TestCopilotProxyManager:
         """Test stop handles exceptions gracefully."""
         manager = CopilotProxyManager(github_token="test-token")
         mock_process = Mock()
-        mock_process.terminate.side_effect = Exception("Something went wrong")
+        mock_process.terminate.side_effect = OSError("Something went wrong")
         manager.process = mock_process
         manager._started = True
 

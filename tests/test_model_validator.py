@@ -118,7 +118,7 @@ class TestModelValidatorFetchModels:
     @patch("requests.get")
     def test_fetch_available_models_generic_exception(self, mock_get):
         """Test handling generic exception."""
-        mock_get.side_effect = Exception("Something went wrong")
+        mock_get.side_effect = requests.exceptions.RequestException("Something went wrong")
 
         result = ModelValidator.fetch_available_models("http://localhost:3000/v1", "test-key")
 

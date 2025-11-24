@@ -103,7 +103,7 @@ class TestCLIHelpers:
     def test_load_config_handles_errors(self, mock_settings):
         """Test load_config handles errors gracefully."""
         # First call raises exception, second call returns a mock
-        mock_settings.side_effect = [Exception("Test error"), Mock()]
+        mock_settings.side_effect = [ValueError("Test error"), Mock()]
 
         settings = load_config(None)
         assert settings is not None  # Returns default

@@ -16,6 +16,11 @@ from .graph_base import get_checkpointer
 from .interviewer import InterviewerAgent  # For utility methods
 from .llm import create_llm
 
+# Scoring thresholds
+STRONG_HIRE_THRESHOLD = 80
+HIRE_THRESHOLD = 60
+MAYBE_THRESHOLD = 40
+
 
 class InterviewerState(TypedDict):
     """State schema for InterviewerGraph."""
@@ -155,16 +160,15 @@ Respond in JSON format:
 
         # For now, simulate responses
         # In real implementation, this would invoke candidate LLM
-        responses = []
-        for q in questions:
-            responses.append(
-                {
-                    "question_id": q.get("question_id"),
-                    "question_text": q.get("text"),
-                    "answer": f"Simulated response to: {q.get('text')[:50]}...",
-                    "timestamp": datetime.now(UTC).isoformat(),
-                }
-            )
+        responses = [
+            {
+                "question_id": q.get("question_id"),
+                "question_text": q.get("text"),
+                "answer": f"Simulated response to: {q.get('text')[:50]}...",
+                "timestamp": datetime.now(UTC).isoformat(),
+            }
+            for q in questions
+        ]
 
         return {
             **state,
@@ -261,11 +265,11 @@ Respond in JSON format:
         candidate_name = state.get("candidate_name", "unknown")
 
         # Generate recommendation based on score
-        if overall_score >= 80:
+        if overall_score >= STRONG_HIRE_THRESHOLD:
             decision = "STRONG HIRE"
-        elif overall_score >= 60:
+        elif overall_score >= HIRE_THRESHOLD:
             decision = "HIRE"
-        elif overall_score >= 40:
+        elif overall_score >= MAYBE_THRESHOLD:
             decision = "MAYBE"
         else:
             decision = "NO HIRE"

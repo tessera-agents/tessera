@@ -85,7 +85,7 @@ class MultiAgentExecutor:
 
             return {"success": True, "result": result, "duration": duration}
 
-        except Exception as e:
+        except (ValueError, RuntimeError, OSError) as e:
             duration = time.time() - start_time
 
             # Record failure

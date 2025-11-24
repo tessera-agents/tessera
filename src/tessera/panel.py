@@ -19,6 +19,9 @@ from .models import (
     Vote,
 )
 
+# Panel configuration constants
+MIN_PANELISTS = 3
+
 # Panelist role prompts
 TECHNICAL_EVALUATOR_PROMPT = """You are a Technical Evaluator in an agent evaluation panel.
 Focus on: Correctness, depth, precision, error handling, and technical accuracy."""
@@ -179,13 +182,13 @@ Respond in JSON format:
 
         try:
             return json.loads(content)
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as e:
             import re
 
             json_match = re.search(r"\{.*\}", content, re.DOTALL)
             if json_match:
                 return json.loads(json_match.group())
-            raise ValueError("Failed to parse JSON response")
+            raise ValueError("Failed to parse JSON response") from e
 
 
 class PanelSystem:
@@ -222,8 +225,8 @@ class PanelSystem:
         Returns:
             List of panelist agents
         """
-        if num_panelists < 3:
-            raise ValueError("Need at least 3 panelists")
+        if num_panelists < MIN_PANELISTS:
+            raise ValueError(f"Need at least {MIN_PANELISTS} panelists")
         if num_panelists % 2 == 0:
             raise ValueError("Number of panelists should be odd to avoid ties")
 
@@ -305,7 +308,7 @@ class PanelSystem:
 
         return self.panelists
 
-    def conduct_panel_interview(
+    def conduct_panel_interview(  # noqa: C901, PLR0912
         self,
         task_description: str,
         candidates: list[str],

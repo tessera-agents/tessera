@@ -18,7 +18,7 @@ from tessera.supervisor import SupervisorAgent
 from tessera.workflow import PhaseExecutor
 
 
-def execute_main(
+def execute_main(  # noqa: C901, PLR0912, PLR0913, PLR0915
     task: str,
     dry_run: bool,
     background: bool,
@@ -321,8 +321,8 @@ def execute_main(
         metrics_store.update_task_status(task_id, "failed", error_message="Interrupted by user")  # type: ignore[possibly-undefined]
         import typer
 
-        raise typer.Exit(130)
-    except Exception as e:
+        raise typer.Exit(130) from None
+    except (ValueError, RuntimeError, OSError) as e:
         console.print(f"[red]Error:[/red] {e}\n")
         import traceback
 
@@ -330,4 +330,4 @@ def execute_main(
         metrics_store.update_task_status(task_id, "failed", error_message=str(e))  # type: ignore[possibly-undefined]
         import typer
 
-        raise typer.Exit(1)
+        raise typer.Exit(1) from e

@@ -199,7 +199,7 @@ class TestSecretManager:
 
         mock_run.side_effect = [
             Mock(returncode=0),  # which op
-            Exception("Unknown error"),
+            RuntimeError("Unknown error"),
         ]
 
         result = SecretManager.get_from_1password("op://Private/test/password")
@@ -248,7 +248,7 @@ class TestSecretManager:
     @patch("subprocess.run")
     def test_check_1password_available_exception(self, mock_run):
         """Test check_1password_available with exception."""
-        mock_run.side_effect = Exception("Error")
+        mock_run.side_effect = OSError("Error")
 
         result = SecretManager.check_1password_available()
 

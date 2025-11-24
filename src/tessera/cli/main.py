@@ -57,14 +57,14 @@ def load_config(custom_path: str | None = None) -> TesseraSettings:
     # Load settings (XDGYamlSettingsSource will pick up the file)
     try:
         return TesseraSettings()
-    except Exception as e:
+    except (ValueError, OSError, RuntimeError) as e:
         console.print(f"[red]Error loading configuration:[/red] {e}")
         console.print("\nUsing default configuration.\n")
         return TesseraSettings()
 
 
 @app.command()
-def main(
+def main(  # noqa: PLR0913
     task: Annotated[str, typer.Argument(help="Task description. If not provided, starts interactive mode.")] = "",
     dry_run: Annotated[bool, typer.Option("--dry-run", help="Show plan without executing")] = False,
     background: Annotated[bool, typer.Option("--background", "-b", help="Run in background mode")] = False,
@@ -167,14 +167,14 @@ def init() -> None:
     shutil.copy(template_path, config_file)
 
     # Update with user choices (simple replacement for v0.1)
-    with open(config_file) as f:
+    with Path(config_file).open() as f:
         config_content = f.read()
 
     config_content = config_content.replace('provider: "openai"', f'provider: "{provider}"')
     config_content = config_content.replace('model: "gpt-4"', f'model: "{model}"')
     config_content = config_content.replace("daily_usd: 10.00", f"daily_usd: {daily_limit}")
 
-    with open(config_file, "w") as f:
+    with Path(config_file).open("w") as f:
         f.write(config_content)
 
     # Create default supervisor prompt
@@ -198,7 +198,7 @@ def init() -> None:
     try:
         TesseraSettings()
         console.print("[green]✓[/green] Configuration validated successfully!\n")
-    except Exception as e:
+    except (ValueError, OSError, RuntimeError) as e:
         console.print(f"[red]Warning:[/red] Config validation failed: {e}\n")
 
 

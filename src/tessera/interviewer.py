@@ -422,16 +422,15 @@ Respond in JSON format:
 
     def _format_results_for_comparison(self, results: list[InterviewResult]) -> str:
         """Format interview results for comparison."""
-        formatted = []
-        for r in results:
-            formatted.append(
-                f"""
+        formatted = [
+            f"""
 Candidate: {r.candidate}
 Aggregated Score: {r.aggregated_score}/100
 Recommendation: {r.recommendation}
 Weaknesses: {", ".join(r.weaknesses) if r.weaknesses else "None noted"}
 """
-            )
+            for r in results
+        ]
         return "\n".join(formatted)
 
     def _parse_json_response(self, content: str) -> dict[str, Any]:
@@ -454,4 +453,4 @@ Weaknesses: {", ".join(r.weaknesses) if r.weaknesses else "None noted"}
             json_match = re.search(r"\{.*\}", content, re.DOTALL)
             if json_match:
                 return json.loads(json_match.group())
-            raise ValueError(f"Failed to parse JSON response: {e}")
+            raise ValueError(f"Failed to parse JSON response: {e}") from e

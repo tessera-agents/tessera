@@ -39,7 +39,7 @@ class FileSpanExporter:
 
     def export(self, spans: list) -> None:
         """Export spans to JSONL file."""
-        with open(self.file_path, "a") as f:
+        with Path(self.file_path).open("a") as f:
             for span in spans:
                 # Convert span to dict
                 span_dict = {
@@ -97,7 +97,7 @@ def init_tracer(
     global _tracer, _initialized
 
     if _initialized:
-        return _tracer  # type: ignore
+        return _tracer  # type: ignore[return-value]
 
     # Create resource with app metadata
     resource = Resource.create(
@@ -143,7 +143,7 @@ def get_tracer() -> trace.Tracer:
     if not _initialized:
         _tracer = init_tracer()
 
-    return _tracer  # type: ignore
+    return _tracer  # type: ignore[return-value]
 
 
 def set_span_attributes(

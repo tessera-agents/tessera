@@ -79,12 +79,12 @@ class ActionLogger:
         }
 
         try:
-            with open(self.log_file, "a") as f:
+            with Path(self.log_file).open("a") as f:
                 f.write(json.dumps(action_record) + "\n")
 
             logger.debug(f"Logged {action_type.value}: {description}")
 
-        except Exception as e:
+        except OSError as e:
             logger.warning(f"Failed to log action: {e}")
 
     def log_command(
@@ -183,7 +183,7 @@ class ActionLogger:
             if not self.log_file.exists():
                 return []
 
-            with open(self.log_file) as f:
+            with Path(self.log_file).open() as f:
                 for line in f:
                     try:
                         action = json.loads(line)
@@ -192,7 +192,7 @@ class ActionLogger:
                     except json.JSONDecodeError:
                         continue
 
-        except Exception as e:
+        except OSError as e:
             logger.warning(f"Failed to read actions: {e}")
 
         return actions
@@ -213,7 +213,7 @@ class ActionLogger:
             if not self.log_file.exists():
                 return []
 
-            with open(self.log_file) as f:
+            with Path(self.log_file).open() as f:
                 for line in f:
                     try:
                         action = json.loads(line)
@@ -222,7 +222,7 @@ class ActionLogger:
                     except json.JSONDecodeError:
                         continue
 
-        except Exception as e:
+        except OSError as e:
             logger.warning(f"Failed to read actions: {e}")
 
         return actions

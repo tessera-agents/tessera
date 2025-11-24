@@ -89,10 +89,10 @@ class XDGYamlSettingsSource(PydanticBaseSettingsSource):
         # Merge configs: later files override earlier
         for config_path in config_paths:
             try:
-                with open(config_path) as f:
+                with Path(config_path).open() as f:
                     data = yaml.safe_load(f) or {}
                     self._deep_merge(self._merged_data, data)
-            except Exception as e:
+            except (OSError, yaml.YAMLError) as e:
                 # Log but don't fail on config read errors
                 logger.warning(f"Failed to load {config_path}: {e}")
 

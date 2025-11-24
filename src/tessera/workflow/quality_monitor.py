@@ -12,6 +12,10 @@ from tessera.logging_config import get_logger
 
 logger = get_logger(__name__)
 
+# Quality monitoring constants
+MIN_ITERATIONS_FOR_COMPARISON = 2
+MIN_ITERATIONS_FOR_TREND = 3
+
 
 class QualityMonitor:
     """
@@ -130,7 +134,7 @@ class QualityMonitor:
             Tuple of (should_continue, reason)
         """
         # Check iteration history
-        if len(self.iteration_history) < 2:
+        if len(self.iteration_history) < MIN_ITERATIONS_FOR_COMPARISON:
             return (True, "insufficient_data")
 
         # Check for improvement in recent iterations
@@ -177,10 +181,10 @@ class QualityMonitor:
         Returns:
             Trend direction (improving, declining, stable)
         """
-        if len(values) < 2:
+        if len(values) < MIN_ITERATIONS_FOR_COMPARISON:
             return "insufficient_data"
 
-        recent = values[-3:] if len(values) >= 3 else values
+        recent = values[-MIN_ITERATIONS_FOR_TREND:] if len(values) >= MIN_ITERATIONS_FOR_TREND else values
 
         if all(recent[i + 1] > recent[i] for i in range(len(recent) - 1)):
             return "improving"
@@ -226,7 +230,7 @@ def check_test_coverage(project_root: Path = Path()) -> float | None:
                     if "%" in part:
                         return float(part.replace("%", ""))
 
-    except Exception as e:
+    except (OSError, subprocess.SubprocessError, ValueError) as e:
         logger.warning(f"Could not check test coverage: {e}")
 
     return None

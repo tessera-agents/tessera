@@ -147,13 +147,7 @@ class PhaseExecutor:
         Returns:
             List of subtask definitions to create
         """
-        subtasks = []
-
-        for result in sub_phase_results:
-            if result.get("type") == "subtask" and result.get("created"):
-                subtasks.append(result)
-
-        return subtasks
+        return [result for result in sub_phase_results if result.get("type") == "subtask" and result.get("created")]
 
     def execute_phase(self, tasks: list[Any], phase_name: str | None = None) -> dict[str, Any]:
         """
@@ -227,8 +221,7 @@ class PhaseExecutor:
 
             elif sp_type == "checklist":
                 instructions.append(f"✓ {sp_name}: Validate the following:")
-                for question in sp.get("questions", []):
-                    instructions.append(f"  - {question}")
+                instructions.extend(f"  - {question}" for question in sp.get("questions", []))
 
             elif sp_type == "subtask":
                 agent = sp.get("agent", "unknown")

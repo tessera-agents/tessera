@@ -292,7 +292,7 @@ Respond in JSON format:
             json_match = re.search(r"\{.*\}", content, re.DOTALL)
             if json_match:
                 return json.loads(json_match.group())
-            raise ValueError(f"Failed to parse JSON response: {e}")
+            raise ValueError(f"Failed to parse JSON response: {e}") from e
 
     def synthesize_results(self, task_id: str) -> str:
         """
