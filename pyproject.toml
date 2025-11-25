@@ -82,66 +82,43 @@ build-backend = "hatchling.build"
 cache-dir = ".cache/uv"
 
 [tool.ruff]
-line-length = 100
+line-length = 120
 target-version = "py313"
 cache-dir = ".cache/ruff"
 
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
-    "D",       # pydocstyle - add selectively
+    "D",       # pydocstyle
     "COM812",  # Trailing comma (formatter conflict)
-    "ISC001",  # Implicit string concat (formatter conflict)
-    "EM",      # Error message strings (pragmatic)
-    "FBT",     # Boolean positional args (common pattern)
-    "TRY003",  # Long exception messages (readable errors)
-    "TRY300",  # try-else pattern (not always clearer)
-    "TRY400",  # logging.exception vs logging.error (prefer explicit)
-    "B904",    # Exception chaining (not always needed)
-    "C901",    # Complexity (some functions naturally complex)
-    "PLR0911", # Too many returns
-    "PLR0912", # Too many branches
-    "PLR0913", # Too many arguments
-    "PLR0915", # Too many statements
-    "PLR2004", # Magic values (context-dependent)
-    "TID252",  # Relative imports (fine for internal modules)
-    "G004",    # Logging f-strings (modern idiom)
-    "S603",    # subprocess without shell check (we control input)
-    "S607",    # Partial executable path (intentional)
-    "S105",    # Hardcoded password (false positives)
-    "S106",    # Hardcoded password in arg (false positives)
-    "S108",    # Hardcoded temp file (intentional)
-    "DTZ",     # Datetime without timezone (not needed for local use)
-    "RUF001",  # Ambiguous unicode (false positives)
-    "PTH123",  # open() vs Path.open() (open() is fine)
-    "PLC0415", # Import at top (acceptable in some contexts)
-    "SIM117",  # Multiple with statements (readable)
-    "TC003",   # Move stdlib imports to TYPE_CHECKING (not needed)
-    "PLW0603", # Global statements (intentional for singletons)
-    "ARG002",  # Unused method args (interface compliance)
-    "PERF401", # List comprehension (readability over micro-optimization)
-    "PT011",   # Pytest raises too broad (pragmatic)
-    "RUF043",  # Pytest raises pattern (pragmatic)
-    "B007",    # Unused loop var (intentional in some cases)
-    "PLW2901", # Redefined loop name (readability)
-    "RUF012",  # Mutable class default (intentional)
-    "S608",    # Hardcoded SQL (not user input)
-    "TRY401",  # Verbose logging (readable)
-    "ERA001",  # Commented code (intentional examples)
-    "PTH207",  # glob vs Path.glob (both fine)
-    "S110",    # try-except-pass (intentional suppression)
-    "SIM102",  # Collapsible if (readability)
-    "SIM103",  # Needless bool (readability)
-    "TRY301",  # raise in try (acceptable pattern)
-    "PGH003",  # Blanket type ignore (technical debt, will fix)
-    "B023",    # Function uses loop variable (careful usage)
-    "BLE001",  # Blind except (catch Exception is pragmatic)
-    "ANN401",  # Any type (needed for dynamic/generic code)
-    "E501",    # Line too long (formatter handles most cases)
-    "SLF001",  # Private member access (intentional in tests/internal)
-    "F811",    # Redefined (will fix in tests)
-    "PLW0602", # Global variable (singletons)
+    "ISC001",  # Implicit concat (formatter conflict)
+    "ANN401",  # Any type (dynamic code)
+    "EM101",   # Exception messages (approved)
+    "EM102",   # Exception f-strings (approved)
+    "TRY003",  # Raise vanilla (same as EM)
+    "FBT",     # Boolean args (approved)
+    "G004",    # Logging f-strings (approved)
+    "PLC0415", # Lazy imports (approved)
+    "TID252",  # Relative imports (approved)
     "ARG001",  # Unused arg (interface)
+    "ARG002",  # Unused method arg (interface)
+    "PLW0603", # Global statement (singletons)
+    "TRY300",  # try-else
+    "TRY301",  # raise in try
+    "S603",    # subprocess
+    "S607",    # Partial path
+    "S608",    # SQL
+    "SLF001",  # Private member
+    "RUF001",  # Ambiguous unicode
+    "RUF012",  # Mutable class
+    "ERA001",  # Commented code
+    "PLW0602", # Global read-only
+    "PLW2901", # Redefined loop
+    "TRY401",  # Verbose logging
+    "SIM102",  # Nested if
+    "SIM103",  # Needless bool
+    "PLR0911", # Too many returns
+    "E402",    # Import not at top
 ]
 
 [tool.ruff.format]
@@ -198,7 +175,7 @@ addopts = [
     "--cov-report=term-missing:skip-covered",
     "--cov-report=html",
     "--cov-branch",
-    "--cov-fail-under=70",
+    "--cov-fail-under=75",
 ]
 markers = [
     "unit: Unit tests for individual components",

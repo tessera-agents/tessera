@@ -19,9 +19,7 @@ class ModelValidator:
     """Validate configured models against provider's available models."""
 
     @staticmethod
-    def fetch_available_models(
-        base_url: str, api_key: str, timeout: float = 10.0
-    ) -> list[str] | None:
+    def fetch_available_models(base_url: str, api_key: str, timeout: float = 10.0) -> list[str] | None:
         """
         Fetch available models from the /v1/models endpoint.
 
@@ -60,7 +58,7 @@ class ModelValidator:
             return None
 
     @staticmethod
-    def validate_models(config: LLMConfig, strict: bool = True) -> bool:
+    def validate_models(config: LLMConfig, strict: bool = True) -> bool:  # noqa: C901, PLR0912
         """
         Validate that configured models are available.
 
@@ -151,9 +149,7 @@ def validate_config_models(config: LLMConfig, strict: bool = True) -> bool:
     return ModelValidator.validate_models(config, strict=strict)
 
 
-def list_available_models(
-    base_url: str = "http://localhost:3000/v1", api_key: str = "dummy"
-) -> None:
+def list_available_models(base_url: str = "http://localhost:3000/v1", api_key: str = "dummy") -> None:
     """
     Convenience function to list available models.
 

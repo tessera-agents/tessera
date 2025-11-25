@@ -115,7 +115,7 @@ class CopilotProxyManager:
             logger.exception("✗ npm not found. Please install Node.js first.")
             return False
 
-    def start(self, wait_for_ready: bool = True, timeout: float = 30.0) -> bool:
+    def start(self, wait_for_ready: bool = True, timeout: float = 30.0) -> bool:  # noqa: C901
         """
         Start the copilot-api proxy server.
 

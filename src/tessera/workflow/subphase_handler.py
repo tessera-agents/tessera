@@ -44,7 +44,7 @@ class SubPhaseHandler:
         for pattern in required_outputs:
             # Expand glob pattern
             # Use glob for pattern matching (Path.glob doesn't support ** in middle of path)
-            matches = list(glob.glob(str(self.project_root / pattern), recursive=True))
+            matches = list(glob.glob(str(self.project_root / pattern), recursive=True))  # noqa: PTH207
 
             if not matches:
                 missing_files.append(pattern)

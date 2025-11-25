@@ -66,9 +66,7 @@ class PanelistAgent:
         self.system_prompt = system_prompt
         self.scoring_weights = scoring_weights
 
-    def ask_question(
-        self, task_description: str, question_bank: list[dict[str, str]]
-    ) -> dict[str, str]:
+    def ask_question(self, task_description: str, question_bank: list[dict[str, str]]) -> dict[str, str]:
         """
         Ask a question from the question bank, tailored to this panelist's focus.
 
@@ -310,7 +308,7 @@ class PanelSystem:
 
         return self.panelists
 
-    def conduct_panel_interview(
+    def conduct_panel_interview(  # noqa: C901, PLR0912
         self,
         task_description: str,
         candidates: list[str],
@@ -363,11 +361,7 @@ class PanelSystem:
 
                 # Candidate answers
                 answer_response = candidate_llms[candidate].invoke(
-                    [
-                        HumanMessage(
-                            content=f"Task: {task_description}\n\nQuestion: {question['text']}"
-                        )
-                    ]
+                    [HumanMessage(content=f"Task: {task_description}\n\nQuestion: {question['text']}")]
                 )
                 answer = answer_response.content
 
@@ -392,9 +386,7 @@ class PanelSystem:
             transcript["rounds"].append(candidate_transcript)
 
         # Tally votes
-        vote_counts: dict[str, dict[str, int]] = {
-            candidate: {"HIRE": 0, "PASS": 0} for candidate in candidates
-        }
+        vote_counts: dict[str, dict[str, int]] = {candidate: {"HIRE": 0, "PASS": 0} for candidate in candidates}
 
         for ballot in all_ballots:
             if ballot.vote == Vote.HIRE:
@@ -467,9 +459,7 @@ class PanelSystem:
         Returns:
             Vote summary
         """
-        vote_counts: dict[str, dict[str, int]] = {
-            candidate: {"HIRE": 0, "PASS": 0} for candidate in result.candidates
-        }
+        vote_counts: dict[str, dict[str, int]] = {candidate: {"HIRE": 0, "PASS": 0} for candidate in result.candidates}
 
         for ballot in result.ballots:
             if ballot.vote == Vote.HIRE:

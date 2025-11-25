@@ -102,7 +102,7 @@ class Vote(str, Enum):
     """Vote options for panel decisions."""
 
     HIRE = "hire"
-    PASS = "pass"
+    PASS = "pass"  # noqa: S105
 
 
 class Ballot(BaseModel):
