@@ -137,8 +137,7 @@ class CostPredictor:
 
         total_estimated_cost = decomposition_est["estimated_cost_usd"] + total_subtask_cost
         total_estimated_tokens = (
-            decomposition_est["estimated_total_tokens"]
-            + subtask_est["estimated_total_tokens"] * num_subtasks
+            decomposition_est["estimated_total_tokens"] + subtask_est["estimated_total_tokens"] * num_subtasks
         )
 
         return {

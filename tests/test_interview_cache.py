@@ -68,9 +68,7 @@ class TestInterviewCache:
     def test_cache_expiration(self):
         """Test cache entries expire."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            cache = InterviewCache(
-                cache_file=Path(tmpdir) / "cache.json", ttl_hours=0
-            )  # Immediate expiration
+            cache = InterviewCache(cache_file=Path(tmpdir) / "cache.json", ttl_hours=0)  # Immediate expiration
 
             cache.set("agent1", "hash1", {"data": "test"})
 

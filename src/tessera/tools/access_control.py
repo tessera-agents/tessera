@@ -170,9 +170,7 @@ class ToolAccessControl:
         """
         return {
             "max_risk_level": self.max_risk_level.value,
-            "require_approval_above": self.require_approval_above.value
-            if self.require_approval_above
-            else None,
+            "require_approval_above": self.require_approval_above.value if self.require_approval_above else None,
             "tool_overrides": len(self.tool_overrides),
             "agent_permissions": len(self.agent_permissions),
         }

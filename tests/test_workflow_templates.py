@@ -138,9 +138,7 @@ class TestWorkflowTemplateStorage:
 
             # Save multiple templates
             for name in ["template1", "template2", "template3"]:
-                template = WorkflowTemplate(
-                    name=name, description="Test", complexity="simple", phases=[]
-                )
+                template = WorkflowTemplate(name=name, description="Test", complexity="simple", phases=[])
                 storage.save(template)
 
             templates = storage.list_templates()
@@ -156,9 +154,7 @@ class TestWorkflowTemplateStorage:
             storage = WorkflowTemplateStorage(Path(tmpdir))
 
             # Save template
-            template = WorkflowTemplate(
-                name="to-delete", description="Test", complexity="simple", phases=[]
-            )
+            template = WorkflowTemplate(name="to-delete", description="Test", complexity="simple", phases=[])
             storage.save(template)
 
             # Delete
