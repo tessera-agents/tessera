@@ -174,10 +174,61 @@ git remote -v
      --base main \
      --head wgordon17:feat/my-feature \
      --title "feat(scope): description" \
-     --body "PR description"
+     --body "Brief description"
    ```
 
    Or visit: https://github.com/tessera-agents/tessera/compare
+
+## Pull Request Guidelines
+
+**Keep PR descriptions brief:**
+- State what changed and why
+- Use bullet points for multiple changes
+- Reference related issues/PRs
+- No verification sections, file lists, or checklists
+
+**DO:**
+```
+Fixes CI failures from #13:
+
+1. Ruff violations in tests/
+   - Expanded per-file-ignores for test files
+   - Added PLR2004 (magic values), PLR0913 (many args), SIM117 (nested with)
+
+2. Documentation build failures (mkdocs --strict)
+   - Fixed 10 broken links to non-existent documentation
+   - Redirected links to existing relevant pages
+```
+
+**DON'T:**
+```
+## Summary
+This PR addresses CI failures that occurred after merging #13...
+[Multiple paragraphs of context]
+
+## Changes
+### 1. Ruff Configuration
+We needed to expand the per-file-ignores because...
+[Detailed rationale for each change]
+
+## Verification
+- ✓ ruff check: 0 violations
+- ✓ mkdocs build: passed
+- ✓ tests: 392 passing
+[Test results that CI already shows]
+
+## Files Changed
+- pyproject.toml
+- docs/index.md
+[List of every file]
+
+## Checklist
+- [x] Tests pass
+- [x] Documentation builds
+[Obvious requirements]
+```
+
+The bad example includes unnecessary context, detailed rationale, verification results, file listings, and checklists. Just state what changed and why.
 
 6. **After PR is merged:**
    ```bash
