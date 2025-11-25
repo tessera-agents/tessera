@@ -5,7 +5,7 @@ Caches interview results to avoid re-interviewing agents unnecessarily.
 """
 
 import json
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -13,6 +13,10 @@ from .config.xdg import get_tessera_cache_dir
 from .logging_config import get_logger
 
 logger = get_logger(__name__)
+
+# Re-interview thresholds
+_FAILURE_THRESHOLD = 3  # Re-interview after 3 failures
+_OFF_TOPIC_THRESHOLD = 2  # Re-interview after 2 off-topic responses
 
 
 class InterviewCache:
@@ -48,14 +52,14 @@ class InterviewCache:
             return
 
         try:
-            with open(self.cache_file) as f:
+            with self.cache_file.open() as f:
                 self._cache = json.load(f)
 
             # Clean expired entries
             self._clean_expired()
 
-        except Exception as e:
-            logger.warning(f"Failed to load interview cache: {e}")
+        except (OSError, ValueError):
+            logger.warning(f"Failed to load interview cache from {self.cache_file}")
             self._cache = {}
 
     def _save_cache(self) -> None:
@@ -63,15 +67,15 @@ class InterviewCache:
         try:
             self.cache_file.parent.mkdir(parents=True, exist_ok=True)
 
-            with open(self.cache_file, "w") as f:
+            with self.cache_file.open("w") as f:
                 json.dump(self._cache, f, indent=2)
 
-        except Exception as e:
-            logger.warning(f"Failed to save interview cache: {e}")
+        except OSError:
+            logger.warning(f"Failed to save interview cache to {self.cache_file}")
 
     def _clean_expired(self) -> None:
         """Remove expired cache entries."""
-        now = datetime.now()
+        now = datetime.now(UTC)
         expired_keys = []
 
         for key, entry in self._cache.items():
@@ -122,7 +126,7 @@ class InterviewCache:
         # Check if expired
         try:
             cached_at = datetime.fromisoformat(entry["cached_at"])
-            if datetime.now() - cached_at > self.ttl:
+            if datetime.now(UTC) - cached_at > self.ttl:
                 del self._cache[key]
                 self._save_cache()
                 return None
@@ -146,7 +150,7 @@ class InterviewCache:
         self._cache[key] = {
             "agent_name": agent_name,
             "config_hash": config_hash,
-            "cached_at": datetime.now().isoformat(),
+            "cached_at": datetime.now(UTC).isoformat(),
             "result": interview_result,
         }
 
@@ -163,9 +167,7 @@ class InterviewCache:
         Returns:
             Number of entries invalidated
         """
-        keys_to_remove = [
-            key for key in self._cache if self._cache[key].get("agent_name") == agent_name
-        ]
+        keys_to_remove = [key for key in self._cache if self._cache[key].get("agent_name") == agent_name]
 
         for key in keys_to_remove:
             del self._cache[key]
@@ -210,10 +212,10 @@ class InterviewCache:
             return (True, "no_cached_interview")
 
         # Re-interview triggers
-        if recent_failures >= 3:
+        if recent_failures >= _FAILURE_THRESHOLD:
             return (True, f"high_failure_rate ({recent_failures} failures)")
 
-        if off_topic_count >= 2:
+        if off_topic_count >= _OFF_TOPIC_THRESHOLD:
             return (True, f"frequent_off_topic ({off_topic_count} times)")
 
         return (False, "cached_interview_valid")
