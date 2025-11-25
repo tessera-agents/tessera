@@ -167,7 +167,7 @@ Tessera uses:
 
 - [Installation Guide](getting-started/installation.md)
 - [Quick Start Tutorial](getting-started/quickstart.md)
-- [Configuration Reference](reference/configuration.md)
+- [Configuration Guide](user-guide/configuration.md)
 
 ---
 

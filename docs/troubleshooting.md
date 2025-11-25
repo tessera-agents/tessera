@@ -344,7 +344,7 @@ export VERTEX_LOCATION=us-east5
 
 ## Still Stuck?
 
-- Read the [Configuration Guide](configuration.md)
-- Check [Multi-Agent Execution](multi-agent.md)
+- Read the [Configuration Guide](user-guide/configuration.md)
+- Check [Multi-Agent Execution](user-guide/multi-agent.md)
 - Review [Examples](https://github.com/tessera-agents/tessera/tree/main/examples)
 - Ask in [GitHub Discussions](https://github.com/tessera-agents/tessera/discussions)

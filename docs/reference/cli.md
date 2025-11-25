@@ -286,6 +286,6 @@ tessera attach sess-20251116-abc123
 
 ## Next Steps
 
-- [Configuration Reference](configuration.md)
+- [Configuration Guide](../user-guide/configuration.md)
 - [Agent System](../user-guide/agents.md)
-- [Interactive Mode Guide](../user-guide/interactive-mode.md)
+- [Multi-Agent Execution](../user-guide/multi-agent.md)
