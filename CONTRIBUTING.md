@@ -174,10 +174,54 @@ git remote -v
      --base main \
      --head wgordon17:feat/my-feature \
      --title "feat(scope): description" \
-     --body "PR description"
+     --body "Brief description"
    ```
 
    Or visit: https://github.com/tessera-agents/tessera/compare
+
+## Pull Request Guidelines
+
+**Keep PR descriptions concise:**
+- List what changed, not why or how
+- Use bullet points for clarity
+- Include verification results if relevant
+- Reference related issues/PRs
+
+**DO:**
+```
+Fixes CI failures from #13:
+
+1. Ruff violations
+   - Expanded test ignores
+   - Added PLR2004, SIM117
+
+2. Docs build
+   - Fixed 10 broken links
+
+Verified:
+- ruff: ✓ 0 violations
+- tests: ✓ 392 passing
+```
+
+**DON'T:**
+```
+## Summary
+[Paragraphs explaining the problem...]
+
+## Rationale
+[Why each change was made...]
+
+## Files Changed
+- file1.py
+- file2.py
+[Long lists...]
+
+## Checklist
+- [x] Tests pass
+[Obvious items...]
+```
+
+Avoid: rationale, file listings, code blocks, checklists, verbose explanations.
 
 6. **After PR is merged:**
    ```bash
