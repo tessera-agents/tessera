@@ -4,9 +4,8 @@ Session management for background execution and attach/detach.
 Allows starting tasks in background, detaching, and re-attaching later.
 """
 
-import asyncio
 import json
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -52,7 +51,7 @@ class Session:
         """
         self.session_id = session_id or str(uuid4())
         self.objective = objective
-        self.created_at = created_at or datetime.now()
+        self.created_at = created_at or datetime.now(UTC)
         self.status = SessionStatus.CREATED
         self.started_at: datetime | None = None
         self.completed_at: datetime | None = None
@@ -97,9 +96,7 @@ class Session:
         session = cls(
             session_id=data["session_id"],
             objective=data.get("objective", ""),
-            created_at=datetime.fromisoformat(data["created_at"])
-            if data.get("created_at")
-            else None,
+            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else None,
         )
 
         session.status = SessionStatus(data["status"])
@@ -121,13 +118,13 @@ class Session:
     def start(self) -> None:
         """Mark session as started."""
         self.status = SessionStatus.RUNNING
-        self.started_at = datetime.now()
+        self.started_at = datetime.now(UTC)
 
     def pause(self) -> None:
         """Pause session execution."""
         if self.status == SessionStatus.RUNNING:
             self.status = SessionStatus.PAUSED
-            self.paused_at = datetime.now()
+            self.paused_at = datetime.now(UTC)
 
     def resume(self) -> None:
         """Resume paused session."""
@@ -143,7 +140,7 @@ class Session:
             result: Execution result
         """
         self.status = SessionStatus.COMPLETED
-        self.completed_at = datetime.now()
+        self.completed_at = datetime.now(UTC)
         self.result = result
 
     def fail(self, error: str) -> None:
@@ -154,13 +151,13 @@ class Session:
             error: Error message
         """
         self.status = SessionStatus.FAILED
-        self.completed_at = datetime.now()
+        self.completed_at = datetime.now(UTC)
         self.error = error
 
     def cancel(self) -> None:
         """Cancel session execution."""
         self.status = SessionStatus.CANCELLED
-        self.completed_at = datetime.now()
+        self.completed_at = datetime.now(UTC)
 
     def add_task(self, task: dict[str, Any]) -> None:
         """
@@ -193,7 +190,7 @@ class SessionManager:
         self.storage_dir.mkdir(parents=True, exist_ok=True)
 
         self._active_sessions: dict[str, Session] = {}
-        self._background_tasks: dict[str, asyncio.Task] = {}
+        self._background_tasks: dict[str, Any] = {}  # asyncio.Task
 
         logger.debug(f"SessionManager: {self.storage_dir}")
 
@@ -255,7 +252,7 @@ class SessionManager:
                 session = self._load_session(session_file.stem)
                 if session and (status is None or session.status == status):
                     sessions.append(session)
-            except Exception as e:
+            except (OSError, ValueError) as e:
                 logger.warning(f"Failed to load session {session_file.stem}: {e}")
 
         return sorted(sessions, key=lambda s: s.created_at, reverse=True)
@@ -363,10 +360,10 @@ class SessionManager:
         session_file = self.storage_dir / f"{session.session_id}.json"
 
         try:
-            with open(session_file, "w") as f:
+            with session_file.open("w") as f:
                 json.dump(session.to_dict(), f, indent=2)
-        except Exception as e:
-            logger.error(f"Failed to save session {session.session_id}: {e}")
+        except OSError:
+            logger.exception(f"Failed to save session {session.session_id}")
 
     def _load_session(self, session_id: str) -> Session | None:
         """Load session from disk."""
@@ -376,7 +373,7 @@ class SessionManager:
             return None
 
         try:
-            with open(session_file) as f:
+            with session_file.open() as f:
                 data = json.load(f)
 
             session = Session.from_dict(data)
@@ -384,8 +381,8 @@ class SessionManager:
 
             return session
 
-        except Exception as e:
-            logger.error(f"Failed to load session {session_id}: {e}")
+        except (OSError, ValueError):
+            logger.exception(f"Failed to load session {session_id}")
             return None
 
 
