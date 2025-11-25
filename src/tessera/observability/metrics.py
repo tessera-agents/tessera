@@ -83,9 +83,13 @@ class MetricsStore:
         # Create indexes
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_task_agent ON task_assignments(agent_name)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_task_status ON task_assignments(status)")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_task_assigned_at ON task_assignments(assigned_at)")
+        cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_task_assigned_at ON task_assignments(assigned_at)"
+        )
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_perf_agent ON agent_performance(agent_name)")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_perf_timestamp ON agent_performance(timestamp)")
+        cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_perf_timestamp ON agent_performance(timestamp)"
+        )
 
         conn.commit()
         conn.close()
@@ -132,7 +136,7 @@ class MetricsStore:
         conn.commit()
         conn.close()
 
-    def update_task_status(  # noqa: PLR0913
+    def update_task_status(
         self,
         task_id: str,
         status: str,
@@ -210,11 +214,13 @@ class MetricsStore:
         """Get started_at timestamp for a task."""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
-        result = cursor.execute("SELECT started_at FROM task_assignments WHERE task_id = ?", (task_id,)).fetchone()
+        result = cursor.execute(
+            "SELECT started_at FROM task_assignments WHERE task_id = ?", (task_id,)
+        ).fetchone()
         conn.close()
         return result[0] if result and result[0] else None
 
-    def record_agent_performance(  # noqa: PLR0913
+    def record_agent_performance(
         self,
         agent_name: str,
         task_id: str,

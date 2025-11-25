@@ -64,15 +64,21 @@ def load_config(custom_path: str | None = None) -> TesseraSettings:
 
 
 @app.command()
-def main(  # noqa: PLR0913
-    task: Annotated[str, typer.Argument(help="Task description. If not provided, starts interactive mode.")] = "",
+def main(
+    task: Annotated[
+        str, typer.Argument(help="Task description. If not provided, starts interactive mode.")
+    ] = "",
     dry_run: Annotated[bool, typer.Option("--dry-run", help="Show plan without executing")] = False,
-    background: Annotated[bool, typer.Option("--background", "-b", help="Run in background mode")] = False,
+    background: Annotated[
+        bool, typer.Option("--background", "-b", help="Run in background mode")
+    ] = False,
     multi_agent: Annotated[
         bool, typer.Option("--multi-agent", "-m", help="Use multi-agent execution (v0.3.0)")
     ] = False,
     max_parallel: Annotated[int, typer.Option("--max-parallel", help="Max parallel agents")] = 3,
-    config_file: Annotated[str, typer.Option("--config", "-c", help="Custom config file path")] = "",
+    config_file: Annotated[
+        str, typer.Option("--config", "-c", help="Custom config file path")
+    ] = "",
 ) -> None:
     """
     Main entry point for Tessera.
@@ -135,12 +141,16 @@ def init() -> None:
     api_key_env = ""
     if provider != "ollama":
         console.print(f"\n[dim]You'll need an API key for {provider}.[/dim]")
-        has_key = Confirm.ask(f"Do you have a {provider.upper()}_API_KEY environment variable set?", default=True)
+        has_key = Confirm.ask(
+            f"Do you have a {provider.upper()}_API_KEY environment variable set?", default=True
+        )
 
         if has_key:
             api_key_env = f"{provider.upper()}_API_KEY"
         else:
-            console.print(f"\n[yellow]Please set {provider.upper()}_API_KEY in your environment:[/yellow]")
+            console.print(
+                f"\n[yellow]Please set {provider.upper()}_API_KEY in your environment:[/yellow]"
+            )
             console.print(f"  export {provider.upper()}_API_KEY=your-key-here\n")
 
     # 3. Default model
@@ -191,7 +201,9 @@ def init() -> None:
 
     console.print("[yellow]Next steps:[/yellow]")
     console.print(f"  1. Review config: [dim]{config_file}[/dim]")
-    console.print(f"  2. Set API key: [dim]export {api_key_env or 'YOUR_PROVIDER'}_API_KEY=...[/dim]")
+    console.print(
+        f"  2. Set API key: [dim]export {api_key_env or 'YOUR_PROVIDER'}_API_KEY=...[/dim]"
+    )
     console.print("  3. Run Tessera: [dim]tessera[/dim]\n")
 
     # Test config load

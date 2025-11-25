@@ -18,7 +18,7 @@ from tessera.supervisor import SupervisorAgent
 from tessera.workflow import PhaseExecutor
 
 
-def execute_main(  # noqa: C901, PLR0912, PLR0913, PLR0915
+def execute_main(
     task: str,
     dry_run: bool,
     background: bool,
@@ -113,7 +113,9 @@ def execute_main(  # noqa: C901, PLR0912, PLR0913, PLR0915
             set_span_attributes(agent_name="supervisor", task_id=task_id, task_type="direct")
 
             # Get supervisor config
-            supervisor_config = settings.agents.definitions[0] if settings.agents.definitions else None
+            supervisor_config = (
+                settings.agents.definitions[0] if settings.agents.definitions else None
+            )
 
             if supervisor_config:
                 agent_model = supervisor_config.model
@@ -145,7 +147,9 @@ def execute_main(  # noqa: C901, PLR0912, PLR0913, PLR0915
 
             if dry_run:
                 console.print("[yellow]Dry-run complete - no execution performed.[/yellow]\n")
-                metrics_store.update_task_status(task_id, "completed", result_summary="Dry-run only")
+                metrics_store.update_task_status(
+                    task_id, "completed", result_summary="Dry-run only"
+                )
                 return
 
             # Create supervisor agent
@@ -170,8 +174,12 @@ def execute_main(  # noqa: C901, PLR0912, PLR0913, PLR0915
                 if not api_key:
                     console.print("\n[red]Error:[/red] No API key found")
                     console.print(f"Please set: export {api_key_name}=your-key-here")
-                    console.print(f"Or configure 1Password: OP_{agent_provider.upper()}_ITEM=op://...\n")
-                    metrics_store.update_task_status(task_id, "failed", error_message="Missing API key")
+                    console.print(
+                        f"Or configure 1Password: OP_{agent_provider.upper()}_ITEM=op://...\n"
+                    )
+                    metrics_store.update_task_status(
+                        task_id, "failed", error_message="Missing API key"
+                    )
                     import typer
 
                     raise typer.Exit(3)
@@ -214,7 +222,9 @@ def execute_main(  # noqa: C901, PLR0912, PLR0913, PLR0915
                     llm_calls_count=execution_result.get("tasks_total", 0),
                 )
 
-                console.print(f"[green]✓[/green] Multi-agent execution completed in {duration:.1f}s\n")
+                console.print(
+                    f"[green]✓[/green] Multi-agent execution completed in {duration:.1f}s\n"
+                )
                 return
 
             console.print("[yellow]Executing task with supervisor (single-agent)...[/yellow]\n")
@@ -273,7 +283,9 @@ def execute_main(  # noqa: C901, PLR0912, PLR0913, PLR0915
                 if current_phase:
                     console.print(f"[dim]Current phase: {current_phase.name}[/dim]")
 
-                    subphase_results = phase_executor.apply_subphases_to_task(task_id=task_id, task_result=result)
+                    subphase_results = phase_executor.apply_subphases_to_task(
+                        task_id=task_id, task_result=result
+                    )
 
                     for sp_result in subphase_results:
                         sp_name = sp_result.get("sub_phase")

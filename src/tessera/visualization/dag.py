@@ -141,7 +141,7 @@ class WorkflowDAG:
             List of batches, where each batch can execute in parallel
         """
         # Calculate in-degree for each node
-        in_degree = {task_id: 0 for task_id in self.tasks}
+        in_degree = dict.fromkeys(self.tasks, 0)
 
         for source, target in self.edges:
             in_degree[target] += 1

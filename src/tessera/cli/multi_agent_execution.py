@@ -13,7 +13,7 @@ from tessera.observability import CostCalculator, MetricsStore
 from tessera.workflow import AgentPool, MultiAgentExecutor
 
 
-def execute_multi_agent(  # noqa: PLR0913
+def execute_multi_agent(
     task_description: str,
     settings: TesseraSettings,
     supervisor: Any,
