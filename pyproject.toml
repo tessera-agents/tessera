@@ -64,7 +64,7 @@ dev = [
     "pytest-cov>=4.1.0",
     "pytest-mock>=3.12.0",
     "ruff>=0.6.0",
-    "mypy>=1.11.0",
+    "basedpyright>=1.21.0",
 ]
 doc = [
     "mkdocs>=1.6.1",
@@ -131,26 +131,31 @@ convention = "google"
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = [
-    "S101",    # assert usage
-    "PLR2004", # Magic values
-    "ARG",     # Unused pytest fixtures
+    "S10",     # Security false positives in tests
+    "PT011",   # pytest.raises without match
+    "RUF043",  # Unpacked dict in for loop
+    "PGH003",  # Type ignore without code
+    "B023",    # Function definition in loop
+    "B007",    # Unused loop variable
+    "PLR2004", # Magic value in comparison (test assertions)
+    "PLR0913", # Too many arguments (fixtures in tests)
+    "PERF401", # Manual list comprehension (readability in tests)
+    "SIM117",  # Nested with statements (test mocking)
     "ANN",     # Type annotations
     "SLF001",  # Private member access
-    "PLC0415", # Import placement
-]
-"src/tessera/cli/*" = [
-    "T201",    # print() allowed in CLI
 ]
 
-[tool.mypy]
-python_version = "3.13"
-strict = false
-check_untyped_defs = true
-disallow_untyped_defs = false
-disallow_any_generics = false
-warn_return_any = false
-cache_dir = ".cache/mypy"
-disable_error_code = ["type-arg", "no-any-return"]
+[tool.basedpyright]
+pythonVersion = "3.13"
+typeCheckingMode = "standard"
+reportMissingTypeStubs = false
+reportUnknownMemberType = false
+reportUnknownArgumentType = false
+reportUnknownVariableType = false
+reportUntypedFunctionDecorator = false
+reportUntypedClassDecorator = false
+venvPath = "."
+venv = ".cache/.venv"
 
 [tool.coverage.run]
 data_file = ".cache/.coverage"

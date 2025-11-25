@@ -31,8 +31,8 @@ jobs:
       - name: Run ruff linter
         run: uv run ruff check src/ tests/
 
-      - name: Run mypy type checker
-        run: uv run mypy src/tessera
+      - name: Run basedpyright type checker
+        run: uv run basedpyright src/tessera
         continue-on-error: true  # Don't fail CI on type errors yet
 
       - name: Run tests with coverage
