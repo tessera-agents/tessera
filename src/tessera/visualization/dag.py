@@ -143,7 +143,7 @@ class WorkflowDAG:
         # Calculate in-degree for each node
         in_degree = dict.fromkeys(self.tasks, 0)
 
-        for source, target in self.edges:
+        for _source, target in self.edges:
             in_degree[target] += 1
 
         # Topological sort with batching
@@ -202,11 +202,7 @@ class WorkflowDAG:
             return [node, *longest]
 
         # Find root nodes (no incoming edges)
-        roots = [
-            task_id
-            for task_id in self.tasks
-            if not any(target == task_id for _, target in self.edges)
-        ]
+        roots = [task_id for task_id in self.tasks if not any(target == task_id for _, target in self.edges)]
 
         # Find longest path from any root
         critical_path = []

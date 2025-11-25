@@ -93,7 +93,7 @@ class TestToolRegistry:
             description="Custom tool",
             risk_level=RiskLevel.MEDIUM,
             parameters={"arg1": "string"},
-            execute=lambda **kwargs: "result",
+            execute=lambda: "result",
             source="custom",
         )
 

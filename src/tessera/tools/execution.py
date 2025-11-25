@@ -69,9 +69,7 @@ class ToolExecutor:
         from ..workflow.action_logger import ActionType
 
         self.action_logger.log_action(
-            action_type=ActionType.COMMAND_RUN
-            if tool_name == "run_command"
-            else ActionType.AGENT_DECISION,
+            action_type=ActionType.COMMAND_RUN if tool_name == "run_command" else ActionType.AGENT_DECISION,
             description=f"Executing tool: {tool_name}",
             agent_name=self.agent_name,
             task_id=self.task_id,
@@ -86,8 +84,8 @@ class ToolExecutor:
 
             return result
 
-        except Exception as e:
-            logger.error(f"Tool {tool_name} execution failed: {e}")
+        except Exception:
+            logger.exception(f"Tool {tool_name} execution failed")
             raise
 
 

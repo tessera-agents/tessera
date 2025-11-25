@@ -4,7 +4,7 @@ FastAPI server for Tessera HTTP API.
 Provides REST API for remote execution and session management.
 """
 
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 
 from fastapi import FastAPI, HTTPException
@@ -42,7 +42,7 @@ class TaskAddRequest(BaseModel):
     dependencies: list[str] | None = None
 
 
-def create_app(session_manager: SessionManager | None = None) -> FastAPI:
+def create_app(session_manager: SessionManager | None = None) -> FastAPI:  # noqa: C901
     """
     Create FastAPI application.
 
@@ -230,7 +230,7 @@ def create_app(session_manager: SessionManager | None = None) -> FastAPI:
         task = {
             "description": request.description,
             "dependencies": request.dependencies or [],
-            "added_at": datetime.now().isoformat(),
+            "added_at": datetime.now(UTC).isoformat(),
         }
 
         session.add_task(task)

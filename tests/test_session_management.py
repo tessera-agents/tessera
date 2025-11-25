@@ -1,7 +1,7 @@
 """Tests for session management."""
 
 import tempfile
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -76,8 +76,8 @@ class TestSession:
             "session_id": "test-456",
             "objective": "Test obj",
             "status": "running",
-            "created_at": datetime.now().isoformat(),
-            "started_at": datetime.now().isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
+            "started_at": datetime.now(UTC).isoformat(),
         }
 
         session = Session.from_dict(data)
