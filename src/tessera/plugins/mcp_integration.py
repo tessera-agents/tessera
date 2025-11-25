@@ -5,6 +5,7 @@ Allows connecting to MCP servers for tool discovery and execution.
 """
 
 import json
+import os
 import subprocess
 from typing import Any
 
@@ -53,7 +54,7 @@ class MCPServer:
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-                env={**subprocess.os.environ, **self.env},
+                env={**os.environ, **self.env},
             )
 
             logger.info(f"Started MCP server: {self.name}")
