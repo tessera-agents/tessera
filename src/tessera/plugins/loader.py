@@ -97,8 +97,8 @@ class PluginLoader:
 
             return module
 
-        except Exception as e:
-            logger.error(f"Failed to load plugin {plugin_file}: {e}")
+        except (OSError, ImportError):
+            logger.exception(f"Failed to load plugin {plugin_file}")
             return None
 
     def extract_plugin_info(self, module: Any) -> Plugin | None:
@@ -145,8 +145,8 @@ class PluginLoader:
 
             return plugin
 
-        except Exception as e:
-            logger.error(f"Failed to extract plugin info: {e}")
+        except (AttributeError, ValueError):
+            logger.exception("Failed to extract plugin info")
             return None
 
     def load_all_plugins(self, manager: PluginManager | None = None) -> int:

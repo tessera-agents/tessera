@@ -63,8 +63,8 @@ class MCPServer:
 
             return True
 
-        except Exception as e:
-            logger.error(f"Failed to start MCP server {self.name}: {e}")
+        except (OSError, subprocess.SubprocessError):
+            logger.exception(f"Failed to start MCP server {self.name}")
             return False
 
     def stop(self) -> None:
@@ -104,8 +104,8 @@ class MCPServer:
 
                         logger.info(f"Discovered {len(self.tools)} tools from {self.name}")
 
-        except Exception as e:
-            logger.warning(f"Failed to discover tools from {self.name}: {e}")
+        except (OSError, ValueError):
+            logger.warning(f"Failed to discover tools from {self.name}")
 
     def call_tool(self, tool_name: str, arguments: dict[str, Any]) -> Any:
         """
@@ -145,8 +145,8 @@ class MCPServer:
                 if "error" in response:
                     raise RuntimeError(f"MCP error: {response['error']}")
 
-        except Exception as e:
-            logger.error(f"Failed to call tool {tool_name}: {e}")
+        except (OSError, ValueError, RuntimeError):
+            logger.exception(f"Failed to call tool {tool_name}")
             raise
 
         return None

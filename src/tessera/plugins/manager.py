@@ -189,8 +189,8 @@ class PluginManager:
             try:
                 result = callback(*args, **kwargs)
                 results.append(result)
-            except Exception as e:
-                logger.error(f"Hook {hook_name} callback failed: {e}")
+            except RuntimeError:
+                logger.exception(f"Hook {hook_name} callback failed")
 
         return results
 
@@ -206,8 +206,7 @@ class PluginManager:
             "enabled_plugins": sum(1 for p in self.plugins.values() if p.enabled),
             "disabled_plugins": sum(1 for p in self.plugins.values() if not p.enabled),
             "by_type": {
-                ptype.value: sum(1 for p in self.plugins.values() if p.plugin_type == ptype)
-                for ptype in PluginType
+                ptype.value: sum(1 for p in self.plugins.values() if p.plugin_type == ptype) for ptype in PluginType
             },
             "total_hooks": len(self.hooks),
         }

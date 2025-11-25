@@ -13,6 +13,9 @@ from .access_control import RiskLevel
 
 logger = get_logger(__name__)
 
+# MCP tool name format constant
+_MCP_TOOL_NAME_PARTS = 2  # Expected format: "server.tool"
+
 
 @dataclass
 class ToolDefinition:
@@ -180,8 +183,8 @@ class ToolRegistry:
                             self.register(tool)
                             discovered += 1
 
-            except Exception as e:
-                logger.error(f"Failed to discover tools from plugin {plugin.name}: {e}")
+            except RuntimeError:
+                logger.exception(f"Failed to discover tools from plugin {plugin.name}")
 
         logger.info(f"Discovered {discovered} tools from plugins")
 
@@ -201,12 +204,13 @@ class ToolRegistry:
 
         for tool_name, tool_def in all_tools.items():
             # Create tool definition from MCP tool
+            # Use default argument to bind tool_name in lambda
             mcp_tool = ToolDefinition(
                 name=tool_name,
                 description=tool_def.get("description", ""),
                 risk_level=RiskLevel.MEDIUM,  # Default for MCP tools
                 parameters=tool_def.get("parameters", {}),
-                execute=lambda **kwargs: self._execute_mcp_tool(tool_name, kwargs),
+                execute=lambda tool_name=tool_name, **kwargs: self._execute_mcp_tool(tool_name, kwargs),
                 source="mcp",
             )
 
@@ -264,7 +268,7 @@ class ToolRegistry:
 
         # Parse server name from tool_name (format: server.tool)
         parts = tool_name.split(".", 1)
-        if len(parts) != 2:
+        if len(parts) != _MCP_TOOL_NAME_PARTS:
             raise ValueError(f"Invalid MCP tool name: {tool_name}")
 
         server_name, actual_tool_name = parts
