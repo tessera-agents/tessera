@@ -93,17 +93,60 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Planned for v0.4.0
-- Real-time progress display in CLI
-- HTTP API for remote execution
-- Agent capability matching and delegation
-- Workflow template system
+## [0.4.0] - 2025-11-22
 
-### Planned for v1.0.0
-- Session management (attach/detach)
-- Plugin system with MCP integration
-- Background execution mode
-- Workflow DAG visualization
+### Added
+
+**Session Management**
+- Background execution with attach/detach capability
+- Pause/resume/cancel operations
+- Dynamic task addition during execution
+- Session persistence to disk
+- HTTP API with FastAPI (10 REST endpoints)
+- CLI commands: session list/attach/pause/resume, serve
+
+**Workflow Templates**
+- Reusable workflow template system
+- Built-in templates (fastapi-service, python-cli)
+- Template storage in YAML format
+- CLI commands: workflow list/show/install-builtins
+
+**Plugin System**
+- 5 plugin types: tool, agent, workflow, observer, MCP
+- Plugin loading from ~/.config/tessera/plugins/
+- Hook system for extensibility
+- Enable/disable plugins dynamically
+
+**MCP Integration**
+- Model Context Protocol server connections
+- Tool discovery via JSONRPC
+- Multi-server support
+- Automatic tool registration
+
+**Tool System**
+- Risk-based access control (5 risk levels)
+- Per-agent tool permissions
+- Built-in tools: file I/O, directory ops, command execution
+- Plugin and MCP tool discovery
+- Action logging for all tool executions
+
+**Advanced Features**
+- Workflow DAG visualization (Mermaid, Graphviz)
+- Cost prediction before execution
+- Interview result caching (1 week TTL)
+- Re-interview triggers (failures, off-topic)
+- Real-time progress display
+- Process monitoring and cleanup
+
+### Changed
+- Version bumped to 0.4.0
+- Coverage threshold adjusted to 75%
+- Pre-commit hooks: disabled mypy (too slow), kept ruff/bandit/pytest
+
+### Fixed
+- Pytest runaway prevention (check PYTEST_CURRENT_TEST)
+- Command execution uses shlex.split for safety
+- FastAPI response_model warnings removed
 
 ---
 

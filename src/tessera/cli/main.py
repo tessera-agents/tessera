@@ -203,9 +203,161 @@ def init() -> None:
 
 
 @app.command()
+def workflow_list() -> None:
+    """List available workflow templates."""
+    from ..workflow.templates import WorkflowTemplateStorage
+
+    storage = WorkflowTemplateStorage()
+    templates = storage.list_templates()
+
+    if not templates:
+        console.print("[yellow]No workflow templates found.[/yellow]\n")
+        console.print("Install built-in templates: [cyan]tessera workflow install-builtins[/cyan]\n")
+        return
+
+    console.print("[cyan]Available Workflow Templates:[/cyan]\n")
+
+    for template_name in templates:
+        info = storage.get_template_info(template_name)
+        if info:
+            console.print(f"• [green]{info['name']}[/green]")
+            console.print(f"  {info['description']}")
+            console.print(f"  [dim]Phases: {info['phase_count']}, Agents: {info['agent_count']}[/dim]\n")
+
+
+@app.command()
+def workflow_show(name: str) -> None:
+    """Show details of a workflow template."""
+    from ..workflow.templates import WorkflowTemplateStorage
+
+    storage = WorkflowTemplateStorage()
+    template = storage.load(name)
+
+    if template is None:
+        console.print(f"[red]Template not found:[/red] {name}\n")
+        return
+
+    console.print(f"[cyan]{template.name}[/cyan]")
+    console.print(f"{template.description}\n")
+    console.print(f"[dim]Complexity: {template.complexity}[/dim]")
+    console.print(f"[dim]Phases: {len(template.phases)}[/dim]\n")
+
+    console.print("[cyan]Phases:[/cyan]")
+    for phase in template.phases:
+        console.print(f"  • {phase.name}: {phase.description}")
+
+    if template.suggested_agents:
+        console.print("\n[cyan]Suggested Agents:[/cyan]")
+        for agent in template.suggested_agents:
+            console.print(f"  • {agent['name']} ({agent['model']})")
+
+
+@app.command()
+def workflow_install_builtins() -> None:
+    """Install built-in workflow templates."""
+    from ..workflow.templates import install_builtin_templates
+
+    count = install_builtin_templates()
+
+    console.print(f"[green]✓[/green] Installed {count} built-in templates\n")
+    console.print("List templates: [cyan]tessera workflow list[/cyan]\n")
+
+
+@app.command()
+def session_list() -> None:
+    """List all execution sessions."""
+    from ..api.session import get_session_manager
+
+    manager = get_session_manager()
+    sessions = manager.list_sessions()
+
+    if not sessions:
+        console.print("[yellow]No sessions found.[/yellow]\n")
+        return
+
+    console.print("[cyan]Execution Sessions:[/cyan]\n")
+
+    for session in sessions:
+        status_color = {
+            "created": "yellow",
+            "running": "green",
+            "paused": "yellow",
+            "completed": "green",
+            "failed": "red",
+            "cancelled": "dim",
+        }.get(session.status.value, "white")
+
+        console.print(f"• [{status_color}]{session.session_id[:8]}...[/{status_color}] - {session.objective}")
+        console.print(f"  Status: [{status_color}]{session.status.value}[/{status_color}]")
+        console.print(f"  Created: {session.created_at.strftime('%Y-%m-%d %H:%M:%S')}\n")
+
+
+@app.command()
+def session_attach(session_id: str) -> None:
+    """Attach to and monitor a session."""
+    from ..api.session import get_session_manager
+
+    manager = get_session_manager()
+    session = manager.get_session(session_id)
+
+    if session is None:
+        console.print(f"[red]Session not found:[/red] {session_id}\n")
+        raise typer.Exit(1)
+
+    console.print(f"[cyan]Session {session_id[:8]}...[/cyan]")
+    console.print(f"Objective: {session.objective}")
+    console.print(f"Status: {session.status.value}\n")
+
+    # Display session details
+    if session.tasks:
+        console.print(f"[cyan]Tasks:[/cyan] {len(session.tasks)}")
+
+
+@app.command()
+def session_pause(session_id: str) -> None:
+    """Pause a running session."""
+    from ..api.session import get_session_manager
+
+    manager = get_session_manager()
+    success = manager.pause_session(session_id)
+
+    if not success:
+        console.print(f"[red]Failed to pause session:[/red] {session_id}\n")
+        raise typer.Exit(1)
+
+    console.print(f"[green]✓[/green] Session paused: {session_id}\n")
+
+
+@app.command()
+def session_resume(session_id: str) -> None:
+    """Resume a paused session."""
+    from ..api.session import get_session_manager
+
+    manager = get_session_manager()
+    success = manager.resume_session(session_id)
+
+    if not success:
+        console.print(f"[red]Failed to resume session:[/red] {session_id}\n")
+        raise typer.Exit(1)
+
+    console.print(f"[green]✓[/green] Session resumed: {session_id}\n")
+
+
+@app.command()
+def serve(host: str = "127.0.0.1", port: int = 8000) -> None:
+    """Start Tessera API server."""
+    from ..api.server import start_server
+
+    console.print("[cyan]Starting Tessera API server...[/cyan]")
+    console.print(f"Listening on http://{host}:{port}\n")
+
+    start_server(host=host, port=port)
+
+
+@app.command()
 def version() -> None:
     """Show Tessera version information."""
-    console.print("[cyan]Tessera v0.1.0[/cyan]")
+    console.print("[cyan]Tessera v0.4.0[/cyan]")
     console.print("[dim]Multi-Agent Orchestration Framework[/dim]\n")
 
 
