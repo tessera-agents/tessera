@@ -10,8 +10,10 @@ repos:
       # Run ruff linter
       - id: ruff
         args: [--fix]
-      # Run ruff formatter
+      # Run ruff formatter (check all files for consistency)
       - id: ruff-format
+        pass_filenames: false
+        args: [src/, tests/]
 
   # Basedpyright - Static type checker (checks only changed files)
   - repo: local
