@@ -13,8 +13,16 @@ repos:
       # Run ruff formatter
       - id: ruff-format
 
-  # Basedpyright - Static type checker (run in CI, too slow for pre-commit)
-  # Run manually: uv run basedpyright src/tessera
+  # Basedpyright - Static type checker (checks only changed files)
+  - repo: local
+    hooks:
+      - id: basedpyright
+        name: basedpyright
+        entry: uv run basedpyright
+        language: system
+        types: [python]
+        pass_filenames: true
+        files: ^src/
 
   # Basic file checks
   - repo: https://github.com/pre-commit/pre-commit-hooks

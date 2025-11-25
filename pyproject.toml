@@ -148,10 +148,14 @@ convention = "google"
 [tool.basedpyright]
 pythonVersion = "3.13"
 typeCheckingMode = "standard"
+# Check declared types strictly, but don't require annotations everywhere
 reportMissingTypeStubs = false
+reportMissingParameterType = false
+reportUnannotatedClassAttribute = false
 reportUnknownMemberType = false
 reportUnknownArgumentType = false
 reportUnknownVariableType = false
+reportUnknownLambdaType = false
 reportUntypedFunctionDecorator = false
 reportUntypedClassDecorator = false
 venvPath = "."
