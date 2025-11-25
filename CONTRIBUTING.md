@@ -181,47 +181,54 @@ git remote -v
 
 ## Pull Request Guidelines
 
-**Keep PR descriptions concise:**
-- List what changed, not why or how
-- Use bullet points for clarity
-- Include verification results if relevant
+**Keep PR descriptions brief:**
+- State what changed and why
+- Use bullet points for multiple changes
 - Reference related issues/PRs
+- No verification sections, file lists, or checklists
 
 **DO:**
 ```
 Fixes CI failures from #13:
 
-1. Ruff violations
-   - Expanded test ignores
-   - Added PLR2004, SIM117
+1. Ruff violations in tests/
+   - Expanded per-file-ignores for test files
+   - Added PLR2004 (magic values), PLR0913 (many args), SIM117 (nested with)
 
-2. Docs build
-   - Fixed 10 broken links
-
-Verified:
-- ruff: ✓ 0 violations
-- tests: ✓ 392 passing
+2. Documentation build failures (mkdocs --strict)
+   - Fixed 10 broken links to non-existent documentation
+   - Redirected links to existing relevant pages
 ```
 
 **DON'T:**
 ```
 ## Summary
-[Paragraphs explaining the problem...]
+This PR addresses CI failures that occurred after merging #13...
+[Multiple paragraphs of context]
 
-## Rationale
-[Why each change was made...]
+## Changes
+### 1. Ruff Configuration
+We needed to expand the per-file-ignores because...
+[Detailed rationale for each change]
+
+## Verification
+- ✓ ruff check: 0 violations
+- ✓ mkdocs build: passed
+- ✓ tests: 392 passing
+[Test results that CI already shows]
 
 ## Files Changed
-- file1.py
-- file2.py
-[Long lists...]
+- pyproject.toml
+- docs/index.md
+[List of every file]
 
 ## Checklist
 - [x] Tests pass
-[Obvious items...]
+- [x] Documentation builds
+[Obvious requirements]
 ```
 
-Avoid: rationale, file listings, code blocks, checklists, verbose explanations.
+The bad example includes unnecessary context, detailed rationale, verification results, file listings, and checklists. Just state what changed and why.
 
 6. **After PR is merged:**
    ```bash
