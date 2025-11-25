@@ -118,7 +118,7 @@ See [Tools & Plugins Guide](tools.md) for details.
 
 ### Cost Management
 
-See [Cost Management Guide](cost-management.md) for details.
+Configure cost tracking and budget limits in the configuration file.
 
 ---
 
@@ -145,4 +145,4 @@ export ANTHROPIC_API_KEY=sk-ant-your-key
 
 - [Agent Configuration](agents.md)
 - [Tools & Plugins](tools.md)
-- [Cost Management](cost-management.md)
+- [Multi-Agent Execution](multi-agent.md)

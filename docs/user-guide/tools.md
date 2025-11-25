@@ -127,7 +127,7 @@ Tools are classified by risk:
 
 ## Tool Development
 
-See [Custom Plugins](../advanced/custom-plugins.md) for detailed plugin development guide.
+Custom tools can be created by extending the base Tool class. Documentation for plugin development is coming soon.
 
 ---
 

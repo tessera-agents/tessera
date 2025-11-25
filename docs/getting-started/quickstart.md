@@ -202,5 +202,5 @@ uvx tessera "Build a REST API with FastAPI and PostgreSQL"
 
 - [Configuration Guide](../user-guide/configuration.md)
 - [Agent System](../user-guide/agents.md)
-- [Interactive Mode](../user-guide/interactive-mode.md)
-- [Background Execution](../user-guide/background-mode.md)
+- [Multi-Agent Execution](../user-guide/multi-agent.md)
+- [Tools & Plugins](../user-guide/tools.md)
