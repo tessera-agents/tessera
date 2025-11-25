@@ -23,7 +23,7 @@ class WorkflowTemplate:
     Templates define reusable workflow patterns for common project types.
     """
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         name: str,
         description: str,
@@ -136,7 +136,7 @@ class WorkflowTemplateStorage:
 
         template_data = template.to_dict()
 
-        with open(file_path, "w") as f:
+        with file_path.open("w") as f:
             yaml.dump(template_data, f, default_flow_style=False, sort_keys=False)
 
         logger.info(f"Saved workflow template: {template.name}")
@@ -160,7 +160,7 @@ class WorkflowTemplateStorage:
             return None
 
         try:
-            with open(file_path) as f:
+            with file_path.open() as f:
                 data = yaml.safe_load(f)
 
             template = WorkflowTemplate.from_dict(data)
@@ -168,8 +168,8 @@ class WorkflowTemplateStorage:
 
             return template
 
-        except Exception as e:
-            logger.error(f"Failed to load template {name}: {e}")
+        except (OSError, ValueError):
+            logger.exception(f"Failed to load template {name}")
             return None
 
     def list_templates(self) -> list[str]:
@@ -182,9 +182,7 @@ class WorkflowTemplateStorage:
         if not self.storage_dir.exists():
             return []
 
-        templates = []
-        for file_path in self.storage_dir.glob("*.yaml"):
-            templates.append(file_path.stem)
+        templates = [file_path.stem for file_path in self.storage_dir.glob("*.yaml")]
 
         return sorted(templates)
 
@@ -208,8 +206,8 @@ class WorkflowTemplateStorage:
             logger.info(f"Deleted template: {name}")
             return True
 
-        except Exception as e:
-            logger.error(f"Failed to delete template {name}: {e}")
+        except OSError:
+            logger.exception(f"Failed to delete template {name}")
             return False
 
     def get_template_info(self, name: str) -> dict[str, Any] | None:
@@ -395,8 +393,8 @@ def install_builtin_templates() -> int:
         try:
             storage.save(template)
             installed += 1
-        except Exception as e:
-            logger.error(f"Failed to install template {template.name}: {e}")
+        except OSError:
+            logger.exception(f"Failed to install template {template.name}")
 
     logger.info(f"Installed {installed} built-in templates")
 
