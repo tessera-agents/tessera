@@ -76,16 +76,22 @@ class ModelValidator:
         # If no models configured, this is an error
         if not config.models:
             # Fetch and display available models
-            available = ModelValidator.fetch_available_models(config.base_url, config.api_key)
-            if available:
-                for _i, _model in enumerate(available, 1):
-                    pass
+            if config.api_key:
+                available = ModelValidator.fetch_available_models(config.base_url, config.api_key)
+                if available:
+                    for _i, _model in enumerate(available, 1):
+                        pass
 
             if strict:
                 sys.exit(1)
             return False
 
         # Fetch available models
+        if not config.api_key:
+            if strict:
+                sys.exit(1)
+            return False
+
         available_models = ModelValidator.fetch_available_models(config.base_url, config.api_key)
 
         if available_models is None:
