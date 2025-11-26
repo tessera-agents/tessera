@@ -90,9 +90,9 @@ class TestMemoryStore:
             facts = store.get_memories("agent1", memory_type="fact")
             assert len(facts) == 2
 
-            # Filter by confidence
+            # Filter by confidence - only 0.9 is >= 0.85
             high_conf = store.get_memories("agent1", min_confidence=0.85)
-            assert len(high_conf) == 2
+            assert len(high_conf) == 1
 
     def test_search_memories(self):
         """Test searching memories by content."""

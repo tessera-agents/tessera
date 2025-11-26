@@ -32,10 +32,9 @@ class TestGetConfigPaths:
 
         # Paths should be in precedence order (highest first)
         # Local configs should come before user configs
-        for i, _path in enumerate(paths):
-            if i > 0:
-                # Later paths should not be more specific than earlier ones
-                assert True  # Basic check that list is ordered
+        # Just check that we get a list back (paths may not exist)
+        # Source code now handles FileNotFoundError gracefully
+        assert isinstance(paths, list)
 
 
 @pytest.mark.unit
@@ -49,10 +48,12 @@ class TestXDGYamlSettingsSource:
         class TestSettings(BaseSettings):
             test_field: str = "default"
 
-        source = XDGYamlSettingsSource(TestSettings, "tessera")
+        # Initialize with a test app name that won't find config files
+        # Source code now handles FileNotFoundError gracefully
+        source = XDGYamlSettingsSource(TestSettings, "test-nonexistent-app")
 
         # Should initialize without error
-        assert source.app_name == "tessera"
+        assert source.app_name == "test-nonexistent-app"
         assert isinstance(source._merged_data, dict)
 
     def test_deep_merge(self):
@@ -75,7 +76,9 @@ class TestXDGYamlSettingsSource:
         class TestSettings(BaseSettings):
             pass
 
-        source = XDGYamlSettingsSource(TestSettings, "tessera")
+        # Use test app name that won't find config files
+        # Source code now handles FileNotFoundError gracefully
+        source = XDGYamlSettingsSource(TestSettings, "test-nonexistent-app")
         data = source()
 
         assert isinstance(data, dict)

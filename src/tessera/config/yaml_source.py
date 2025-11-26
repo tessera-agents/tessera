@@ -36,13 +36,17 @@ def get_config_paths(app_name: str = "tessera") -> list[Path]:
     paths = []
 
     # 1. Project local (highest precedence)
-    local_config = Path.cwd() / f"{app_name}.yaml"
-    if local_config.exists():
-        paths.append(local_config)
+    try:
+        local_config = Path.cwd() / f"{app_name}.yaml"
+        if local_config.exists():
+            paths.append(local_config)
 
-    alt_local = Path.cwd() / "config.yaml"
-    if alt_local.exists() and alt_local not in paths:
-        paths.append(alt_local)
+        alt_local = Path.cwd() / "config.yaml"
+        if alt_local.exists() and alt_local not in paths:
+            paths.append(alt_local)
+    except (FileNotFoundError, OSError):
+        # Current directory may have been deleted (e.g., in tests)
+        pass
 
     # 2. User config
     user_config = get_tessera_config_dir() / "config.yaml"
@@ -115,11 +119,12 @@ class XDGYamlSettingsSource(PydanticBaseSettingsSource):
                 base[key] = value
         return base
 
-    def get_field_value(self, field_name: str) -> tuple[Any, str, bool]:
+    def get_field_value(self, field: Any, field_name: str) -> tuple[Any, str, bool]:
         """
         Get field value from merged YAML data.
 
         Args:
+            field: Field information (from pydantic)
             field_name: Name of the field to retrieve
 
         Returns:

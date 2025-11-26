@@ -75,7 +75,8 @@ class TestWorkspaceManager:
                 success = manager.enter_workspace("test")
 
                 assert success is True
-                assert Path.cwd() == ws_path
+                # Resolve both paths to handle macOS /var -> /private/var symlink
+                assert Path.cwd().resolve() == ws_path.resolve()
 
             finally:
                 import os

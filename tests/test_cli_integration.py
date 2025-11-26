@@ -39,7 +39,7 @@ class TestVersionCommand:
         result = cli_runner.invoke(app, ["version"])
 
         assert result.exit_code == 0
-        assert "Tessera v0.4.0" in result.stdout
+        assert "Tessera v0.5.0" in result.stdout
         assert "Multi-Agent Orchestration Framework" in result.stdout
 
 
