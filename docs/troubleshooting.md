@@ -28,7 +28,7 @@ uv run tessera --version
 **Solution**:
 ```bash
 # Using uvx (no install needed)
-uvx tessera-agents main "your task"
+uvx tessera-agents "your task"
 
 # Or install as tool
 uv tool install tessera-agents
@@ -57,8 +57,8 @@ tessera init  # Creates ~/.config/tessera/config.yaml
 # Check YAML syntax
 python -c "import yaml; yaml.safe_load(open('~/.config/tessera/config.yaml'))"
 
-# Validate against schema
-tessera init --validate
+# Re-run init to validate
+tessera init
 ```
 
 ---
@@ -125,8 +125,8 @@ echo $GITHUB_TOKEN | cut -c1-4  # Should show: ghu_
 
 **Solution**:
 ```bash
-# Check task queue status
-tessera status
+# Check session status
+tessera session-list
 
 # Review task dependencies in logs
 cat ~/.local/share/tessera/traces.jsonl | jq '.attributes.task_id'

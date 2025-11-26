@@ -117,29 +117,14 @@ The interactive wizard will:
 ## Example
 
 ```bash
+# Interactive mode - prompts for task description
 $ tessera
 
-? What would you like to build?
-> A FastAPI backend with user authentication, PostgreSQL database,
-> and comprehensive tests.
+# Direct task execution
+$ tessera "Build a FastAPI backend with user authentication"
 
-? Complexity: Complex
-? Interview mode: Yes
-
-[Interviewer asks 8 questions about requirements...]
-
-✓ Plan generated: 32 tasks across 7 phases
-✓ Estimated cost: $8.50 | Time: 6-8 hours
-
-? Approve execution? Yes
-
-[Shows live progress with parallel agents...]
-
-✓ Project complete: ./generated_project/
-  - 45 files created
-  - 89% test coverage
-  - Security audit passed
-  - Documentation generated
+# Run without executing (plan only)
+$ tessera --dry-run "Deploy application"
 ```
 
 ---

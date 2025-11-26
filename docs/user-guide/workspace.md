@@ -99,7 +99,9 @@ manager.delete_workspace("temp_project", delete_files=True)
 
 ## Sandboxing
 
-Sandboxes provide process isolation and resource limits for safe agent execution.
+Sandboxes provide resource limits and filesystem protection for safe agent execution.
+
+**Note:** Sandboxing requires UNIX-like systems (uses the `resource` module). Network blocking uses proxy environment variables, not true network isolation. The workspace uses `chdir()` for directory isolation, not chroot-level isolation.
 
 ### Creating a Sandbox
 

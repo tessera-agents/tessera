@@ -99,6 +99,15 @@ results = memory.search_memories(
 
 ### Vector-Based Semantic Search
 
+**WARNING: Development Implementation**
+
+The `embed_text()` function is currently a **placeholder implementation** that uses hash-based fake embeddings for development and testing purposes. It does NOT provide real semantic embeddings.
+
+For production use, you must implement real embeddings using:
+- OpenAI's text-embedding-ada-002 or text-embedding-3-small
+- Google's Vertex AI embeddings
+- Other embedding providers
+
 ```python
 from tessera.memory import VectorMemoryStore, embed_text
 
@@ -106,6 +115,9 @@ vector_store = VectorMemoryStore()
 
 # Store memory with embedding
 content = "Always validate user input before database queries"
+
+# NOTE: embed_text() currently uses hash-based fake embeddings
+# Production use requires implementing real embeddings
 embedding = embed_text(content)
 
 vector_store.store(
