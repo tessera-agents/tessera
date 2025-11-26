@@ -287,6 +287,82 @@ sqlite3 ~/.local/share/tessera/metrics.db "DELETE FROM agent_performance WHERE t
 
 ---
 
+## Memory & Workspace Issues
+
+### Memory database corrupted
+
+**Problem**: Agent memory database won't load
+
+**Solution**:
+```bash
+# Backup existing database
+cp ~/.cache/tessera/agent_memory.db ~/.cache/tessera/agent_memory.db.backup
+
+# Remove corrupted database (will recreate on next use)
+rm ~/.cache/tessera/agent_memory.db
+rm ~/.cache/tessera/vector_memory.db
+```
+
+### Workspace not found
+
+**Problem**: Registered workspace missing
+
+**Solution**:
+```python
+from tessera.workspace import get_workspace_manager
+
+manager = get_workspace_manager()
+
+# List all workspaces
+for ws in manager.list_workspaces(include_archived=True):
+    print(f"{ws.name}: {ws.path} (archived: {ws.archived})")
+
+# Re-register if needed
+manager.register_workspace("my_project", Path("/path/to/project"))
+```
+
+### Sandbox permission denied
+
+**Problem**: Filesystem guard blocking operations
+
+**Solution**:
+```python
+from tessera.workspace import check_path_access, PathPermission
+from pathlib import Path
+
+# Debug permission issue
+allowed, reason = check_path_access(
+    Path("/path/to/file"),
+    PathPermission.WRITE
+)
+print(f"Allowed: {allowed}, Reason: {reason}")
+
+# If safe, add to allowed paths
+from tessera.workspace import FilesystemGuard
+guard = FilesystemGuard(workspace_root=Path.cwd())
+guard.add_allowed_path(Path("/safe/directory"))
+```
+
+### Sandbox resource limits hit
+
+**Problem**: Process killed by sandbox limits
+
+**Solution**:
+```python
+from tessera.workspace import Sandbox, SandboxConfig
+
+# Increase limits for resource-intensive tasks
+config = SandboxConfig(
+    workspace_root=Path("/project"),
+    max_memory_mb=8192,      # Increase memory
+    max_cpu_time_seconds=1800,  # Increase CPU time
+    max_file_size_mb=500     # Increase file size
+)
+sandbox = Sandbox(config)
+```
+
+---
+
 ## Getting Help
 
 ### Check Logs
@@ -346,5 +422,7 @@ export VERTEX_LOCATION=us-east5
 
 - Read the [Configuration Guide](user-guide/configuration.md)
 - Check [Multi-Agent Execution](user-guide/multi-agent.md)
+- Learn about [Memory System](user-guide/memory.md)
+- Understand [Workspace Management](user-guide/workspace.md)
 - Review [Examples](https://github.com/tessera-agents/tessera/tree/main/examples)
 - Ask in [GitHub Discussions](https://github.com/tessera-agents/tessera/discussions)
