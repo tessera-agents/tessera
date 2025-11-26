@@ -61,6 +61,8 @@ nav:
     - Configuration: user-guide/configuration.md
     - Agents: user-guide/agents.md
     - Multi-Agent Execution: user-guide/multi-agent.md
+    - Memory System: user-guide/memory.md
+    - Workspace Management: user-guide/workspace.md
     - Observability: user-guide/observability.md
     - Tools: user-guide/tools.md
   - Reference:
