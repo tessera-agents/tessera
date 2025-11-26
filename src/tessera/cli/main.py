@@ -401,6 +401,9 @@ def workspace_enter(name: str) -> None:
         raise typer.Exit(1)
 
     workspace = manager.get_workspace(name)
+    if not workspace:
+        console.print(f"[red]Workspace not found:[/red] {name}\n")
+        raise typer.Exit(1)
     console.print(f"[green]✓[/green] Entered workspace: {name}")
     console.print(f"Working directory: {workspace.path}\n")
 
