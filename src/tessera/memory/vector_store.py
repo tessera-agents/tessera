@@ -7,7 +7,7 @@ Uses embeddings for semantic search of memories.
 import hashlib
 import json
 import sqlite3
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -63,9 +63,7 @@ class VectorMemoryStore:
         )
 
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_vector_agent ON vector_memories(agent_name)")
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_vector_hash ON vector_memories(content_hash)"
-        )
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_vector_hash ON vector_memories(content_hash)")
 
         conn.commit()
         conn.close()
@@ -106,15 +104,15 @@ class VectorMemoryStore:
                     content,
                     json.dumps(embedding),
                     memory_type,
-                    datetime.now().isoformat(),
+                    datetime.now(UTC).isoformat(),
                     json.dumps(metadata) if metadata else None,
                 ),
             )
 
             conn.commit()
 
-        except Exception as e:
-            logger.error(f"Failed to store vector memory: {e}")
+        except OSError as e:
+            logger.exception(f"Failed to store vector memory: {e}")
 
         finally:
             conn.close()

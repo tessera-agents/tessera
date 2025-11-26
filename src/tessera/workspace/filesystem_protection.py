@@ -81,7 +81,7 @@ class FilesystemGuard:
         """
         try:
             path = path.resolve()
-        except Exception as e:
+        except (OSError, ValueError) as e:
             return (False, f"invalid_path: {e}")
 
         # Check blocked paths first
@@ -150,7 +150,7 @@ class FilesystemGuard:
             if allowed:
                 return path
 
-        except Exception as e:
+        except (OSError, ValueError) as e:
             logger.warning(f"Invalid path: {path_str}: {e}")
 
         return None

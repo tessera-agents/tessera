@@ -9,7 +9,7 @@ import os
 import shutil
 import tarfile
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -70,7 +70,7 @@ class WorkspaceManager:
             return
 
         try:
-            with open(self.storage_file) as f:
+            with self.storage_file.open() as f:
                 data = json.load(f)
 
             for name, ws_data in data.items():
@@ -80,16 +80,14 @@ class WorkspaceManager:
                     created_at=datetime.fromisoformat(ws_data["created_at"]),
                     last_accessed=datetime.fromisoformat(ws_data["last_accessed"]),
                     archived=ws_data.get("archived", False),
-                    archive_path=Path(ws_data["archive_path"])
-                    if ws_data.get("archive_path")
-                    else None,
+                    archive_path=Path(ws_data["archive_path"]) if ws_data.get("archive_path") else None,
                     metadata=ws_data.get("metadata"),
                 )
 
                 self.workspaces[name] = workspace
 
-        except Exception as e:
-            logger.error(f"Failed to load workspaces: {e}")
+        except (OSError, ValueError) as e:
+            logger.exception(f"Failed to load workspaces: {e}")
             self.workspaces = {}
 
     def _save_workspaces(self) -> None:
@@ -109,11 +107,11 @@ class WorkspaceManager:
             }
 
         try:
-            with open(self.storage_file, "w") as f:
+            with self.storage_file.open("w") as f:
                 json.dump(data, f, indent=2)
 
-        except Exception as e:
-            logger.error(f"Failed to save workspaces: {e}")
+        except OSError as e:
+            logger.exception(f"Failed to save workspaces: {e}")
 
     def register_workspace(
         self,
@@ -138,8 +136,8 @@ class WorkspaceManager:
         workspace = Workspace(
             name=name,
             path=path.resolve(),
-            created_at=datetime.now(),
-            last_accessed=datetime.now(),
+            created_at=datetime.now(UTC),
+            last_accessed=datetime.now(UTC),
             metadata=metadata,
         )
 
@@ -164,7 +162,7 @@ class WorkspaceManager:
 
         if workspace:
             # Update last accessed
-            workspace.last_accessed = datetime.now()
+            workspace.last_accessed = datetime.now(UTC)
             self._save_workspaces()
 
         return workspace
@@ -214,7 +212,7 @@ class WorkspaceManager:
         os.chdir(workspace.path)
 
         # Update last accessed
-        workspace.last_accessed = datetime.now()
+        workspace.last_accessed = datetime.now(UTC)
         self._save_workspaces()
 
         logger.info(f"Entered workspace: {name} at {workspace.path}")
@@ -241,7 +239,7 @@ class WorkspaceManager:
             return True
 
         # Create archive
-        archive_name = f"{name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.tar.gz"
+        archive_name = f"{name}_{datetime.now(UTC).strftime('%Y%m%d_%H%M%S')}.tar.gz"
         archive_path = self.archive_dir / archive_name
 
         try:
@@ -256,8 +254,8 @@ class WorkspaceManager:
 
             return True
 
-        except Exception as e:
-            logger.error(f"Failed to archive workspace {name}: {e}")
+        except OSError as e:
+            logger.exception(f"Failed to archive workspace {name}: {e}")
             return False
 
     def unarchive_workspace(self, name: str, extract_path: Path | None = None) -> bool:
@@ -291,8 +289,8 @@ class WorkspaceManager:
 
             return True
 
-        except Exception as e:
-            logger.error(f"Failed to unarchive workspace {name}: {e}")
+        except OSError as e:
+            logger.exception(f"Failed to unarchive workspace {name}: {e}")
             return False
 
     def delete_workspace(self, name: str, delete_files: bool = False) -> bool:
@@ -316,14 +314,14 @@ class WorkspaceManager:
             try:
                 shutil.rmtree(workspace.path)
                 logger.info(f"Deleted workspace files: {workspace.path}")
-            except Exception as e:
-                logger.error(f"Failed to delete workspace files: {e}")
+            except OSError as e:
+                logger.exception(f"Failed to delete workspace files: {e}")
 
         # Delete archive if exists
         if workspace.archive_path and workspace.archive_path.exists():
             try:
                 workspace.archive_path.unlink()
-            except Exception as e:
+            except OSError as e:
                 logger.warning(f"Failed to delete archive: {e}")
 
         # Remove from registry

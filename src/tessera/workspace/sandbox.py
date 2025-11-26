@@ -82,13 +82,11 @@ class Sandbox:
             )
 
             # Process limit
-            resource.setrlimit(
-                resource.RLIMIT_NPROC, (self.config.max_processes, self.config.max_processes)
-            )
+            resource.setrlimit(resource.RLIMIT_NPROC, (self.config.max_processes, self.config.max_processes))
 
             logger.info("Sandbox resource limits applied")
 
-        except Exception as e:
+        except (OSError, ValueError) as e:
             logger.warning(f"Failed to set some resource limits: {e}")
 
         # Change to workspace directory
@@ -106,13 +104,9 @@ class Sandbox:
         # Reset resource limits to system defaults
         try:
             resource.setrlimit(resource.RLIMIT_AS, (resource.RLIM_INFINITY, resource.RLIM_INFINITY))
-            resource.setrlimit(
-                resource.RLIMIT_CPU, (resource.RLIM_INFINITY, resource.RLIM_INFINITY)
-            )
-            resource.setrlimit(
-                resource.RLIMIT_FSIZE, (resource.RLIM_INFINITY, resource.RLIM_INFINITY)
-            )
-        except Exception as e:
+            resource.setrlimit(resource.RLIMIT_CPU, (resource.RLIM_INFINITY, resource.RLIM_INFINITY))
+            resource.setrlimit(resource.RLIMIT_FSIZE, (resource.RLIM_INFINITY, resource.RLIM_INFINITY))
+        except (OSError, ValueError) as e:
             logger.warning(f"Failed to reset resource limits: {e}")
 
         self.active = False
@@ -171,10 +165,10 @@ class Sandbox:
             return result
 
         except subprocess.TimeoutExpired:
-            logger.error(f"Sandboxed command timed out: {command}")
+            logger.exception(f"Sandboxed command timed out: {command}")
             raise
-        except Exception as e:
-            logger.error(f"Sandboxed execution failed: {e}")
+        except (OSError, ValueError, RuntimeError) as e:
+            logger.exception(f"Sandboxed execution failed: {e}")
             raise
 
     def get_stats(self) -> dict[str, Any]:

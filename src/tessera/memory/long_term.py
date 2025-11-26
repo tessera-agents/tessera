@@ -7,7 +7,7 @@ Persists agent conversations, decisions, and learnings across sessions.
 import json
 import sqlite3
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -114,12 +114,8 @@ class MemoryStore:
         )
 
         # Indexes for fast queries
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_conversation_agent ON conversation_history(agent_name)"
-        )
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_conversation_task ON conversation_history(task_id)"
-        )
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_conversation_agent ON conversation_history(agent_name)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_conversation_task ON conversation_history(task_id)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_memory_agent ON agent_memory(agent_name)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_memory_type ON agent_memory(memory_type)")
 
@@ -154,7 +150,7 @@ class MemoryStore:
             VALUES (?, ?, ?, ?, ?, ?)
         """,
             (
-                datetime.now().isoformat(),
+                datetime.now(UTC).isoformat(),
                 agent_name,
                 role,
                 content,
@@ -240,7 +236,7 @@ class MemoryStore:
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
 
-        now = datetime.now().isoformat()
+        now = datetime.now(UTC).isoformat()
 
         try:
             cursor.execute(
@@ -267,8 +263,8 @@ class MemoryStore:
 
             conn.commit()
 
-        except Exception as e:
-            logger.error(f"Failed to add memory: {e}")
+        except OSError as e:
+            logger.exception(f"Failed to add memory: {e}")
 
         finally:
             conn.close()
