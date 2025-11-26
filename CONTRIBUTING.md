@@ -28,35 +28,59 @@ Tessera follows the [Conventional Commits](https://www.conventionalcommits.org/)
 
 Project-specific scopes for Tessera:
 
+**Component Scopes** (for code changes):
+- **agents**: Agent implementations (supervisor, interviewer, panel)
+- **api**: HTTP API and sessions
 - **cli**: Command-line interface
 - **config**: Configuration system
-- **workflow**: Phase and task execution
+- **memory**: Memory and persistence systems
 - **observability**: Metrics, tracing, cost tracking
-- **agents**: Agent implementations
-- **tools**: Tool system and plugins
+- **plugins**: Plugin system and MCP integration
 - **slack**: Slack integration
-- **api**: HTTP API and sessions
-- **repo**: Repository structure changes
+- **tools**: Tool system and access control
+- **workflow**: Task execution, phases, templates
+- **workspace**: Workspace management and sandboxing
+
+**Infrastructure Scopes** (for project maintenance):
+- **ci**: CI/CD pipelines and workflows
+- **deps**: Dependency updates
+- **build**: Build system and packaging
+- **repo**: Repository structure, .gitignore, etc.
+- **release**: Version bumps and releases
+
+**Documentation Scopes** (optional, can also use just `docs`):
+- **troubleshooting**: Troubleshooting guide updates
+
+**Scope Guidelines:**
+- Always use a scope for component/feature changes
+- Tests should use the component scope they're testing (e.g., `test(cli)`, `test(agents)`)
+- Infrastructure changes use infrastructure scopes (e.g., `chore(ci)`, `chore(deps)`)
+- Docs can use just `docs:` or specific scope (e.g., `docs(troubleshooting):`)
+- Scope omission is acceptable ONLY for cross-cutting changes (e.g., `fix: resolve 6 failing tests`)
+
+**Deprecated Scopes** (use alternatives):
+- `supervisor`, `interviewer`, `panel` → use `agents`
+- `templates` → use `workflow`
+- `tests` (without scope) → use `test(component)`
+- `types`, `typing` → use the component scope (e.g., `fix(cli)` not `fix(typing)`)
+- `session` → use `api`
+- `dev`, `lint` → use `repo` or `ci`
 
 ### Examples
 
 **Good:**
 ```
-feat(cli): add interactive mode with user prompts
-
-Implements guided workflow for task input with complexity
-selection and interview mode option.
+feat(memory): add persistent agent memory system
+test(workspace): add memory and workspace tests
+fix(cli): resolve type errors in main command
+chore(deps): add google-cloud-aiplatform
+docs(troubleshooting): add memory/workspace help
 ```
 
+**Also Good (scope optional for cross-cutting):**
 ```
-fix(observability): correct token extraction from LiteLLM responses
-
-Token callback now properly captures usage metadata from
-LangChain LiteLLM wrapper.
-```
-
-```
-chore(deps): add google-cloud-aiplatform for Vertex AI support
+docs: fix critical inaccuracies
+style: add quotes to type expressions
 ```
 
 **Bad:**
