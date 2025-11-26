@@ -158,8 +158,7 @@ reportUnknownVariableType = false
 reportUnknownLambdaType = false
 reportUntypedFunctionDecorator = false
 reportUntypedClassDecorator = false
-venvPath = "."
-venv = ".cache/.venv"
+# Let basedpyright auto-detect venv (uv creates it in different locations)
 
 [tool.coverage.run]
 data_file = ".cache/.coverage"
