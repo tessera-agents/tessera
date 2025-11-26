@@ -5,18 +5,23 @@ This module provides a LangGraph StateGraph version of the SupervisorAgent
 with built-in state persistence, checkpointing, and human-in-the-loop support.
 """
 
+import json
+import re
 from datetime import UTC, datetime
-from typing import Literal, TypedDict
+from typing import TYPE_CHECKING, Any, Literal, TypedDict
 
 from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.runnables import RunnableConfig
 from langgraph.graph import END, StateGraph
 
 from .config import SUPERVISOR_PROMPT, FrameworkConfig
 from .graph_base import get_checkpointer
 from .llm import create_llm
 from .models import SubTask, Task, TaskStatus
-from .supervisor import SupervisorAgent  # For JSON parsing utility
+
+if TYPE_CHECKING:
+    from langgraph.graph.state import CompiledStateGraph
 
 
 class SupervisorState(TypedDict):
@@ -95,7 +100,31 @@ class SupervisorGraph:
         # Build the graph
         self.app = self._build_graph()
 
-    def _build_graph(self) -> StateGraph:
+    @staticmethod
+    def _parse_json_response(content: str) -> dict[str, Any]:
+        """Parse JSON from LLM response, handling markdown code blocks."""
+        content = content.strip()
+
+        # Remove markdown code blocks if present
+        if content.startswith("```"):
+            lines = content.split("\n")
+            # Remove first line (```json or ```)
+            lines = lines[1:]
+            # Remove last line if it's ```
+            if lines and lines[-1].strip() == "```":
+                lines = lines[:-1]
+            content = "\n".join(lines)
+
+        try:
+            return json.loads(content)
+        except json.JSONDecodeError as e:
+            # If parsing fails, try to extract JSON object
+            json_match = re.search(r"\{.*\}", content, re.DOTALL)
+            if json_match:
+                return json.loads(json_match.group())
+            raise ValueError(f"Failed to parse JSON response: {e}") from e
+
+    def _build_graph(self) -> "CompiledStateGraph[SupervisorState, None, SupervisorState, SupervisorState]":
         """Build the LangGraph StateGraph."""
         # Create graph
         workflow = StateGraph(SupervisorState)
@@ -189,7 +218,9 @@ Respond in JSON format:
         ]
 
         response = self.llm.invoke(messages)
-        result = SupervisorAgent._parse_json_response(None, response.content)
+        # Handle response.content which can be str or list
+        content = response.content if isinstance(response.content, str) else str(response.content)
+        result = self._parse_json_response(content)
 
         # Create task with microseconds for uniqueness
         task_id = f"task_{datetime.now(UTC).strftime('%Y%m%d_%H%M%S_%f')}"
@@ -309,7 +340,9 @@ Respond in JSON format:
         ]
 
         response = self.llm.invoke(messages)
-        review = SupervisorAgent._parse_json_response(None, response.content)
+        # Handle response.content which can be str or list
+        review_content = response.content if isinstance(response.content, str) else str(response.content)
+        review = self._parse_json_response(review_content)
 
         # Update subtask status
         if review.get("approved", False):
@@ -322,10 +355,11 @@ Respond in JSON format:
 
             # Update task subtasks
             task_dict = state["task"]
-            for st in task_dict["subtasks"]:
-                if st["task_id"] == subtask["task_id"]:
-                    st.update(subtask)
-                    break
+            if task_dict:  # Add null check
+                for st in task_dict["subtasks"]:
+                    if st["task_id"] == subtask["task_id"]:
+                        st.update(subtask)
+                        break
 
             return {
                 **state,
@@ -346,7 +380,7 @@ Respond in JSON format:
         task_dict = state["task"]
         completed = state.get("completed_subtasks", [])
 
-        if not completed:
+        if not completed or not task_dict:
             return {
                 **state,
                 "final_output": "No completed subtasks to synthesize.",
@@ -369,10 +403,12 @@ Provide a clear, complete response that integrates all the subtask results.
         ]
 
         response = self.llm.invoke(messages)
+        # Handle response.content which can be str or list
+        final_content = response.content if isinstance(response.content, str) else str(response.content)
 
         return {
             **state,
-            "final_output": response.content,
+            "final_output": final_content,
             "next_action": "end",
         }
 
@@ -401,11 +437,15 @@ Provide a clear, complete response that integrates all the subtask results.
     def _route_after_review(self, state: SupervisorState) -> Literal["assign", "execute", "synthesize", "end"]:
         """Route after review."""
         next_action = state.get("next_action", "end")
-        if next_action in ["assign", "execute", "synthesize"]:
-            return next_action
+        if next_action == "assign":
+            return "assign"
+        if next_action == "execute":
+            return "execute"
+        if next_action == "synthesize":
+            return "synthesize"
         return "end"
 
-    def invoke(self, input_data: dict | None, config: dict | None = None) -> dict:
+    def invoke(self, input_data: dict | None, config: RunnableConfig | None = None) -> dict:  # type: ignore[type-arg]
         """
         Invoke the supervisor graph.
 
@@ -423,9 +463,9 @@ Provide a clear, complete response that integrates all the subtask results.
             >>>     "objective": "Build a website"
             >>> }, config=config)
         """
-        return self.app.invoke(input_data, config=config)
+        return self.app.invoke(input_data, config=config)  # type: ignore[arg-type]
 
-    def stream(self, input_data: dict, config: dict | None = None) -> object:
+    def stream(self, input_data: dict, config: RunnableConfig | None = None) -> object:  # type: ignore[type-arg]
         """
         Stream supervisor graph execution.
 
@@ -441,9 +481,9 @@ Provide a clear, complete response that integrates all the subtask results.
             >>> for state in supervisor.stream({"objective": "..."}):
             >>>     print(state)
         """
-        return self.app.stream(input_data, config=config)
+        return self.app.stream(input_data, config=config)  # type: ignore[arg-type]
 
-    def get_state(self, config: dict) -> dict:
+    def get_state(self, config: RunnableConfig) -> Any:
         """
         Get current state from checkpoint.
 
@@ -453,9 +493,9 @@ Provide a clear, complete response that integrates all the subtask results.
         Returns:
             Current state
         """
-        return self.app.get_state(config)
+        return self.app.get_state(config)  # type: ignore[arg-type]
 
-    def update_state(self, config: dict, values: dict) -> dict:
+    def update_state(self, config: RunnableConfig, values: dict) -> RunnableConfig:  # type: ignore[type-arg]
         """
         Update state at checkpoint.
 
@@ -466,4 +506,4 @@ Provide a clear, complete response that integrates all the subtask results.
         Returns:
             Updated state
         """
-        return self.app.update_state(config, values)
+        return self.app.update_state(config, values)  # type: ignore[arg-type, return-value]
