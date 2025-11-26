@@ -202,3 +202,21 @@ class TestVectorMemoryStore:
         # Similar vectors = 0.5-1.0
         sim = store._cosine_similarity([1.0, 0.0, 0.0], [0.7, 0.7, 0.0])
         assert 0.4 < sim < 0.8
+
+    def test_default_db_path(self):
+        """Test memory store uses default XDG path when no path given."""
+        store = MemoryStore()
+
+        # Should use default path in cache dir
+        assert "tessera" in str(store.db_path)
+        assert store.db_path.name == "agent_memory.db"
+
+    def test_get_memory_store_singleton(self):
+        """Test get_memory_store returns singleton."""
+        from tessera.memory.long_term import get_memory_store
+
+        store1 = get_memory_store()
+        store2 = get_memory_store()
+
+        # Should return same instance
+        assert store1 is store2

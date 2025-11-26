@@ -97,6 +97,41 @@ class TestWorkspaceManager:
 
             assert "persistent" in manager2.workspaces
 
+    def test_get_current_workspace(self):
+        """Test getting workspace for current directory."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            ws_path = Path(tmpdir) / "workspace"
+            ws_path.mkdir()
+
+            manager = WorkspaceManager(Path(tmpdir) / "workspaces.json")
+            manager.register_workspace("test", ws_path)
+
+            import os
+
+            original_cwd = Path.cwd()
+
+            try:
+                # Change to workspace directory
+                os.chdir(ws_path)
+
+                # Should find the current workspace
+                current = manager.get_current_workspace()
+                assert current is not None
+                assert current.name == "test"
+
+            finally:
+                os.chdir(original_cwd)
+
+    def test_get_workspace_manager_singleton(self):
+        """Test get_workspace_manager returns singleton."""
+        from tessera.workspace.manager import get_workspace_manager
+
+        manager1 = get_workspace_manager()
+        manager2 = get_workspace_manager()
+
+        # Should return same instance
+        assert manager1 is manager2
+
 
 @pytest.mark.unit
 class TestFilesystemGuard:

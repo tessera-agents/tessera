@@ -82,3 +82,60 @@ class TestXDGYamlSettingsSource:
         data = source()
 
         assert isinstance(data, dict)
+
+    def test_merges_config_files(self):
+        """Test merging configuration from multiple files."""
+        import tempfile
+        from pathlib import Path
+        from pydantic_settings import BaseSettings
+        from unittest.mock import patch
+
+        class TestSettings(BaseSettings):
+            test_value: str | None = None
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmpdir_path = Path(tmpdir)
+
+            # Create a local config.yaml file
+            config_file = tmpdir_path / "config.yaml"
+            config_file.write_text("test_value: from_config")
+
+            # Create a test-app.yaml file
+            app_file = tmpdir_path / "test-app.yaml"
+            app_file.write_text("test_value: from_app\nother_value: 123")
+
+            # Mock Path.cwd() to return tmpdir
+            with patch("pathlib.Path.cwd", return_value=tmpdir_path):
+                source = XDGYamlSettingsSource(TestSettings, "test-app")
+                data = source()
+
+                # Should have loaded both files and merged them
+                assert isinstance(data, dict)
+                # test-app.yaml has higher precedence
+                assert data.get("test_value") == "from_app"
+                assert data.get("other_value") == 123
+
+    def test_handles_empty_yaml_file(self):
+        """Test handling of empty YAML files."""
+        import tempfile
+        from pathlib import Path
+        from pydantic_settings import BaseSettings
+        from unittest.mock import patch
+
+        class TestSettings(BaseSettings):
+            pass
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmpdir_path = Path(tmpdir)
+
+            # Create an empty config file
+            config_file = tmpdir_path / "test-app.yaml"
+            config_file.write_text("")
+
+            # Mock Path.cwd() to return tmpdir
+            with patch("pathlib.Path.cwd", return_value=tmpdir_path):
+                source = XDGYamlSettingsSource(TestSettings, "test-app")
+                data = source()
+
+                # Should handle empty file gracefully
+                assert isinstance(data, dict)
