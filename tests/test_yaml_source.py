@@ -87,8 +87,9 @@ class TestXDGYamlSettingsSource:
         """Test merging configuration from multiple files."""
         import tempfile
         from pathlib import Path
-        from pydantic_settings import BaseSettings
         from unittest.mock import patch
+
+        from pydantic_settings import BaseSettings
 
         class TestSettings(BaseSettings):
             test_value: str | None = None
@@ -119,8 +120,9 @@ class TestXDGYamlSettingsSource:
         """Test handling of empty YAML files."""
         import tempfile
         from pathlib import Path
-        from pydantic_settings import BaseSettings
         from unittest.mock import patch
+
+        from pydantic_settings import BaseSettings
 
         class TestSettings(BaseSettings):
             pass
