@@ -181,7 +181,7 @@ def execute_main(  # noqa: C901, PLR0912, PLR0913, PLR0915
                     raise typer.Exit(3)
 
             llm_config = LLMConfig(
-                provider=cast(Literal["openai", "anthropic", "azure", "vertex_ai", "ollama"], agent_provider),
+                provider=cast("Literal['openai', 'anthropic', 'azure', 'vertex_ai', 'ollama']", agent_provider),
                 models=[agent_model],
                 temperature=agent_temp,
                 api_key=api_key,

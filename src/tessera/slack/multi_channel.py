@@ -108,7 +108,7 @@ class MultiChannelSlackClient:
             ],
         )
 
-        return cast(dict[str, Any], response.data)
+        return cast("dict[str, Any]", response.data)
 
     def post_user_request(
         self,
@@ -193,7 +193,7 @@ class MultiChannelSlackClient:
             )
 
         response = self.web_client.chat_postMessage(channel=channel, text=message, blocks=blocks)
-        return cast(dict[str, Any], response.data)
+        return cast("dict[str, Any]", response.data)
 
     def post_status_update(self, agent_name: str, status: str, details: dict[str, Any] | None = None) -> None:
         """
@@ -273,7 +273,7 @@ class MultiChannelSlackClient:
         )
 
         response = self.web_client.chat_postMessage(channel=channel, text=question, blocks=blocks)
-        return cast(dict[str, Any], response.data)
+        return cast("dict[str, Any]", response.data)
 
     def post_clarification_request(
         self,

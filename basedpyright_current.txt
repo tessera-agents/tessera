@@ -1,0 +1,228 @@
+/Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/cli/commands/main_cmd.py
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/cli/commands/main_cmd.py:180:26 - error: Argument of type "str" cannot be assigned to parameter "provider" of type "Literal['openai', 'anthropic', 'azure', 'vertex_ai', 'ollama']" in function "__init__"
+    Type "str" is not assignable to type "Literal['openai', 'anthropic', 'azure', 'vertex_ai', 'ollama']"
+      "str" is not assignable to type "Literal['openai']"
+      "str" is not assignable to type "Literal['anthropic']"
+      "str" is not assignable to type "Literal['azure']"
+      "str" is not assignable to type "Literal['vertex_ai']"
+      "str" is not assignable to type "Literal['ollama']" (reportArgumentType)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/cli/commands/main_cmd.py:269:32 - error: "complexity" is possibly unbound (reportPossiblyUnboundVariable)
+/Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/interviewer.py
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/interviewer.py:88:44 - error: Argument of type "str | list[str | dict[Unknown, Unknown]]" cannot be assigned to parameter "content" of type "str" in function "_parse_json_response"
+    Type "str | list[str | dict[Unknown, Unknown]]" is not assignable to type "str"
+      "list[str | dict[Unknown, Unknown]]" is not assignable to "str" (reportArgumentType)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/interviewer.py:127:28 - error: Argument of type "str | list[str | dict[Unknown, Unknown]]" cannot be assigned to parameter "answer" of type "str" in function "__init__"
+    Type "str | list[str | dict[Unknown, Unknown]]" is not assignable to type "str"
+      "list[str | dict[Unknown, Unknown]]" is not assignable to "str" (reportArgumentType)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/interviewer.py:201:48 - error: Argument of type "str | list[str | dict[Unknown, Unknown]]" cannot be assigned to parameter "content" of type "str" in function "_parse_json_response"
+    Type "str | list[str | dict[Unknown, Unknown]]" is not assignable to type "str"
+      "list[str | dict[Unknown, Unknown]]" is not assignable to "str" (reportArgumentType)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/interviewer.py:251:48 - error: Argument of type "str | list[str | dict[Unknown, Unknown]]" cannot be assigned to parameter "content" of type "str" in function "_parse_json_response"
+    Type "str | list[str | dict[Unknown, Unknown]]" is not assignable to type "str"
+      "list[str | dict[Unknown, Unknown]]" is not assignable to "str" (reportArgumentType)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/interviewer.py:260:13 - error: Argument of type "str | list[str | dict[Unknown, Unknown]]" cannot be assigned to parameter "value" of type "str" in function "__setitem__"
+    Type "str | list[str | dict[Unknown, Unknown]]" is not assignable to type "str"
+      "list[str | dict[Unknown, Unknown]]" is not assignable to "str" (reportArgumentType)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/interviewer.py:285:46 - error: Argument of type "str | list[str | dict[Unknown, Unknown]]" cannot be assigned to parameter "content" of type "str" in function "_parse_json_response"
+    Type "str | list[str | dict[Unknown, Unknown]]" is not assignable to type "str"
+      "list[str | dict[Unknown, Unknown]]" is not assignable to "str" (reportArgumentType)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/interviewer.py:343:52 - error: Argument of type "str | list[str | dict[Unknown, Unknown]]" cannot be assigned to parameter "content" of type "str" in function "_parse_json_response"
+    Type "str | list[str | dict[Unknown, Unknown]]" is not assignable to type "str"
+      "list[str | dict[Unknown, Unknown]]" is not assignable to "str" (reportArgumentType)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/interviewer.py:421:42 - error: Argument of type "str | list[str | dict[Unknown, Unknown]]" cannot be assigned to parameter "content" of type "str" in function "_parse_json_response"
+    Type "str | list[str | dict[Unknown, Unknown]]" is not assignable to type "str"
+      "list[str | dict[Unknown, Unknown]]" is not assignable to "str" (reportArgumentType)
+/Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/legacy_config.py
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/legacy_config.py:174:23 - error: "SecretManager" is possibly unbound (reportPossiblyUnboundVariable)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/legacy_config.py:204:32 - error: Argument of type "str | None" cannot be assigned to parameter "x" of type "ConvertibleToFloat" in function "__new__"
+    Type "str | None" is not assignable to type "ConvertibleToFloat"
+      Type "None" is not assignable to type "ConvertibleToFloat"
+        "None" is not assignable to "str"
+        "None" is incompatible with protocol "Buffer"
+          "__buffer__" is not present
+        "None" is incompatible with protocol "SupportsFloat"
+          "__float__" is not present
+        "None" is incompatible with protocol "SupportsIndex"
+    ... (reportArgumentType)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/legacy_config.py:204:32 - error: Argument of type "str | None" cannot be assigned to parameter "x" of type "ConvertibleToFloat" in function "__new__"
+    Type "str | None" is not assignable to type "ConvertibleToFloat"
+      Type "None" is not assignable to type "ConvertibleToFloat"
+        "None" is not assignable to "str"
+        "None" is incompatible with protocol "Buffer"
+          "__buffer__" is not present
+        "None" is incompatible with protocol "SupportsFloat"
+          "__float__" is not present
+        "None" is incompatible with protocol "SupportsIndex" (reportArgumentType)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/legacy_config.py:226:32 - error: Argument of type "str | None" cannot be assigned to parameter "x" of type "ConvertibleToFloat" in function "__new__"
+    Type "str | None" is not assignable to type "ConvertibleToFloat"
+      Type "None" is not assignable to type "ConvertibleToFloat"
+        "None" is not assignable to "str"
+        "None" is incompatible with protocol "Buffer"
+          "__buffer__" is not present
+        "None" is incompatible with protocol "SupportsFloat"
+          "__float__" is not present
+        "None" is incompatible with protocol "SupportsIndex"
+    ... (reportArgumentType)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/legacy_config.py:226:32 - error: Argument of type "str | None" cannot be assigned to parameter "x" of type "ConvertibleToFloat" in function "__new__"
+    Type "str | None" is not assignable to type "ConvertibleToFloat"
+      Type "None" is not assignable to type "ConvertibleToFloat"
+        "None" is not assignable to "str"
+        "None" is incompatible with protocol "Buffer"
+          "__buffer__" is not present
+        "None" is incompatible with protocol "SupportsFloat"
+          "__float__" is not present
+        "None" is incompatible with protocol "SupportsIndex" (reportArgumentType)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/legacy_config.py:236:32 - error: Argument of type "str | None" cannot be assigned to parameter "x" of type "ConvertibleToFloat" in function "__new__"
+    Type "str | None" is not assignable to type "ConvertibleToFloat"
+      Type "None" is not assignable to type "ConvertibleToFloat"
+        "None" is not assignable to "str"
+        "None" is incompatible with protocol "Buffer"
+          "__buffer__" is not present
+        "None" is incompatible with protocol "SupportsFloat"
+          "__float__" is not present
+        "None" is incompatible with protocol "SupportsIndex"
+    ... (reportArgumentType)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/legacy_config.py:236:32 - error: Argument of type "str | None" cannot be assigned to parameter "x" of type "ConvertibleToFloat" in function "__new__"
+    Type "str | None" is not assignable to type "ConvertibleToFloat"
+      Type "None" is not assignable to type "ConvertibleToFloat"
+        "None" is not assignable to "str"
+        "None" is incompatible with protocol "Buffer"
+          "__buffer__" is not present
+        "None" is incompatible with protocol "SupportsFloat"
+          "__float__" is not present
+        "None" is incompatible with protocol "SupportsIndex" (reportArgumentType)
+/Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/model_validator.py
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/model_validator.py:79:80 - error: Argument of type "str | None" cannot be assigned to parameter "api_key" of type "str" in function "fetch_available_models"
+    Type "str | None" is not assignable to type "str"
+      "None" is not assignable to "str" (reportArgumentType)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/model_validator.py:89:83 - error: Argument of type "str | None" cannot be assigned to parameter "api_key" of type "str" in function "fetch_available_models"
+    Type "str | None" is not assignable to type "str"
+      "None" is not assignable to "str" (reportArgumentType)
+/Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/observability/metrics.py
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/observability/metrics.py:183:27 - error: Argument of type "int" cannot be assigned to parameter "object" of type "str" in function "append"
+    "int" is not assignable to "str" (reportArgumentType)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/observability/metrics.py:187:27 - error: Argument of type "int" cannot be assigned to parameter "object" of type "str" in function "append"
+    "int" is not assignable to "str" (reportArgumentType)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/observability/metrics.py:191:27 - error: Argument of type "float" cannot be assigned to parameter "object" of type "str" in function "append"
+    "float" is not assignable to "str" (reportArgumentType)
+/Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/observability/tracer.py
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/observability/tracer.py:120:57 - error: Argument of type "FileSpanExporter" cannot be assigned to parameter "span_exporter" of type "SpanExporter" in function "__init__"
+    "FileSpanExporter" is not assignable to "SpanExporter" (reportArgumentType)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/observability/tracer.py:191:33 - error: Argument of type "object" cannot be assigned to parameter "value" of type "AttributeValue" in function "set_attribute"
+    Type "object" is not assignable to type "AttributeValue"
+      "object" is not assignable to "str"
+      "object" is not assignable to "bool"
+      "object" is not assignable to "int"
+      "object" is not assignable to "float"
+      "object" is not assignable to "Sequence[str]"
+      "object" is not assignable to "Sequence[bool]"
+      "object" is not assignable to "Sequence[int]"
+    ... (reportArgumentType)
+/Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/panel.py
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/panel.py:158:48 - error: Argument of type "str | list[str | dict[Unknown, Unknown]]" cannot be assigned to parameter "content" of type "str" in function "_parse_json_response"
+    Type "str | list[str | dict[Unknown, Unknown]]" is not assignable to type "str"
+      "list[str | dict[Unknown, Unknown]]" is not assignable to "str" (reportArgumentType)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/panel.py:381:32 - error: Argument of type "str | list[str | dict[Unknown, Unknown]]" cannot be assigned to parameter "answer" of type "str" in function "score_answer"
+    Type "str | list[str | dict[Unknown, Unknown]]" is not assignable to type "str"
+      "list[str | dict[Unknown, Unknown]]" is not assignable to "str" (reportArgumentType)
+/Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/slack/agent_identity.py
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/slack/agent_identity.py:93:31 - error: Cannot access attribute "name" for class "object"
+    Attribute "name" is unknown (reportAttributeAccessIssue)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/slack/agent_identity.py:94:51 - error: Cannot access attribute "name" for class "object"
+    Attribute "name" is unknown (reportAttributeAccessIssue)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/slack/agent_identity.py:100:38 - error: Cannot access attribute "name" for class "object"
+    Attribute "name" is unknown (reportAttributeAccessIssue)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/slack/agent_identity.py:104:29 - error: Cannot access attribute "name" for class "object"
+    Attribute "name" is unknown (reportAttributeAccessIssue)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/slack/agent_identity.py:112:47 - error: Cannot access attribute "role" for class "object"
+    Attribute "role" is unknown (reportAttributeAccessIssue)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/slack/agent_identity.py:113:33 - error: Cannot access attribute "role" for class "object"
+    Attribute "role" is unknown (reportAttributeAccessIssue)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/slack/agent_identity.py:119:55 - error: Cannot access attribute "capabilities" for class "object"
+    Attribute "capabilities" is unknown (reportAttributeAccessIssue)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/slack/agent_identity.py:120:31 - error: Cannot access attribute "capabilities" for class "object"
+    Attribute "capabilities" is unknown (reportAttributeAccessIssue)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/slack/agent_identity.py:131:56 - error: Cannot access attribute "system_prompt" for class "object"
+    Attribute "system_prompt" is unknown (reportAttributeAccessIssue)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/slack/agent_identity.py:133:33 - error: Cannot access attribute "system_prompt" for class "object"
+    Attribute "system_prompt" is unknown (reportAttributeAccessIssue)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/slack/agent_identity.py:137:55 - error: Cannot access attribute "capabilities" for class "object"
+    Attribute "capabilities" is unknown (reportAttributeAccessIssue)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/slack/agent_identity.py:138:37 - error: Cannot access attribute "capabilities" for class "object"
+    Attribute "capabilities" is unknown (reportAttributeAccessIssue)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/slack/agent_identity.py:141:33 - error: Cannot access attribute "name" for class "object"
+    Attribute "name" is unknown (reportAttributeAccessIssue)
+/Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/slack/multi_channel.py
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/slack/multi_channel.py:91:16 - error: Type "SlackResponse" is not assignable to return type "dict[str, Any]"
+    "SlackResponse" is not assignable to "dict[str, Any]" (reportReturnType)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/slack/multi_channel.py:193:16 - error: Type "SlackResponse" is not assignable to return type "dict[str, Any]"
+    "SlackResponse" is not assignable to "dict[str, Any]" (reportReturnType)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/slack/multi_channel.py:272:16 - error: Type "SlackResponse" is not assignable to return type "dict[str, Any]"
+    "SlackResponse" is not assignable to "dict[str, Any]" (reportReturnType)
+/Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/slack_approval.py
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/slack_approval.py:193:16 - error: Type "Unknown | None" is not assignable to return type "str"
+    Type "Unknown | None" is not assignable to type "str"
+      "None" is not assignable to "str" (reportReturnType)
+/Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/slack_hitl.py
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/slack_hitl.py:189:16 - error: Type "Unknown | None" is not assignable to return type "str"
+    Type "Unknown | None" is not assignable to type "str"
+      "None" is not assignable to "str" (reportReturnType)
+/Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/supervisor.py
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/supervisor.py:88:44 - error: Argument of type "str | list[str | dict[Unknown, Unknown]]" cannot be assigned to parameter "content" of type "str" in function "_parse_json_response"
+    Type "str | list[str | dict[Unknown, Unknown]]" is not assignable to type "str"
+      "list[str | dict[Unknown, Unknown]]" is not assignable to "str" (reportArgumentType)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/supervisor.py:215:42 - error: Argument of type "str | list[str | dict[Unknown, Unknown]]" cannot be assigned to parameter "content" of type "str" in function "_parse_json_response"
+    Type "str | list[str | dict[Unknown, Unknown]]" is not assignable to type "str"
+      "list[str | dict[Unknown, Unknown]]" is not assignable to "str" (reportArgumentType)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/supervisor.py:332:16 - error: Type "str | list[str | dict[Unknown, Unknown]]" is not assignable to return type "str"
+    Type "str | list[str | dict[Unknown, Unknown]]" is not assignable to type "str"
+      "list[str | dict[Unknown, Unknown]]" is not assignable to "str" (reportReturnType)
+/Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/supervisor_graph.py
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/supervisor_graph.py:157:16 - error: Type "CompiledStateGraph[SupervisorState, None, SupervisorState, SupervisorState]" is not assignable to return type "StateGraph[Unknown, None, Unknown, Unknown]"
+    "CompiledStateGraph[SupervisorState, None, SupervisorState, SupervisorState]" is not assignable to "StateGraph[Unknown, None, Unknown, Unknown]" (reportReturnType)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/supervisor_graph.py:192:55 - error: Argument of type "None" cannot be assigned to parameter "self" of type "SupervisorAgent" in function "_parse_json_response"
+    "None" is not assignable to "SupervisorAgent" (reportArgumentType)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/supervisor_graph.py:192:61 - error: Argument of type "str | list[str | dict[Unknown, Unknown]]" cannot be assigned to parameter "content" of type "str" in function "_parse_json_response"
+    Type "str | list[str | dict[Unknown, Unknown]]" is not assignable to type "str"
+      "list[str | dict[Unknown, Unknown]]" is not assignable to "str" (reportArgumentType)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/supervisor_graph.py:312:55 - error: Argument of type "None" cannot be assigned to parameter "self" of type "SupervisorAgent" in function "_parse_json_response"
+    "None" is not assignable to "SupervisorAgent" (reportArgumentType)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/supervisor_graph.py:312:61 - error: Argument of type "str | list[str | dict[Unknown, Unknown]]" cannot be assigned to parameter "content" of type "str" in function "_parse_json_response"
+    Type "str | list[str | dict[Unknown, Unknown]]" is not assignable to type "str"
+      "list[str | dict[Unknown, Unknown]]" is not assignable to "str" (reportArgumentType)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/supervisor_graph.py:325:23 - error: Object of type "None" is not subscriptable (reportOptionalSubscript)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/supervisor_graph.py:357:8 - error: Object of type "None" is not subscriptable (reportOptionalSubscript)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/supervisor_graph.py:375:29 - error: Type "dict[str, str | dict[Unknown, Unknown] | list[dict[Unknown, Unknown]] | object | list[str | dict[Unknown, Unknown]] | None]" is not assignable to return type "SupervisorState"
+    Type "str | list[str | dict[Unknown, Unknown]]" is not assignable to type "str | None"
+      Type "list[str | dict[Unknown, Unknown]]" is not assignable to type "str | None"
+        "list[str | dict[Unknown, Unknown]]" is not assignable to "str"
+        "list[str | dict[Unknown, Unknown]]" is not assignable to "None" (reportReturnType)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/supervisor_graph.py:405:20 - error: Type "Literal['assign', 'execute', 'review', 'synthesize', 'end']" is not assignable to return type "Literal['assign', 'execute', 'synthesize', 'end']"
+    Type "Literal['assign', 'execute', 'review', 'synthesize', 'end']" is not assignable to type "Literal['assign', 'execute', 'synthesize', 'end']"
+      Type "Literal['review']" is not assignable to type "Literal['assign', 'execute', 'synthesize', 'end']"
+        "Literal['review']" is not assignable to type "Literal['assign']"
+        "Literal['review']" is not assignable to type "Literal['execute']"
+        "Literal['review']" is not assignable to type "Literal['synthesize']"
+        "Literal['review']" is not assignable to type "Literal['end']" (reportReturnType)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/supervisor_graph.py:426:25 - error: Cannot access attribute "invoke" for class "StateGraph[Unknown, None, Unknown, Unknown]"
+    Attribute "invoke" is unknown (reportAttributeAccessIssue)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/supervisor_graph.py:444:25 - error: Cannot access attribute "stream" for class "StateGraph[Unknown, None, Unknown, Unknown]"
+    Attribute "stream" is unknown (reportAttributeAccessIssue)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/supervisor_graph.py:456:25 - error: Cannot access attribute "get_state" for class "StateGraph[Unknown, None, Unknown, Unknown]"
+    Attribute "get_state" is unknown (reportAttributeAccessIssue)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/supervisor_graph.py:469:25 - error: Cannot access attribute "update_state" for class "StateGraph[Unknown, None, Unknown, Unknown]"
+    Attribute "update_state" is unknown (reportAttributeAccessIssue)
+/Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/workflow/multi_agent_executor.py
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/workflow/multi_agent_executor.py:81:34 - error: Argument of type "float" cannot be assigned to parameter "duration_seconds" of type "int | None" in function "record_agent_performance"
+    Type "float" is not assignable to type "int | None"
+      "float" is not assignable to "int"
+      "float" is not assignable to "None" (reportArgumentType)
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/workflow/multi_agent_executor.py:97:34 - error: Argument of type "float" cannot be assigned to parameter "duration_seconds" of type "int | None" in function "record_agent_performance"
+    Type "float" is not assignable to type "int | None"
+      "float" is not assignable to "int"
+      "float" is not assignable to "None" (reportArgumentType)
+/Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/workflow/phase_executor.py
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/workflow/phase_executor.py:135:55 - error: "name" is not a known attribute of "None" (reportOptionalMemberAccess)
+/Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/workflow/process_monitor.py
+  /Users/wgordon/SynologyDrive/ActiveProjects/ai/autonomy/src/tessera/workflow/process_monitor.py:10:8 - warning: Import "psutil" could not be resolved from source (reportMissingModuleSource)
+63 errors, 1 warning, 0 notes
