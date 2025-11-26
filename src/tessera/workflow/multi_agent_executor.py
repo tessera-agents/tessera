@@ -78,7 +78,7 @@ class MultiAgentExecutor:
                 task_id=task_id,
                 success=True,
                 phase=self.current_phase,
-                duration_seconds=duration,
+                duration_seconds=int(duration),
             )
 
             self.agent_pool.mark_task_complete(agent_name, success=True)
@@ -94,7 +94,7 @@ class MultiAgentExecutor:
                 task_id=task_id,
                 success=False,
                 phase=self.current_phase,
-                duration_seconds=duration,
+                duration_seconds=int(duration),
             )
 
             self.agent_pool.mark_task_complete(agent_name, success=False)
