@@ -117,7 +117,7 @@ def init_tracer(
             file_path = get_tessera_cache_dir() / "otel" / "traces.jsonl"
 
         file_exporter = FileSpanExporter(file_path)
-        provider.add_span_processor(SimpleSpanProcessor(file_exporter))
+        provider.add_span_processor(SimpleSpanProcessor(file_exporter))  # type: ignore[arg-type]
 
     # Set as global provider
     trace.set_tracer_provider(provider)
@@ -188,4 +188,4 @@ def set_span_attributes(
 
     # Set custom attributes
     for key, value in custom_attributes.items():
-        span.set_attribute(key, value)
+        span.set_attribute(key, str(value))
