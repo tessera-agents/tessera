@@ -5,6 +5,10 @@ Generates identities from agent configuration, no hard-coded defaults.
 """
 
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from tessera.config.schema import AgentDefinition
 
 
 @dataclass
@@ -72,7 +76,7 @@ class AgentIdentityManager:
             for config in agent_configs:
                 self.register_from_config(config)
 
-    def register_from_config(self, agent_config: object) -> None:
+    def register_from_config(self, agent_config: "AgentDefinition") -> None:
         """
         Create identity from agent configuration.
 
@@ -99,7 +103,7 @@ class AgentIdentityManager:
 
         self.identities[agent_config.name] = identity
 
-    def _suggest_emoji(self, config: object) -> str:
+    def _suggest_emoji(self, config: "AgentDefinition") -> str:
         """Suggest emoji based on agent name and capabilities."""
         name_lower = config.name.lower()
 
@@ -125,7 +129,7 @@ class AgentIdentityManager:
 
         return ":robot_face:"
 
-    def _extract_description(self, config: object) -> str:
+    def _extract_description(self, config: "AgentDefinition") -> str:
         """Extract short description from config."""
         # Try system_prompt first
         if hasattr(config, "system_prompt") and config.system_prompt:

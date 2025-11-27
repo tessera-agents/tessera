@@ -190,7 +190,8 @@ class SlackApprovalCoordinator:
             ],
         )
 
-        return response["ts"]
+        ts = response.get("ts")
+        return str(ts) if ts else ""
 
     def handle_approval_response(self, action_value: str, message_ts: str) -> dict | None:
         """

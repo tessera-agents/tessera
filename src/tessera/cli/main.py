@@ -355,9 +355,93 @@ def serve(host: str = "127.0.0.1", port: int = 8000) -> None:
 
 
 @app.command()
+def workspace_list() -> None:
+    """List all workspaces."""
+    from ..workspace import get_workspace_manager
+
+    manager = get_workspace_manager()
+    workspaces = manager.list_workspaces(include_archived=False)
+
+    if not workspaces:
+        console.print("[yellow]No workspaces found.[/yellow]\n")
+        console.print("Create one: [cyan]tessera workspace register <name> <path>[/cyan]\n")
+        return
+
+    console.print("[cyan]Workspaces:[/cyan]\n")
+
+    for ws in workspaces:
+        status = "[dim](archived)[/dim]" if ws.archived else ""
+        console.print(f"• [green]{ws.name}[/green] {status}")
+        console.print(f"  Path: {ws.path}")
+        console.print(f"  Last accessed: {ws.last_accessed.strftime('%Y-%m-%d %H:%M:%S')}\n")
+
+
+@app.command()
+def workspace_register(name: str, path: str) -> None:
+    """Register a new workspace."""
+    from ..workspace import get_workspace_manager
+
+    manager = get_workspace_manager()
+    workspace = manager.register_workspace(name, Path(path))
+
+    console.print(f"[green]✓[/green] Registered workspace: {name}")
+    console.print(f"Path: {workspace.path}\n")
+
+
+@app.command()
+def workspace_enter(name: str) -> None:
+    """Enter a workspace (change directory)."""
+    from ..workspace import get_workspace_manager
+
+    manager = get_workspace_manager()
+    success = manager.enter_workspace(name)
+
+    if not success:
+        console.print(f"[red]Failed to enter workspace:[/red] {name}\n")
+        raise typer.Exit(1)
+
+    workspace = manager.get_workspace(name)
+    if not workspace:
+        console.print(f"[red]Workspace not found:[/red] {name}\n")
+        raise typer.Exit(1)
+    console.print(f"[green]✓[/green] Entered workspace: {name}")
+    console.print(f"Working directory: {workspace.path}\n")
+
+
+@app.command()
+def workspace_archive(name: str) -> None:
+    """Archive a workspace."""
+    from ..workspace import get_workspace_manager
+
+    manager = get_workspace_manager()
+    success = manager.archive_workspace(name)
+
+    if not success:
+        console.print(f"[red]Failed to archive workspace:[/red] {name}\n")
+        raise typer.Exit(1)
+
+    console.print(f"[green]✓[/green] Archived workspace: {name}\n")
+
+
+@app.command()
+def workspace_unarchive(name: str) -> None:
+    """Unarchive a workspace."""
+    from ..workspace import get_workspace_manager
+
+    manager = get_workspace_manager()
+    success = manager.unarchive_workspace(name)
+
+    if not success:
+        console.print(f"[red]Failed to unarchive workspace:[/red] {name}\n")
+        raise typer.Exit(1)
+
+    console.print(f"[green]✓[/green] Unarchived workspace: {name}\n")
+
+
+@app.command()
 def version() -> None:
     """Show Tessera version information."""
-    console.print("[cyan]Tessera v0.4.0[/cyan]")
+    console.print("[cyan]Tessera v0.5.0[/cyan]")
     console.print("[dim]Multi-Agent Orchestration Framework[/dim]\n")
 
 

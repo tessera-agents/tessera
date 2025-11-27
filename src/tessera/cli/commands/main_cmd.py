@@ -3,6 +3,7 @@
 import os
 import time
 import uuid
+from typing import Literal, cast
 
 from rich.console import Console
 from rich.panel import Panel
@@ -75,7 +76,7 @@ def execute_main(  # noqa: C901, PLR0912, PLR0913, PLR0915
             default=settings.tessera.default_complexity,
         )
 
-        use_interview = Confirm.ask(
+        _ = Confirm.ask(
             "? Interview mode (recommended for better results)",
             default=settings.project_generation.interview.enabled,
         )
@@ -123,6 +124,9 @@ def execute_main(  # noqa: C901, PLR0912, PLR0913, PLR0915
                 agent_model = "gpt-4o"
                 agent_provider = "openai"
                 agent_temp = 0.7
+
+            # Set complexity for phase execution
+            complexity = "medium"
 
             # Record task
             metrics_store.record_task_assignment(
@@ -177,7 +181,7 @@ def execute_main(  # noqa: C901, PLR0912, PLR0913, PLR0915
                     raise typer.Exit(3)
 
             llm_config = LLMConfig(
-                provider=agent_provider,
+                provider=cast("Literal['openai', 'anthropic', 'azure', 'vertex_ai', 'ollama']", agent_provider),
                 models=[agent_model],
                 temperature=agent_temp,
                 api_key=api_key,
@@ -266,7 +270,7 @@ def execute_main(  # noqa: C901, PLR0912, PLR0913, PLR0915
 
                 phase_executor = PhaseExecutor(
                     phases=settings.workflow.phases,
-                    complexity=complexity if "complexity" in locals() else "medium",
+                    complexity=complexity,
                 )
 
                 current_phase = phase_executor.get_current_phase()

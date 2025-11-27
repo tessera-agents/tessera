@@ -92,6 +92,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## [Unreleased]
+## [0.5.0] - 2025-11-22
+
+### Added
+
+**Persistent Memory System**
+- Long-term memory survives session loss
+- Conversation history tracking
+- Agent memory: facts, decisions, learnings, errors
+- Vector semantic search with embeddings
+- SQLite storage in ~/.cache/tessera/
+
+**Workspace Management**
+- Global workspace registry
+- Archive/unarchive with tar.gz
+- Auto-detect current workspace
+- CLI: workspace list/register/enter/archive/unarchive
+
+**Filesystem Protection**
+- Path permission system
+- Blocks sensitive dirs/files
+- Workspace-relative validation
+
+**Sandboxing**
+- Resource limits (memory, CPU, files)
+- Filesystem isolation
+- Network access control
+
+### Changed
+- Version: 0.5.0
+- Coverage threshold: 60%
+
+---
+
 
 ## [0.4.0] - 2025-11-22
 

@@ -155,7 +155,7 @@ Respond in JSON format:
         ]
 
         response = self.llm.invoke(messages)
-        score_data = self._parse_json_response(response.content)
+        score_data = self._parse_json_response(self._extract_string_content(response.content))
 
         metrics = ScoreMetrics(**score_data["metrics"])
         vote_str = score_data.get("vote", "PASS").upper()
@@ -169,6 +169,14 @@ Respond in JSON format:
             overall_score=score_data.get("overall_score", 0),
             rationale=score_data.get("rationale", ""),
         )
+
+    def _extract_string_content(self, content: str | list[str | dict[str, Any]]) -> str:
+        """Extract string content from LLM response."""
+        if isinstance(content, str):
+            return content
+        # For list content, join text parts and ignore dict parts
+        text_parts = [item for item in content if isinstance(item, str)]
+        return "".join(text_parts) if text_parts else ""
 
     def _parse_json_response(self, content: str) -> dict[str, Any]:
         """Parse JSON from LLM response."""
@@ -363,7 +371,7 @@ class PanelSystem:
                 answer_response = candidate_llms[candidate].invoke(
                     [HumanMessage(content=f"Task: {task_description}\n\nQuestion: {question['text']}")]
                 )
-                answer = answer_response.content
+                answer = self._extract_string_content(answer_response.content)
 
                 candidate_transcript["questions"].append(
                     {
@@ -448,6 +456,14 @@ class PanelSystem:
             tie_breaker_used=tie_breaker_used,
             transcript=transcript,
         )
+
+    def _extract_string_content(self, content: str | list[str | dict[str, Any]]) -> str:
+        """Extract string content from LLM response."""
+        if isinstance(content, str):
+            return content
+        # For list content, join text parts and ignore dict parts
+        text_parts = [item for item in content if isinstance(item, str)]
+        return "".join(text_parts) if text_parts else ""
 
     def get_vote_summary(self, result: PanelResult) -> dict[str, Any]:
         """

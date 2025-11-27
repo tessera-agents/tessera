@@ -124,7 +124,7 @@ Please provide a detailed answer.
                 QuestionResponse(
                     question_id=q["question_id"],
                     question_text=q["text"],
-                    answer=candidate_response.content,
+                    answer=self._extract_string_content(candidate_response.content),
                 )
             )
 
@@ -257,7 +257,7 @@ Respond in JSON format:
                 continue
 
             candidate_response = candidate_llms[candidate].invoke([HumanMessage(content=tiebreaker["question"])])
-            responses[candidate] = candidate_response.content
+            responses[candidate] = self._extract_string_content(candidate_response.content)
 
         # Evaluate responses
         evaluation_prompt = f"""
@@ -433,9 +433,18 @@ Weaknesses: {", ".join(r.weaknesses) if r.weaknesses else "None noted"}
         ]
         return "\n".join(formatted)
 
-    def _parse_json_response(self, content: str) -> dict[str, Any]:
+    def _extract_string_content(self, content: str | list[str | dict[str, Any]]) -> str:
+        """Extract string content from LLM response."""
+        if isinstance(content, str):
+            return content
+        # For list content, join text parts and ignore dict parts
+        text_parts = [item for item in content if isinstance(item, str)]
+        return "".join(text_parts) if text_parts else ""
+
+    def _parse_json_response(self, content: str | list[str | dict[str, Any]]) -> dict[str, Any]:
         """Parse JSON from LLM response, handling markdown code blocks."""
-        content = content.strip()
+        # Extract string content
+        content = self._extract_string_content(content).strip()
 
         # Remove markdown code blocks if present
         if content.startswith("```"):

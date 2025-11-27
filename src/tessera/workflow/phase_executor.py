@@ -129,10 +129,11 @@ class PhaseExecutor:
         Returns:
             Phase summary dict
         """
+        current_phase = self.get_current_phase()
         return {
             "total_phases": len(self.active_phases),
             "current_phase_index": self.current_phase_index,
-            "current_phase": self.get_current_phase().name if self.get_current_phase() else None,
+            "current_phase": current_phase.name if current_phase else None,
             "completed_phases": [phase.name for phase in self.active_phases[: self.current_phase_index]],
             "remaining_phases": [phase.name for phase in self.active_phases[self.current_phase_index + 1 :]],
         }

@@ -12,6 +12,8 @@ from tessera.config.xdg import (
     ensure_directories,
     get_config_file_path,
     get_metrics_db_path,
+    get_otel_traces_path,
+    get_state_db_path,
     get_tessera_cache_dir,
     get_tessera_config_dir,
     get_tessera_data_dir,
@@ -55,6 +57,12 @@ class TestXDGHelpers:
             data_home = get_xdg_data_home()
             assert data_home == Path.home() / ".local" / "share"
 
+    def test_get_xdg_data_home_custom(self):
+        """Test custom data directory."""
+        with patch.dict(os.environ, {"XDG_DATA_HOME": "/custom/data"}):
+            data_home = get_xdg_data_home()
+            assert data_home == Path("/custom/data")
+
     def test_get_tessera_config_dir(self):
         """Test Tessera config directory."""
         with patch.dict(os.environ, {}, clear=True):
@@ -84,6 +92,19 @@ class TestXDGHelpers:
         path = get_metrics_db_path()
         assert path.name == "metrics.db"
         assert "tessera" in str(path)
+
+    def test_get_state_db_path(self):
+        """Test state database path."""
+        path = get_state_db_path()
+        assert path.name == "state.db"
+        assert "tessera" in str(path)
+
+    def test_get_otel_traces_path(self):
+        """Test OTEL traces path."""
+        path = get_otel_traces_path()
+        assert path.name == "traces.jsonl"
+        assert "tessera" in str(path)
+        assert "otel" in str(path)
 
     def test_ensure_directories_creates_structure(self):
         """Test ensure_directories creates all needed dirs."""

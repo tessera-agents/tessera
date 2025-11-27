@@ -180,15 +180,15 @@ class MetricsStore:
 
         if llm_calls_count is not None:
             updates.append("llm_calls_count = ?")
-            params.append(llm_calls_count)
+            params.append(llm_calls_count)  # type: ignore[arg-type]
 
         if total_tokens is not None:
             updates.append("total_tokens = ?")
-            params.append(total_tokens)
+            params.append(total_tokens)  # type: ignore[arg-type]
 
         if total_cost_usd is not None:
             updates.append("total_cost_usd = ?")
-            params.append(total_cost_usd)
+            params.append(total_cost_usd)  # type: ignore[arg-type]
 
         if trace_id is not None:
             updates.append("trace_id = ?")

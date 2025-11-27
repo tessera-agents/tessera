@@ -162,8 +162,10 @@ class LLMConfig(BaseModel):
         try:
             from .secrets import SecretManager
 
+            secret_manager = SecretManager
             use_secrets = True
         except ImportError:
+            secret_manager = None
             use_secrets = False
 
         if provider == "openai":
@@ -171,7 +173,9 @@ class LLMConfig(BaseModel):
             base_url = os.getenv("OPENAI_BASE_URL")  # e.g., http://localhost:3000/v1
 
             # Try to get API key from multiple sources
-            api_key = SecretManager.get_openai_api_key() if use_secrets else os.getenv("OPENAI_API_KEY")
+            api_key = (
+                secret_manager.get_openai_api_key() if use_secrets and secret_manager else os.getenv("OPENAI_API_KEY")
+            )
 
             # If using proxy, API key can be dummy
             if not api_key:
@@ -195,13 +199,14 @@ class LLMConfig(BaseModel):
                 "yes",
             )
 
+            timeout_str = os.getenv("REQUEST_TIMEOUT")
             return cls(
                 provider="openai",
                 api_key=api_key,
                 models=models,
                 temperature=float(os.getenv("DEFAULT_TEMPERATURE", "0.7")),
                 max_retries=int(os.getenv("MAX_RETRIES", "3")),
-                timeout=(float(os.getenv("REQUEST_TIMEOUT")) if os.getenv("REQUEST_TIMEOUT") else None),
+                timeout=(float(timeout_str) if timeout_str else None),
                 allow_premium_models=allow_premium,
                 base_url=base_url,
             )
@@ -217,15 +222,17 @@ class LLMConfig(BaseModel):
             else:
                 models = parse_model_list(models_str, default=[])
 
+            timeout_str = os.getenv("REQUEST_TIMEOUT")
             return cls(
                 provider="anthropic",
                 api_key=os.getenv("ANTHROPIC_API_KEY"),
                 models=models,
                 temperature=float(os.getenv("DEFAULT_TEMPERATURE", "0.7")),
                 max_retries=int(os.getenv("MAX_RETRIES", "3")),
-                timeout=(float(os.getenv("REQUEST_TIMEOUT")) if os.getenv("REQUEST_TIMEOUT") else None),
+                timeout=(float(timeout_str) if timeout_str else None),
             )
         if provider == "azure":
+            timeout_str = os.getenv("REQUEST_TIMEOUT")
             return cls(
                 provider="azure",
                 api_key=os.getenv("AZURE_OPENAI_API_KEY"),
@@ -233,7 +240,7 @@ class LLMConfig(BaseModel):
                 azure_deployment=os.getenv("AZURE_OPENAI_DEPLOYMENT"),
                 temperature=float(os.getenv("DEFAULT_TEMPERATURE", "0.7")),
                 max_retries=int(os.getenv("MAX_RETRIES", "3")),
-                timeout=(float(os.getenv("REQUEST_TIMEOUT")) if os.getenv("REQUEST_TIMEOUT") else None),
+                timeout=(float(timeout_str) if timeout_str else None),
             )
         raise ValueError(f"Unsupported provider: {provider}")
 

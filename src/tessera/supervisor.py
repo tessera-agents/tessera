@@ -85,7 +85,7 @@ Respond in JSON format:
         else:
             response = self.llm.invoke(messages)
 
-        result = self._parse_json_response(response.content)
+        result = self._parse_json_response(self._extract_string_content(response.content))
 
         task = Task(
             task_id=f"task_{datetime.now(UTC).strftime('%Y%m%d_%H%M%S')}",
@@ -212,7 +212,7 @@ Respond in JSON format:
         ]
 
         response = self.llm.invoke(messages)
-        return self._parse_json_response(response.content)
+        return self._parse_json_response(self._extract_string_content(response.content))
 
     def get_task_status(self, task_id: str) -> dict[str, Any]:
         """
@@ -268,6 +268,14 @@ Respond in JSON format:
             "candidates": candidates,
             "timestamp": datetime.now(UTC).isoformat(),
         }
+
+    def _extract_string_content(self, content: str | list[str | dict[str, Any]]) -> str:
+        """Extract string content from LLM response."""
+        if isinstance(content, str):
+            return content
+        # For list content, join text parts and ignore dict parts
+        text_parts = [item for item in content if isinstance(item, str)]
+        return "".join(text_parts) if text_parts else ""
 
     def _parse_json_response(self, content: str) -> dict[str, Any]:
         """Parse JSON from LLM response, handling markdown code blocks."""
@@ -329,4 +337,4 @@ Provide a clear, complete response that integrates all the subtask results.
         ]
 
         response = self.llm.invoke(messages)
-        return response.content
+        return self._extract_string_content(response.content)

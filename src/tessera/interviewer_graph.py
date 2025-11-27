@@ -4,22 +4,43 @@ LangGraph-based Interviewer Agent implementation.
 Provides state persistence and checkpointing for interview workflows.
 """
 
+import json
 from datetime import UTC, datetime
-from typing import Literal, TypedDict
+from typing import TYPE_CHECKING, Any, Literal, TypedDict
 
 from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import HumanMessage, SystemMessage
 from langgraph.graph import END, StateGraph
 
+if TYPE_CHECKING:
+    from langgraph.graph.state import CompiledStateGraph
+
 from .config import INTERVIEWER_PROMPT, FrameworkConfig
 from .graph_base import get_checkpointer
-from .interviewer import InterviewerAgent  # For utility methods
 from .llm import create_llm
 
 # Scoring thresholds
 STRONG_HIRE_THRESHOLD = 80
 HIRE_THRESHOLD = 60
 MAYBE_THRESHOLD = 40
+
+
+def _parse_json_response(content: str) -> dict[str, Any]:
+    """Parse JSON from LLM response, extracting from markdown if needed."""
+    if isinstance(content, list):
+        content = str(content)
+
+    # Try to extract JSON from markdown code blocks
+    if "```json" in content:
+        start = content.find("```json") + 7
+        end = content.find("```", start)
+        content = content[start:end].strip()
+    elif "```" in content:
+        start = content.find("```") + 3
+        end = content.find("```", start)
+        content = content[start:end].strip()
+
+    return json.loads(content)
 
 
 class InterviewerState(TypedDict):
@@ -90,7 +111,7 @@ class InterviewerGraph:
         # Build the graph
         self.app = self._build_graph()
 
-    def _build_graph(self) -> StateGraph:
+    def _build_graph(self) -> "CompiledStateGraph[InterviewerState, None, InterviewerState, InterviewerState]":
         """Build the LangGraph StateGraph."""
         workflow = StateGraph(InterviewerState)
 
@@ -145,7 +166,10 @@ Respond in JSON format:
         ]
 
         response = self.llm.invoke(messages)
-        result = InterviewerAgent._parse_json_response(None, response.content)
+        content = response.content
+        if isinstance(content, list):
+            content = str(content)
+        result = _parse_json_response(content)
 
         return {
             **state,
@@ -156,19 +180,24 @@ Respond in JSON format:
     def _interview_node(self, state: InterviewerState) -> InterviewerState:
         """Simulate candidate responses (in real use, this would query actual candidates)."""
         questions = state.get("questions", [])
+        if questions is None:
+            questions = []
         state.get("candidate_name", "unknown")
 
         # For now, simulate responses
         # In real implementation, this would invoke candidate LLM
-        responses = [
-            {
-                "question_id": q.get("question_id"),
-                "question_text": q.get("text"),
-                "answer": f"Simulated response to: {q.get('text')[:50]}...",
-                "timestamp": datetime.now(UTC).isoformat(),
-            }
-            for q in questions
-        ]
+        responses = []
+        for q in questions:
+            q_text = q.get("text", "")
+            if q_text:
+                responses.append(
+                    {
+                        "question_id": q.get("question_id"),
+                        "question_text": q_text,
+                        "answer": f"Simulated response to: {q_text[:50]}...",
+                        "timestamp": datetime.now(UTC).isoformat(),
+                    }
+                )
 
         return {
             **state,
@@ -179,6 +208,8 @@ Respond in JSON format:
     def _score_node(self, state: InterviewerState) -> InterviewerState:
         """Score candidate responses."""
         responses = state.get("responses", [])
+        if responses is None:
+            responses = []
         state.get("questions", [])
 
         scores = []
@@ -216,7 +247,10 @@ Respond in JSON format:
             ]
 
             response = self.llm.invoke(messages)
-            score_data = InterviewerAgent._parse_json_response(None, response.content)
+            content = response.content
+            if isinstance(content, list):
+                content = str(content)
+            score_data = _parse_json_response(content)
 
             scores.append(
                 {
@@ -262,6 +296,8 @@ Respond in JSON format:
     def _recommend_node(self, state: InterviewerState) -> InterviewerState:
         """Generate final recommendation."""
         overall_score = state.get("overall_score", 0.0)
+        if overall_score is None:
+            overall_score = 0.0
         candidate_name = state.get("candidate_name", "unknown")
 
         # Generate recommendation based on score
@@ -287,7 +323,7 @@ Respond in JSON format:
             "next_action": "end",
         }
 
-    def invoke(self, input_data: dict | None, config: dict | None = None) -> dict:
+    def invoke(self, input_data: InterviewerState, config: dict[str, Any] | None = None) -> InterviewerState:
         """
         Invoke the interviewer graph.
 
@@ -298,9 +334,9 @@ Respond in JSON format:
         Returns:
             Final state after execution
         """
-        return self.app.invoke(input_data, config=config)
+        return self.app.invoke(input_data, config=config)  # type: ignore[return-value]
 
-    def stream(self, input_data: dict, config: dict | None = None) -> object:
+    def stream(self, input_data: InterviewerState, config: dict[str, Any] | None = None) -> object:
         """
         Stream interviewer graph execution.
 
@@ -311,9 +347,9 @@ Respond in JSON format:
         Yields:
             State updates as they occur
         """
-        return self.app.stream(input_data, config=config)
+        return self.app.stream(input_data, config=config)  # type: ignore[arg-type]
 
-    def get_state(self, config: dict) -> dict:
+    def get_state(self, config: dict[str, Any]) -> Any:
         """
         Get current state from checkpoint.
 
@@ -323,4 +359,4 @@ Respond in JSON format:
         Returns:
             Current state
         """
-        return self.app.get_state(config)
+        return self.app.get_state(config)  # type: ignore[arg-type]

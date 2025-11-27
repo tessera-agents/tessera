@@ -14,17 +14,14 @@ Like mosaic tiles coming together to form a complete picture, Tessera coordinate
 
 Tessera is a multi-agent AI orchestration framework for automated project generation.
 
-**Current (v0.1.0):**
-- Task decomposition via supervisor agent
+**Features:**
+- Multi-agent coordination (supervisor, interviewer, specialist agents)
 - Multi-provider LLM support (OpenAI, Vertex AI, 100+ via LiteLLM)
+- Persistent memory system for agent learning
+- Workspace management with sandboxing
 - Real token tracking and cost calculation
 - Complete local observability (OpenTelemetry + SQLite)
-
-**Planned (v0.2.0+):**
-- Multi-agent parallel execution
-- Interactive requirement interviews
-- Comprehensive research and architecture phases
-- Automated testing, review, and documentation
+- Extensible tool system with MCP support
 
 **No coding required** - define agents with markdown prompts.
 
@@ -58,6 +55,18 @@ Run multiple agents concurrently with intelligent coordination and conflict reso
 - Automatic cost calculation for 100+ LLM models
 - Configurable budget limits (daily, per-task, per-agent)
 - Cost threshold approvals
+
+### 🧠 **Persistent Memory**
+- Long-term conversation history across sessions
+- Agent learnings and decisions storage
+- Vector-based semantic search
+- SQLite-backed persistence
+
+### 📁 **Workspace Management**
+- Project isolation and tracking
+- Sandboxing with resource limits
+- Filesystem protection
+- Archive and restore capabilities
 
 ### 🔒 **Security First**
 - Configurable sandboxing (Docker, Podman, uv)
@@ -108,29 +117,14 @@ The interactive wizard will:
 ## Example
 
 ```bash
+# Interactive mode - prompts for task description
 $ tessera
 
-? What would you like to build?
-> A FastAPI backend with user authentication, PostgreSQL database,
-> and comprehensive tests.
+# Direct task execution
+$ tessera "Build a FastAPI backend with user authentication"
 
-? Complexity: Complex
-? Interview mode: Yes
-
-[Interviewer asks 8 questions about requirements...]
-
-✓ Plan generated: 32 tasks across 7 phases
-✓ Estimated cost: $8.50 | Time: 6-8 hours
-
-? Approve execution? Yes
-
-[Shows live progress with parallel agents...]
-
-✓ Project complete: ./generated_project/
-  - 45 files created
-  - 89% test coverage
-  - Security audit passed
-  - Documentation generated
+# Run without executing (plan only)
+$ tessera --dry-run "Deploy application"
 ```
 
 ---
@@ -168,6 +162,8 @@ Tessera uses:
 - [Installation Guide](getting-started/installation.md)
 - [Quick Start Tutorial](getting-started/quickstart.md)
 - [Configuration Guide](user-guide/configuration.md)
+- [Memory System](user-guide/memory.md)
+- [Workspace Management](user-guide/workspace.md)
 
 ---
 

@@ -9,7 +9,7 @@ Supports:
 """
 
 import ssl
-from typing import Any
+from typing import Any, cast
 
 import certifi
 from slack_sdk import WebClient
@@ -88,7 +88,7 @@ class MultiChannelSlackClient:
         if not channel:
             raise ValueError("Agent channel not configured")
 
-        return self.web_client.chat_postMessage(
+        response = self.web_client.chat_postMessage(
             channel=channel,
             text=message,
             username=identity.display_name,
@@ -107,6 +107,8 @@ class MultiChannelSlackClient:
                 {"type": "section", "text": {"type": "mrkdwn", "text": message}},
             ],
         )
+
+        return cast("dict[str, Any]", response.data)
 
     def post_user_request(
         self,
@@ -190,7 +192,8 @@ class MultiChannelSlackClient:
                 }
             )
 
-        return self.web_client.chat_postMessage(channel=channel, text=message, blocks=blocks)
+        response = self.web_client.chat_postMessage(channel=channel, text=message, blocks=blocks)
+        return cast("dict[str, Any]", response.data)
 
     def post_status_update(self, agent_name: str, status: str, details: dict[str, Any] | None = None) -> None:
         """
@@ -269,7 +272,8 @@ class MultiChannelSlackClient:
             }
         )
 
-        return self.web_client.chat_postMessage(channel=channel, text=question, blocks=blocks)
+        response = self.web_client.chat_postMessage(channel=channel, text=question, blocks=blocks)
+        return cast("dict[str, Any]", response.data)
 
     def post_clarification_request(
         self,

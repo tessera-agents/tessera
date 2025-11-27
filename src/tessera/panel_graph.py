@@ -4,9 +4,12 @@ LangGraph-based Panel Interview System implementation.
 Provides state persistence and checkpointing for panel-based evaluations.
 """
 
-from typing import Literal, TypedDict
+from typing import TYPE_CHECKING, Any, Literal, TypedDict
 
 from langgraph.graph import END, StateGraph
+
+if TYPE_CHECKING:
+    from langgraph.graph.state import CompiledStateGraph
 
 from .config import FrameworkConfig
 from .graph_base import get_checkpointer
@@ -89,7 +92,7 @@ class PanelGraph:
         # Build the graph
         self.app = self._build_graph()
 
-    def _build_graph(self) -> StateGraph:
+    def _build_graph(self) -> "CompiledStateGraph[PanelState, None, PanelState, PanelState]":
         """Build the LangGraph StateGraph."""
         workflow = StateGraph(PanelState)
 
@@ -270,8 +273,8 @@ class PanelGraph:
         vote_counts = state.get("vote_counts", {})
         winner = state.get("winner")
 
-        # Create ranking by vote count
-        ranking = sorted(vote_counts.items(), key=lambda x: x[1], reverse=True)
+        # Create ranking by vote count - add null check
+        ranking = sorted(vote_counts.items(), key=lambda x: x[1], reverse=True) if vote_counts else []
 
         decision = f"Panel selects: {winner}" if winner else "No decision"
 
@@ -289,7 +292,7 @@ class PanelGraph:
             return "finalize"
         return "end"
 
-    def invoke(self, input_data: dict | None, config: dict | None = None) -> dict:
+    def invoke(self, input_data: PanelState, config: dict[str, Any] | None = None) -> PanelState:
         """
         Invoke the panel graph.
 
@@ -300,9 +303,9 @@ class PanelGraph:
         Returns:
             Final state after execution
         """
-        return self.app.invoke(input_data, config=config)
+        return self.app.invoke(input_data, config=config)  # type: ignore[return-value,arg-type]
 
-    def stream(self, input_data: dict, config: dict | None = None) -> object:
+    def stream(self, input_data: PanelState, config: dict[str, Any] | None = None) -> object:
         """
         Stream panel graph execution.
 
@@ -313,9 +316,9 @@ class PanelGraph:
         Yields:
             State updates as they occur
         """
-        return self.app.stream(input_data, config=config)
+        return self.app.stream(input_data, config=config)  # type: ignore[arg-type]
 
-    def get_state(self, config: dict) -> dict:
+    def get_state(self, config: dict[str, Any]) -> Any:
         """
         Get current state from checkpoint.
 
@@ -325,4 +328,4 @@ class PanelGraph:
         Returns:
             Current state
         """
-        return self.app.get_state(config)
+        return self.app.get_state(config)  # type: ignore[arg-type]
